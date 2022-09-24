@@ -1,0 +1,156 @@
+---
+title: "distfromq"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{distfromq}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+
+
+```{r setup}
+library(distfromq)
+library(ggplot2)
+library(dplyr)
+```
+
+```{r}
+quantile_probs <- seq(from = 0.1, to = 0.9, by = 0.1)
+
+meanlog <- 4.0
+sdlog <- 0.5
+q_lognormal <- qlnorm(quantile_probs, meanlog = meanlog, sdlog = sdlog)
+
+d_normal_approx <- make_d_fn(ps = quantile_probs,
+                             qs = q_lognormal,
+                             lower_tail_dist = "norm",
+                             upper_tail_dist = "norm")
+p_normal_approx <- make_p_fn(ps = quantile_probs,
+                             qs = q_lognormal,
+                             lower_tail_dist = "norm",
+                             upper_tail_dist = "norm")
+q_normal_approx <- make_q_fn(ps = quantile_probs,
+                             qs = q_lognormal,
+                             lower_tail_dist = "norm",
+                             upper_tail_dist = "norm")
+r_normal_approx <- make_r_fn(ps = quantile_probs,
+                             qs = q_lognormal,
+                             lower_tail_dist = "norm",
+                             upper_tail_dist = "norm")
+
+d_cauchy_approx <- make_d_fn(ps = quantile_probs,
+                             qs = q_lognormal,
+                             lower_tail_dist = "cauchy",
+                             upper_tail_dist = "cauchy")
+p_cauchy_approx <- make_p_fn(ps = quantile_probs,
+                             qs = q_lognormal,
+                             lower_tail_dist = "cauchy",
+                             upper_tail_dist = "cauchy")
+q_cauchy_approx <- make_q_fn(ps = quantile_probs,
+                             qs = q_lognormal,
+                             lower_tail_dist = "cauchy",
+                             upper_tail_dist = "cauchy")
+r_cauchy_approx <- make_r_fn(ps = quantile_probs,
+                             qs = q_lognormal,
+                             lower_tail_dist = "cauchy",
+                             upper_tail_dist = "cauchy")
+```
+
+```{r}
+x <- seq(from = 0.0, to = 400.0, length = 501)
+
+cdf_lognormal <- plnorm(x, meanlog = meanlog, sdlog = sdlog)
+cdf_normal_approx <- p_normal_approx(x)
+cdf_cauchy_approx <- p_cauchy_approx(x)
+
+dplyr::bind_rows(
+    data.frame(
+        x = x,
+        y = cdf_lognormal,
+        dist = "Log normal"
+    ),
+    data.frame(
+        x = x,
+        y = cdf_normal_approx,
+        dist = "Spline interpolation,\nnormal tails"
+    ),
+    data.frame(
+        x = x,
+        y = cdf_cauchy_approx,
+        dist = "Spline interpolation,\nCauchy tails"
+    )
+) %>%
+    ggplot() +
+        geom_line(
+            mapping = aes(x = x, y = y, color = dist, linetype = dist),
+            size = 0.8) +
+        geom_point(
+            data = data.frame(q = q_lognormal, p = quantile_probs),
+            mapping = aes(x = q, y = p),
+            size = 1.2
+        ) +
+        scale_color_viridis_d(
+            "Distribution",
+            end = 0.9
+        ) +
+        scale_linetype_discrete("Distribution") +
+        ylab("Probability") +
+        xlab("") +
+        theme_bw()
+```
+
+
+```{r}
+x <- seq(from = 0.0, to = 400.0, length = 501)
+
+pdf_lognormal <- dlnorm(x, meanlog = meanlog, sdlog = sdlog)
+pdf_normal_approx <- d_normal_approx(x)
+pdf_cauchy_approx <- d_cauchy_approx(x)
+
+dplyr::bind_rows(
+    data.frame(
+        x = x,
+        y = pdf_lognormal,
+        dist = "Log normal"
+    ),
+    data.frame(
+        x = x,
+        y = pdf_normal_approx,
+        dist = "Spline interpolation,\nnormal tails"
+    ),
+    data.frame(
+        x = x,
+        y = pdf_cauchy_approx,
+        dist = "Spline interpolation,\nCauchy tails"
+    )
+) %>%
+    ggplot() +
+        geom_vline(
+            data = data.frame(q = q_lognormal),
+            mapping = aes(xintercept = q),
+            size = 0.2
+        ) +
+        geom_line(
+            mapping = aes(x = x, y = y, color = dist, linetype = dist),
+            size = 0.8) +
+        scale_color_viridis_d(
+            "Distribution",
+            end = 0.9
+        ) +
+        scale_linetype_discrete("Distribution") +
+        ylab("Probability Density") +
+        xlab("") +
+        theme_bw()
+```
+
+
+
