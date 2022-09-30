@@ -1,5 +1,6 @@
 #' @importFrom stats runif
 #' @importFrom utils head tail
+#' @importFrom zeallot %<-%
 NULL
 
 #' Extrapolate density function in a location-scale family matching specified
@@ -132,10 +133,8 @@ clean_ps_and_qs <- function(ps, qs) {
 make_d_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
                       lower_tail_dist = "norm", upper_tail_dist = "norm") {
     interior_method <- match.arg(interior_method)
-    
-    temp <- clean_ps_and_qs(ps, qs)
-    ps <- temp$ps
-    qs <- temp$qs
+
+    c(ps, qs) %<-% clean_ps_and_qs(ps, qs)
 
     # throw an error if there are duplicated qs: the distribution is not
     # continuous
@@ -213,9 +212,7 @@ make_p_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
                       lower_tail_dist = "norm", upper_tail_dist = "norm") {
     interior_method <- match.arg(interior_method)
 
-    temp <- clean_ps_and_qs(ps, qs)
-    ps <- temp$ps
-    qs <- temp$qs
+    c(ps, qs) %<-% clean_ps_and_qs(ps, qs)
 
     # fit a monotonic spline to the qs and ps to approximate the distribution
     # on the interior
@@ -284,9 +281,7 @@ make_q_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
                       lower_tail_dist = "norm", upper_tail_dist = "norm") {
     interior_method <- match.arg(interior_method)
 
-    temp <- clean_ps_and_qs(ps, qs)
-    ps <- temp$ps
-    qs <- temp$qs
+    c(ps, qs) %<-% clean_ps_and_qs(ps, qs)
 
     # fit a monotonic spline to the ps and qs to approximate the distribution
     # on the interior
