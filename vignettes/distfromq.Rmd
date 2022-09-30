@@ -17,14 +17,61 @@ knitr::opts_chunk$set(
 )
 ```
 
+# Introduction
 
+The `distfromq` package provides functions for constructing an approximation to a probability distribution from a finite set of quantiles of the distribution. The package provides four main functions:
 
+1. `make_p_fn` returns a function that is analogous to `pnorm`, and can be used to evaluate the approximated cumulative distribution function (CDF).
+2. `make_d_fn` returns a function that is analogous to `dnorm`, and can be used to evaluate the approximated  probability density function (PDF).
+3. `make_q_fn` returns a function that is analogous to `qnorm`, and can be used to evaluate the approximated quantile function (QF), i.e., the inverse CDF.
+4. `make_r_fn` returns a function that is analogous to `rnorm`, and can be used to simulate a pseudo-random sample from the approximated distribution.
+
+All four functions take a set of probability levels (`ps`) and the corresponding quantiles (`qs`) of the distribution to be approximated as inputs, as well as arguments specifying the methods for interpolating those quantiles to estimate the interior of the distribution, and for extrapolating into the tails of the distribution using a specified parametric family.
+
+The next section of the vignette describes the methods that are used for approximating the distribution, and the following section gives examples.
+
+# Methods description
+
+Suppose that at the probability levels $\tau_1, \ldots, \tau_K \in (0, 1)$, we have available the corresponding quantiles $q_1 = F^{-1}(\tau_1), \ldots, q_K = F^{-1}(\tau_K)$ for some distribution with CDF $F$. Our goal is to reconstruct an estimate of $F$, the corresponding PDF $f$, and the QF $F^{-1}$, as well as a method for sampling from the distribution.
+
+Our approach works in two phases:
+
+1. We estimate the distribution on the interior of the predictive quantiles using:
+    * for the CDF and QF, a monotonic spline that interpolates the quantiles;
+    * for the PDF, the derivative of the spline-based approximation to the CDF;
+2. we approximate the tails with a distribution in a specified location-scale family.
+
+In more detail, to approximate the CDF at interior points, we fit a monotonic spline that interpolates the set of "observations" $\{(q_1, \tau_1), \ldots, (q_K, \tau_K)\}$. This spline is an estimate of the predictive CDF, and its derivative estimates the predictive PDF. Because the spline passes through the points $(q_1, \tau_1)$ and $(q_K, \tau_K)$, the integral of its derivative over the interval $[q_1, q_K]$ is equal to $\tau_K - \tau_1$. To approximate the QF, we fit a monotonic spline that interpolates the set of "observations" $\{(\tau_1, q_1), \ldots, (\tau_K, q_K)\}$. Note that in general, there is no guarantee that the estimates of the CDF and the QF obtained through these procedures will indeed be inverses.
+
+We estimate the distribution for the left and right tails separately, assuming that they come from a specified location-scale family which may be different in each tail. Setting notation, suppose that $Y = a + b \cdot Z$ where the random variable $Z$ has a specified distribution. Recall that at the probability level $\tau$, a quantile of $Y$ can be calculated in terms of the corresponding quantile of $Z$ via $F_Y^{-1}(\tau) = a + b \cdot F_Z^{-1}(\tau)$. Using the quantiles at two probability levels $\tau_i$ and $\tau_j$, we can calculate the value of $b$ using
+
+\begin{align*}
+\frac{F_Y^{-1}(\tau_i) - F_Y^{-1}(\tau_j)}{F_Z^{-1}(\tau_i) - F_Z^{-1}(\tau_j)} &= \frac{a + b \cdot F_Z^{-1}(\tau_i) - (a + b \cdot F_Z^{-1}(\tau_j))} {F_Z^{-1}(\tau_i) - F_Z^{-1}(\tau_j)} \\
+&= b \cdot \frac{F_Z^{-1}(\tau_i) - F_Z^{-1}(\tau_j)}{F_Z^{-1}(\tau_i) - F_Z^{-1}(\tau_j)} \\
+&= b
+\end{align*}
+
+Similarly, we can calculate the value of $a$ as
+
+$$F_Y^{-1}(\tau_i) - b \cdot F_Z^{-1}(\tau_i) = a + b \cdot F_Z^{-1}(\tau_i) - b \cdot F_Z^{-1}(\tau_i) = a$$
+
+In the above expressions, we use the two smallest quantiles when estimating the lower tail and the two largest quantiles when estimating the upper tail. With these choices, by construction the lower tail integrates to $\tau_1$ on the interval $(-\infty, q_1]$ and the upper tail integrates to $1 - \tau_K$ on the interval $[q_K, \infty)$.
+
+Random deviates are obtained by sampling $U \sim \text{Unif}(0,1)$ and then evaluating the approximated quantile function: $Y = F_Y^{-1}(U)$.
+
+# Illustration of package functionality
+
+We illustrate the package functionality with a series of three examples. The first example is a setting where the distribution is for a continuous random variable with a defined probability density funciton. The second and third examples illustrate the behavior of the functions in settings where the provided quantiles are the same at multiple probability levels, indicating that there is some discrete component to the distribution.
 
 ```{r setup}
 library(distfromq)
 library(ggplot2)
 library(dplyr)
 ```
+
+## Example 1
+
+distribution $Y \sim \text{log normal}(4, 0.5)$. We compare this predictive distribution with two approximations of it that are derived from the quantiles: one assuming a normal distribution for the tails, and the second assuming a Cauchy distribution for the tails.
 
 ```{r}
 quantile_probs <- seq(from = 0.1, to = 0.9, by = 0.1)
@@ -233,11 +280,9 @@ dplyr::bind_rows(
         theme_bw()
 ```
 
-# Duplicated quantiles
+## Example 2: duplicated quantiles on the interior
 
 When quantile values are the same at multiple probability levels, the distribution assigns non-zero probability to that value, corresponding to a "step" or "jump" in the cumulative distribution function. In this instance, the functions in this package may not behave as expected. First, we note that `make_d_fn` will throw an error because a continuous density does not exist. We also note that the spline interpolation of the cdf used by `make_p_fn` will interpolate the median of the probabilities at that quantile level, rather than producing a step function; a warning about this behavior is issued. Additionally, if the repeated quantile values occur at the extremes that are used for the tail extrapolation, the extrapolated cdf will be exactly 0 in the lower tail or 1 in the upper tail. No warnings or errors are thrown when `make_q_fn` and `make_r_fn` are called. We illustrate these behaviors with two simple examples.
-
-## Example 2: duplicated quantiles on the interior
 
 ```{r, error=TRUE}
 quantile_probs <- seq(from = 0.1, to = 0.9, by = 0.1)
