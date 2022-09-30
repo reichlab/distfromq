@@ -92,6 +92,28 @@ q_ext_factory <- function(ps, qs, dist) {
 }
 
 
+#' Clean up ps and qs provided by user: handle missing and unsorted values
+#' 
+#' @param ps vector of probability levels
+#' @param qs vector of quantile values correponding to ps
+#' 
+#' @return named list with entries `ps` and `qs`
+clean_ps_and_qs <- function(ps, qs) {
+    # drop missing values for qs
+    na_idx <- is.na(qs) | is.na(ps)
+    if (any(na_idx)) {
+        ps <- ps[!na_idx]
+        qs <- qs[!na_idx]
+    }
+
+    # sort ps and qs
+    ps <- sort(ps)
+    qs <- sort(qs)
+
+    return(list(ps=ps, qs=qs))
+}
+
+
 #' Creates a function that evaluates the probability density function of an
 #' approximation to a distribution obtained by interpolating and extrapolating
 #' from a set of quantiles of the distribution.
@@ -110,16 +132,16 @@ q_ext_factory <- function(ps, qs, dist) {
 make_d_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
                       lower_tail_dist = "norm", upper_tail_dist = "norm") {
     interior_method <- match.arg(interior_method)
-    # drop missing values for qs
-    na_idx <- is.na(qs)
-    if (any(na_idx)) {
-        ps <- ps[!na_idx]
-        qs <- qs[!na_idx]
-    }
+    
+    temp <- clean_ps_and_qs(ps, qs)
+    ps <- temp$ps
+    qs <- temp$qs
 
-    # sort ps and qs
-    ps <- sort(ps)
-    qs <- sort(qs)
+    # throw an error if there are duplicated qs: the distribution is not
+    # continuous
+    if (any(duplicated(qs))) {
+        stop("make_d_fn requires all values in qs to be unique")
+    }
 
     # fit a monotonic spline to the qs and ps to approximate the distribution
     # on the interior
@@ -190,16 +212,10 @@ make_d_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
 make_p_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
                       lower_tail_dist = "norm", upper_tail_dist = "norm") {
     interior_method <- match.arg(interior_method)
-    # drop missing values for qs
-    na_idx <- is.na(qs)
-    if (any(na_idx)) {
-        ps <- ps[!na_idx]
-        qs <- qs[!na_idx]
-    }
 
-    # sort ps and qs
-    ps <- sort(ps)
-    qs <- sort(qs)
+    temp <- clean_ps_and_qs(ps, qs)
+    ps <- temp$ps
+    qs <- temp$qs
 
     # fit a monotonic spline to the qs and ps to approximate the distribution
     # on the interior
@@ -267,16 +283,10 @@ make_p_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
 make_q_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
                       lower_tail_dist = "norm", upper_tail_dist = "norm") {
     interior_method <- match.arg(interior_method)
-    # drop missing values for qs
-    na_idx <- is.na(qs)
-    if (any(na_idx)) {
-        ps <- ps[!na_idx]
-        qs <- qs[!na_idx]
-    }
 
-    # sort ps and qs
-    ps <- sort(ps)
-    qs <- sort(qs)
+    temp <- clean_ps_and_qs(ps, qs)
+    ps <- temp$ps
+    qs <- temp$qs
 
     # fit a monotonic spline to the ps and qs to approximate the distribution
     # on the interior

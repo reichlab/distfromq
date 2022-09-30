@@ -10,7 +10,9 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 8,
+  out.width = "100%"
 )
 ```
 
@@ -153,4 +155,69 @@ dplyr::bind_rows(
 ```
 
 
+# Duplicated quantiles
 
+```{r, error=TRUE}
+quantile_probs <- seq(from = 0.1, to = 0.9, by = 0.1)
+quantile_values <- c(1.0, 2.0, 3.0, 3.0, 3.0, 3.0, 3.0, 8.0, 9.0)
+
+d_normal_approx <- make_d_fn(ps = quantile_probs,
+                             qs = quantile_values,
+                             lower_tail_dist = "norm",
+                             upper_tail_dist = "norm")
+p_normal_approx <- make_p_fn(ps = quantile_probs,
+                             qs = quantile_values,
+                             lower_tail_dist = "norm",
+                             upper_tail_dist = "norm")
+q_normal_approx <- make_q_fn(ps = quantile_probs,
+                             qs = quantile_values,
+                             lower_tail_dist = "norm",
+                             upper_tail_dist = "norm")
+r_normal_approx <- make_r_fn(ps = quantile_probs,
+                             qs = quantile_values,
+                             lower_tail_dist = "norm",
+                             upper_tail_dist = "norm")
+
+
+x <- seq(from = 0.0, to = 20.0, length = 201)
+
+cdf_normal_approx <- p_normal_approx(x)
+ggplot() +
+  geom_line(data=data.frame(x=x, y=cdf_normal_approx),
+            mapping = aes(x=x, y=y)) +
+  geom_point(data=data.frame(x=quantile_values, y=quantile_probs),
+             mapping = aes(x=x, y=y))
+
+
+```
+
+
+```{r}
+quantile_probs <- seq(from = 0.1, to = 0.9, by = 0.1)
+quantile_values <- c(1.0, 1.0, 3.0, 3.0, 3.0, 3.0, 3.0, 9.0, 9.0)
+
+p_normal_approx <- make_p_fn(ps = quantile_probs,
+                             qs = quantile_values,
+                             lower_tail_dist = "norm",
+                             upper_tail_dist = "norm")
+q_normal_approx <- make_q_fn(ps = quantile_probs,
+                             qs = quantile_values,
+                             lower_tail_dist = "norm",
+                             upper_tail_dist = "norm")
+r_normal_approx <- make_r_fn(ps = quantile_probs,
+                             qs = quantile_values,
+                             lower_tail_dist = "norm",
+                             upper_tail_dist = "norm")
+
+
+x <- seq(from = 0.0, to = 20.0, length = 201)
+
+cdf_normal_approx <- p_normal_approx(x)
+ggplot() +
+  geom_line(data=data.frame(x=x, y=cdf_normal_approx),
+            mapping = aes(x=x, y=y)) +
+  geom_point(data=data.frame(x=quantile_values, y=quantile_probs),
+             mapping = aes(x=x, y=y))
+
+
+```
