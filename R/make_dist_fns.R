@@ -3,6 +3,28 @@
 #' @importFrom zeallot %<-%
 NULL
 
+
+#' Calculate location and scale parameters for a specified distribution so that
+#' it matches two specified quantiles
+#' 
+#' @param ps vector of two probability levels at which the distribution's
+#'   quantiles are distinct
+#' @param qs vector of two distinct quantile values corresponding to the
+#'   probability levels in ps
+#' @param dist the probability distribution to use for extrapolation. This
+#'   distribution should be in a location-scale family, such as `"norm"`al or
+#'   `"cauchy"`
+#' 
+#' @param named list with entries `"a"`, the location parameter, and `"b"`, the
+#'   scale parameter
+calc_loc_scale_params <- function(ps, qs, dist) {
+    qdst <- get(paste0("q", dist))
+    b <- (qs[2] - qs[1]) / (qdst(ps[2]) - qdst(ps[1]))
+    a <- qs[1] - b * qdst(ps[1])
+    return(list(a = a, b = b))
+}
+
+
 #' Extrapolate density function in a location-scale family matching specified
 #' quantiles.
 #'
@@ -19,10 +41,9 @@ NULL
 #'   specified location-scale family that has quantiles matching those in `ps`
 #'   and `qs`
 d_ext_factory <- function(ps, qs, dist) {
+    c(a, b) %<-% calc_loc_scale_params(ps, qs, dist)
+
     ddst <- get(paste0("d", dist))
-    qdst <- get(paste0("q", dist))
-    b <- (qs[2] - qs[1]) / (qdst(ps[2]) - qdst(ps[1]))
-    a <- qs[1] - b * qdst(ps[1])
 
     d_ext <- function(x, log) {
         result <- ddst((x - a) / b, log = TRUE) - log(b)
@@ -53,10 +74,9 @@ d_ext_factory <- function(ps, qs, dist) {
 #'   distribution in the specified location-scale family that has quantiles
 #'   matching those in `ps` and `qs`
 p_ext_factory <- function(ps, qs, dist) {
+    c(a, b) %<-% calc_loc_scale_params(ps, qs, dist)
+
     pdst <- get(paste0("p", dist))
-    qdst <- get(paste0("q", dist))
-    b <- (qs[2] - qs[1]) / (qdst(ps[2]) - qdst(ps[1]))
-    a <- qs[1] - b * qdst(ps[1])
 
     p_ext <- function(q, log.p = FALSE) {
         return(pdst((q - a) / b, log.p = log.p))
@@ -81,9 +101,9 @@ p_ext_factory <- function(ps, qs, dist) {
 #'   quantile function of the distribution in the specified location-scale
 #'   family that has quantiles matching those in `ps` and `qs`
 q_ext_factory <- function(ps, qs, dist) {
+    c(a, b) %<-% calc_loc_scale_params(ps, qs, dist)
+
     qdst <- get(paste0("q", dist))
-    b <- (qs[2] - qs[1]) / (qdst(ps[2]) - qdst(ps[1]))
-    a <- qs[1] - b * qdst(ps[1])
 
     q_ext <- function(p) {
         return(a + b * qdst(p))
