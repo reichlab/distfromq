@@ -249,7 +249,7 @@ make_p_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
     p_fn <- function(q, log.p=FALSE) {
         # short-circuit if less than two unique value in qs
         if (length(unique(qs)) < 2) {
-            return(rep(qs[1], length(q)))
+            return(as.numeric(q >= qs[1]))
         }
 
         # instantiate result
@@ -259,18 +259,21 @@ make_p_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
         interior_idx <- (q >= qs[1]) & (q <= tail(qs, 1))
         if (any(interior_idx)) {
             result[interior_idx] <- interior_cdf(q[interior_idx], deriv = 0)
+            if (log.p) {
+                result[interior_idx] <- log(result[interior_idx])
+            }
         }
 
         # lower points
         lower_idx <- (q < qs[1])
         if (any(lower_idx)) {
-            result[lower_idx] <- lower_cdf(q[lower_idx])
+            result[lower_idx] <- lower_cdf(q[lower_idx], log.p=log.p)
         }
 
         # upper points
         upper_idx <- (q > tail(qs, 1))
         if (any(upper_idx)) {
-            result[upper_idx] <- upper_cdf(q[upper_idx])
+            result[upper_idx] <- upper_cdf(q[upper_idx], log.p=log.p)
         }
 
         return(result)
