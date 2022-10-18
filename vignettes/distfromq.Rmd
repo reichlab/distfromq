@@ -57,6 +57,8 @@ $$F_Y^{-1}(\tau_i) - b \cdot F_Z^{-1}(\tau_i) = a + b \cdot F_Z^{-1}(\tau_i) - b
 
 In the above expressions, we use the two smallest quantiles when estimating the lower tail and the two largest quantiles when estimating the upper tail. With these choices, by construction the lower tail integrates to $\tau_1$ on the interval $(-\infty, q_1]$ and the upper tail integrates to $1 - \tau_K$ on the interval $[q_K, \infty)$.
 
+As an alternative, we also allow for the use of a log-normal distribution for extrapolation into the tails. The parameters of the log-normal distribution are estimated by applying the approach outlined above to the logarithms of the quantiles.
+
 Random deviates are obtained by sampling $U \sim \text{Unif}(0,1)$ and then evaluating the approximated quantile function: $Y = F_Y^{-1}(U)$.
 
 # Illustration of package functionality
@@ -71,7 +73,11 @@ library(dplyr)
 
 ## Example 1
 
-distribution $Y \sim \text{log normal}(4, 0.5)$. We compare this predictive distribution with two approximations of it that are derived from the quantiles: one assuming a normal distribution for the tails, and the second assuming a Cauchy distribution for the tails.
+In our first example, we work with quantiles from the distribution $Y \sim \text{log normal}(4, 0.5)$. We compare this predictive distribution with three approximations of it that are derived from the quantiles using different assumptions for the tail behavior:
+
+1. The first assumes a log-normal distribution for the tails. This method should reconstruct the true distribution.
+2. The second assumes a normal distribution for the tails. This method has a mismatch in the support of the lower tail (including values less than 0), and has a thinner upper tail than the log-normal.
+3. The third assumes a Cauchy distribution for the tails. This method has a mismatch in the support of the lower tail (including values less than 0), and has a heavier upper tail than the log-normal.
 
 ```{r}
 quantile_probs <- seq(from = 0.1, to = 0.9, by = 0.1)
@@ -84,6 +90,13 @@ q_lognormal <- qlnorm(quantile_probs, meanlog = meanlog, sdlog = sdlog)
 ```{r}
 x <- seq(from = 0.0, to = 400.0, length = 501)
 cdf_lognormal <- plnorm(x, meanlog = meanlog, sdlog = sdlog)
+
+p_lognormal_approx <- make_p_fn(ps = quantile_probs,
+                                qs = q_lognormal,
+                                lower_tail_dist = "lnorm",
+                                upper_tail_dist = "lnorm")
+cdf_lognormal_approx <- p_lognormal_approx(x)
+
 
 p_normal_approx <- make_p_fn(ps = quantile_probs,
                              qs = q_lognormal,
@@ -102,6 +115,11 @@ dplyr::bind_rows(
         x = x,
         y = cdf_lognormal,
         dist = "Log normal"
+    ),
+    data.frame(
+        x = x,
+        y = cdf_lognormal_approx,
+        dist = "Spline interpolation,\nlog-normal tails"
     ),
     data.frame(
         x = x,
@@ -134,6 +152,11 @@ dplyr::bind_rows(
 ```
 
 ```{r}
+d_lognormal_approx <- make_d_fn(ps = quantile_probs,
+                                qs = q_lognormal,
+                                lower_tail_dist = "lnorm",
+                                upper_tail_dist = "lnorm")
+
 d_normal_approx <- make_d_fn(ps = quantile_probs,
                              qs = q_lognormal,
                              lower_tail_dist = "norm",
@@ -145,6 +168,7 @@ d_cauchy_approx <- make_d_fn(ps = quantile_probs,
                              upper_tail_dist = "cauchy")
 
 pdf_lognormal <- dlnorm(x, meanlog = meanlog, sdlog = sdlog)
+pdf_lognormal_approx <- d_lognormal_approx(x)
 pdf_normal_approx <- d_normal_approx(x)
 pdf_cauchy_approx <- d_cauchy_approx(x)
 
@@ -153,6 +177,11 @@ dplyr::bind_rows(
         x = x,
         y = pdf_lognormal,
         dist = "Log normal"
+    ),
+    data.frame(
+        x = x,
+        y = pdf_lognormal_approx,
+        dist = "Spline interpolation,\nlog-normal tails"
     ),
     data.frame(
         x = x,
@@ -189,16 +218,22 @@ r_normal_approx <- make_r_fn(ps = quantile_probs,
                              qs = q_lognormal,
                              lower_tail_dist = "norm",
                              upper_tail_dist = "norm")
+r_lognormal_approx <- make_r_fn(ps = quantile_probs,
+                                qs = q_lognormal,
+                                lower_tail_dist = "lnorm",
+                                upper_tail_dist = "lnorm")
 r_cauchy_approx <- make_r_fn(ps = quantile_probs,
                              qs = q_lognormal,
                              lower_tail_dist = "cauchy",
                              upper_tail_dist = "cauchy")
                              
 normal_approx_sample <- r_normal_approx(n=10000)
+lognormal_approx_sample <- r_lognormal_approx(n=10000)
 cauchy_approx_sample <- r_cauchy_approx(n=10000)
 
 bind_rows(
     data.frame(x=normal_approx_sample, dist = "Spline interpolation,\nnormal tails"),
+    data.frame(x=lognormal_approx_sample, dist = "Spline interpolation,\nlog-normal tails"),
     data.frame(x=cauchy_approx_sample, dist = "Spline interpolation,\nCauchy tails")
 ) %>%
     ggplot() +
@@ -215,6 +250,7 @@ bind_rows(
 ```{r}
 bind_rows(
     data.frame(x=normal_approx_sample, dist = "Spline interpolation,\nnormal tails"),
+    data.frame(x=lognormal_approx_sample, dist = "Spline interpolation,\nlog-normal tails"),
     data.frame(x=cauchy_approx_sample, dist = "Spline interpolation,\nCauchy tails")
 ) %>%
     ggplot() +
@@ -239,6 +275,10 @@ q_normal_approx <- make_q_fn(ps = quantile_probs,
                              qs = q_lognormal,
                              lower_tail_dist = "norm",
                              upper_tail_dist = "norm")
+q_lognormal_approx <- make_q_fn(ps = quantile_probs,
+                                qs = q_lognormal,
+                                lower_tail_dist = "lnorm",
+                                upper_tail_dist = "lnorm")
 q_cauchy_approx <- make_q_fn(ps = quantile_probs,
                              qs = q_lognormal,
                              lower_tail_dist = "cauchy",
@@ -246,6 +286,7 @@ q_cauchy_approx <- make_q_fn(ps = quantile_probs,
 
 quantiles_lognormal <- qlnorm(ps, meanlog = meanlog, sdlog = sdlog)
 quantiles_normal_approx <- q_normal_approx(ps)
+quantiles_lognormal_approx <- q_lognormal_approx(ps)
 quantiles_cauchy_approx <- q_cauchy_approx(ps)
 
 
@@ -259,6 +300,11 @@ dplyr::bind_rows(
         x = ps,
         y = quantiles_normal_approx,
         dist = "Spline interpolation,\nnormal tails"
+    ),
+    data.frame(
+        x = ps,
+        y = quantiles_lognormal_approx,
+        dist = "Spline interpolation,\nlognormal tails"
     ),
     data.frame(
         x = ps,
