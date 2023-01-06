@@ -1,14 +1,15 @@
 #' @importFrom stats runif
 #' @importFrom utils head tail
 #' @importFrom zeallot %<-%
+#' @importFrom splines backSpline
 NULL
 
 
 #' Clean up ps and qs provided by user: handle missing and unsorted values
-#' 
+#'
 #' @param ps vector of probability levels
 #' @param qs vector of quantile values correponding to ps
-#' 
+#'
 #' @return named list with entries `ps` and `qs`
 clean_ps_and_qs <- function(ps, qs) {
     # drop missing values for qs
@@ -141,7 +142,9 @@ make_p_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
 
     # approximate the cdf on the interior by interpolating quantiles
     interior_cdf <- do.call(interior_method,
-                            args = c(list(ps = ps, qs = qs, fn_type = "p"),
+                            args = c(list(ps = ps, qs = qs, fn_type = "p",
+                                          lower_tail_dist = lower_tail_dist,
+                                          upper_tail_dist = upper_tail_dist),
                                      interior_args))
 
     # approximate the cdf in the lower tail by extrapolating from the two

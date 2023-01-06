@@ -9,7 +9,13 @@ part is estimated using a monotonic spline that interpolates the quantiles.
 To obtain a pdf, we differentiate this spline. To obtain a quantile function,
 we invert the approximation to the cdf, tracking any discontinuities.}
 \usage{
-spline_cdf(ps, qs, interior_method = c("hyman", "monoH.FC"))
+spline_cdf(
+  ps,
+  qs,
+  fn_type = c("d", "p", "q"),
+  lower_tail_dist,
+  upper_tail_dist
+)
 }
 \arguments{
 \item{ps}{vector of probability levels}
@@ -19,7 +25,7 @@ spline_cdf(ps, qs, interior_method = c("hyman", "monoH.FC"))
 \item{fn_type}{the type of function that is requested: \code{"d"} for a pdf,
 \code{"p"} for a cdf, or \code{"q"} for a quantile function.}
 
-\item{spline_type}{the type of monotonic spline to fit: "hyman" or "monH.FC"}
+\item{spline_method}{the type of monotonic spline to fit: "hyman" or "monH.FC"}
 }
 \value{
 a function to evaluate the pdf, cdf, or quantile function.
