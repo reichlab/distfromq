@@ -79,22 +79,56 @@ split_disc_cont_ps_qs <- function(ps, qs) {
 #' @param qs vector of quantile values correponding to ps
 #' @param fn_type the type of function that is requested: `"d"` for a pdf,
 #'   `"p"` for a cdf, or `"q"` for a quantile function.
-#' @param spline_type the type of monotonic spline to fit: "hyman" or "monH.FC"
+#' @param spline_method the type of monotonic spline to fit: "hyman" or "monH.FC"
 #' 
 #' @return a function to evaluate the pdf, cdf, or quantile function.
-spline_cdf <- function(ps, qs, interior_method = c("hyman", "monoH.FC")) {
-    
-    
+spline_cdf <- function(ps, qs, fn_type = c("d", "p", "q"),
+                       spline_method = c("hyman", "monoH.FC")) {
+    fn_type <- match.arg(fn_type)
+    spline_method <- match.arg(spline_method)
 
-    # fit a monotonic spline to the qs and ps to approximate the distribution
-    # on the interior
-    if (interior_method %in% c("hyman", "monoH.FC")) {
-        interior_cdf_spline <- stats::splinefun(qs, ps, method = interior_method)
-        interior_pdf <- function(x, log = FALSE) {
-            result <- interior_cdf_spline(x, deriv = 1)
-        }
-    } else {
-        stop("Unsupported `interior_method`")
+    c(disc_weight, disc_ps, disc_qs, cont_ps, cont_qs) %<-%
+        split_disc_cont_ps_qs(ps, qs)
+
+    # fit a monotonic spline to the qs and ps for the continuous part of the
+    # distribution to approximate the cdf on the interior
+    if (spline_method %in% c("hyman", "monoH.FC")) {
+        interior_cdf_spline <- stats::splinefun(cont_qs, cont_ps,
+                                                method = spline_method)
     }
 
+    if (fn_type == "d") {
+        if (disc_weight > 0) {
+            stop("Distribution has a discrete component;",
+                 " cannot create a density function.")
+        }
+        int_d_fn <- function(x, log = FALSE) {
+            result <- interior_cdf_spline(x, deriv = 1)
+            if (log) {
+                return(log(result))
+            } else {
+                return(result)
+            }
+        }
+        return(int_d_fn)
+    } else if (fn_type == "p") {
+        int_p_fn <- function(x, log.p = FALSE) {
+            result <- interior_cdf_spline(x, deriv = 0) * (1 - disc_weight)
+            for (i in seq_along(disc_ps)) {
+                inds <- (x > disc_qs[i])
+                result[inds] <- result[inds] + disc_ps[i]
+            }
+            if (log.p) {
+                return(log(result))
+            } else {
+                return(result)
+            }
+        }
+        return(int_p_fn)
+    } else if (fn_type == "q") {
+        int_q_fn <- function() {
+
+        }
+        return(int_q_fn)
+    }
 }
