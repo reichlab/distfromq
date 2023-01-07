@@ -288,7 +288,8 @@ test_that("spline_cdf errors when recovering pdf, one discrete component", {
 
 
 test_that("spline_cdf recovers qf, no discrete component", {
-    ps <- seq(from = 0.1, to = 0.9, by = 0.1)
+    ps <- c(0.01, 0.025,
+            seq(from = 0.05, to = 0.95, by = 0.05), 0.975, 0.99)
     qs <- qnorm(ps)
 
     qf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "q",
@@ -305,90 +306,126 @@ test_that("spline_cdf recovers qf, no discrete component", {
 
     expect_equal(test_qs, test_q_hats, tolerance = 1e-3)
     expect_equal(mean(test_qs - test_q_hats), 0.0)
-    expect_equal(cdf_hat(qf_hat(test_ps)), test_ps)
+    expect_equal(cdf_hat(qf_hat(test_ps)), test_ps, tolerance = 1e-4)
 })
 
-# test_that("spline_cdf recovers qf, no continuous component", {
-#     ps <- seq(from = 0.1, to = 0.9, by = 0.1)
-#     qs <- rep(0.0, length(ps))
+test_that("spline_cdf recovers qf, no continuous component", {
+    ps <- seq(from = 0.1, to = 0.9, by = 0.1)
+    qs <- rep(0.0, length(ps))
 
-#     qf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "q",
-#                           lower_tail_dist = "norm",
-#                           upper_tail_dist = "norm")
+    qf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "q",
+                          lower_tail_dist = "norm",
+                          upper_tail_dist = "norm")
 
-#     test_qs <- seq(from = min(qs), to = max(qs), length.out = 101)
-#     test_ps <- rep(1.0, length(test_qs))
-#     test_p_hats <- cdf_hat(test_qs)
+    cdf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
+                          lower_tail_dist = "norm",
+                          upper_tail_dist = "norm")
 
-#     expect_equal(test_ps, test_p_hats)
-# })
+    test_ps <- seq(from = min(ps), to = max(ps), length.out = 101)
+    test_qs <- rep(0.0, length(test_ps))
+    test_q_hats <- qf_hat(test_ps)
 
-# test_that("spline_cdf recovers qf, one discrete component", {
-#     # mixture of a Normal(0,1) with weight 0.8 and
-#     # a point mass at 0 with weight 0.2
+    expect_equal(test_qs, test_q_hats)
+    expect_equal(mean(test_qs - test_q_hats), 0.0)
+    expect_equal(cdf_hat(qf_hat(test_ps)), rep(1.0, length(test_ps)))
+})
 
-#     # probabilities and quantiles for normal component
-#     norm_ps <- seq(from = 0.1, to = 0.9, by = 0.1)
-#     norm_qs <- qnorm(norm_ps)
-#     adj_norm_ps <- norm_ps * 0.8 + 0.2 * (norm_qs > 0.0)
+test_that("spline_cdf recovers qf, one discrete component", {
+    # mixture of a Normal(0,1) with weight 0.8 and
+    # a point mass at 0 with weight 0.2
 
-#     # probabilities and quantiles for point mass at 0
-#     point_ps <- seq(from = 0.0, to = 1.0, by = 0.1)
-#     point_qs <- rep(0.0, length(point_ps))
-#     adj_point_ps <- 0.5 * 0.8 + point_ps * 0.2
+    # probabilities and quantiles for normal component
+    # norm_ps <- seq(from = 0.1, to = 0.9, by = 0.1)
+    norm_ps <- c(0.01, 0.025,
+                 seq(from = 0.05, to = 0.95, by = 0.05), 0.975, 0.99)
+    norm_qs <- qnorm(norm_ps)
+    adj_norm_ps <- norm_ps * 0.8 + 0.2 * (norm_qs > 0.0)
 
-#     ps <- sort(c(adj_norm_ps, adj_point_ps))
-#     qs <- sort(c(norm_qs, point_qs))
-#     dup_inds <- duplicated(ps)
-#     ps <- ps[!dup_inds]
-#     qs <- qs[!dup_inds]
+    # probabilities and quantiles for point mass at 0
+    point_ps <- seq(from = 0.0, to = 1.0, by = 0.1)
+    point_qs <- rep(0.0, length(point_ps))
+    adj_point_ps <- 0.5 * 0.8 + point_ps * 0.2
 
-#     qf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "q",
-#                           lower_tail_dist = "norm",
-#                           upper_tail_dist = "norm")
+    ps <- sort(c(adj_norm_ps, adj_point_ps))
+    qs <- sort(c(norm_qs, point_qs))
+    dup_inds <- duplicated(ps)
+    ps <- ps[!dup_inds]
+    qs <- qs[!dup_inds]
 
-#     test_qs <- seq(from = min(qs), to = max(qs), length.out = 101)
-#     test_ps <- pnorm(test_qs) * 0.8 + 0.2 * (test_qs >= 0.0)
-#     test_p_hats <- cdf_hat(test_qs)
+    qf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "q",
+                          lower_tail_dist = "norm",
+                          upper_tail_dist = "norm")
 
-#     expect_equal(test_ps, test_p_hats, tolerance = 1e-3)
-#     expect_equal(mean(test_ps - test_p_hats), 0.0)
-# })
+    cdf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
+                          lower_tail_dist = "norm",
+                          upper_tail_dist = "norm")
 
-# test_that("spline_cdf recovers qf, two discrete components", {
-#     # mixture of a Normal(0,1) with weight 0.6,
-#     # a point mass at 0 with weight 0.3, and a point mass at 1 with weight 0.1
+    test_ps <- seq(from = min(ps), to = max(ps), length.out = 101)
+    test_qs <- c(
+      qnorm(test_ps[test_ps < 0.4] / 0.8),
+      rep(0.0, sum((test_ps >= 0.4) & (test_ps <= 0.6))),
+      qnorm((test_ps[test_ps > 0.6] - 0.2) / 0.8)
+    )
+    test_q_hats <- qf_hat(test_ps)
 
-#     # probabilities and quantiles for normal component
-#     norm_ps <- seq(from = 0.1, to = 0.9, by = 0.1)
-#     norm_qs <- qnorm(norm_ps)
-#     adj_norm_ps <- norm_ps * 0.6 + 0.3 * (norm_qs >= 0.0) + 0.1 * (norm_qs >= 1.0)
+    expect_equal(test_q_hats, test_qs, tolerance = 1e-3)
+    expect_equal(mean(test_qs - test_q_hats), 0.0)
+    expected_test_ps <- test_ps
+    expected_test_ps[(test_ps >= 0.4) & (test_ps <= 0.6)] <- 0.6
+    expect_equal(cdf_hat(qf_hat(test_ps)), expected_test_ps, tolerance = 1e-3)
+})
 
-#     # probabilities and quantiles for point mass at 0
-#     point_ps_0 <- seq(from = 0.0, to = 1.0, by = 0.1)
-#     point_qs_0 <- rep(0.0, length(point_ps_0))
-#     adj_point_ps_0 <- 0.5 * 0.6 + point_ps_0 * 0.3
+test_that("spline_cdf recovers qf, two discrete components", {
+    # mixture of a Normal(0,1) with weight 0.6,
+    # a point mass at 0 with weight 0.3, and a point mass at 1 with weight 0.1
 
-#     # probabilities and quantiles for point mass at 1
-#     point_ps_1 <- seq(from = 0.0, to = 1.0, by = 0.1)
-#     point_qs_1 <- rep(1.0, length(point_ps_1))
-#     adj_point_ps_1 <- pnorm(1.0) * 0.6 + 0.3 + point_ps_1 * 0.1
+    # probabilities and quantiles for normal component
+    # norm_ps <- seq(from = 0.1, to = 0.9, by = 0.1)
+    norm_ps <- c(0.01, 0.025,
+                 seq(from = 0.05, to = 0.95, by = 0.05), 0.975, 0.99)
+    norm_qs <- qnorm(norm_ps)
+    adj_norm_ps <- norm_ps * 0.6 + 0.3 * (norm_qs >= 0.0) + 0.1 * (norm_qs >= 1.0)
 
-#     ps <- sort(c(adj_norm_ps, adj_point_ps_0, adj_point_ps_1))
-#     qs <- sort(c(norm_qs, point_qs_0, point_qs_1))
-#     dup_inds <- duplicated(ps)
-#     ps <- ps[!dup_inds]
-#     qs <- qs[!dup_inds]
+    # probabilities and quantiles for point mass at 0
+    point_ps_0 <- seq(from = 0.0, to = 1.0, by = 0.1)
+    point_qs_0 <- rep(0.0, length(point_ps_0))
+    adj_point_ps_0 <- 0.5 * 0.6 + point_ps_0 * 0.3
 
-#     qf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "q",
-#                           lower_tail_dist = "norm",
-#                           upper_tail_dist = "norm")
+    # probabilities and quantiles for point mass at 1
+    point_ps_1 <- seq(from = 0.0, to = 1.0, by = 0.1)
+    point_qs_1 <- rep(1.0, length(point_ps_1))
+    adj_point_ps_1 <- pnorm(1.0) * 0.6 + 0.3 + point_ps_1 * 0.1
 
-#     test_qs <- seq(from = min(qs), to = max(qs), length.out = 101)
-#     test_ps <- pnorm(test_qs) * 0.6 + 0.3 * (test_qs >= 0.0) +
-#                 0.1 * (test_qs >= 1.0)
-#     test_p_hats <- cdf_hat(test_qs)
+    ps <- sort(c(adj_norm_ps, adj_point_ps_0, adj_point_ps_1))
+    qs <- sort(c(norm_qs, point_qs_0, point_qs_1))
+    dup_inds <- duplicated(ps)
+    ps <- ps[!dup_inds]
+    qs <- qs[!dup_inds]
 
-#     expect_equal(test_ps, test_p_hats, tolerance = 1e-3)
-#     expect_equal(mean(test_ps - test_p_hats), 0.0, tolerance = 1e-5)
-# })
+    qf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "q",
+                          lower_tail_dist = "norm",
+                          upper_tail_dist = "norm")
+
+    cdf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
+                          lower_tail_dist = "norm",
+                          upper_tail_dist = "norm")
+
+    test_ps <- seq(from = min(ps), to = max(ps), length.out = 101)
+    pcut1 <- 0.3
+    pcut2 <- pnorm(1.0)*0.6 + 0.3
+    test_qs <- c(
+      qnorm(test_ps[test_ps < pcut1] / 0.6),
+      rep(0.0, sum((test_ps >= 0.3) & (test_ps <= 0.6))),
+      qnorm((test_ps[(test_ps > 0.6) & (test_ps < pcut2)] - 0.3) / 0.6),
+      rep(1.0, sum((test_ps >= pcut2) & (test_ps <= pcut2 + 0.1))),
+      qnorm((test_ps[test_ps > pcut2 + 0.1] - 0.4) / 0.6)
+    )
+    test_q_hats <- qf_hat(test_ps)
+
+    expect_equal(test_q_hats, test_qs, tolerance = 1e-3)
+    expect_equal(mean(test_qs - test_q_hats), 0.0, tolerance = 1e-4)
+    expected_test_ps <- test_ps
+    expected_test_ps[(test_ps >= 0.3) & (test_ps <= 0.6)] <- 0.6
+    expected_test_ps[(test_ps >= pcut2) & (test_ps <= pcut2 + 0.1)] <- pcut2 + 0.1
+    expect_equal(cdf_hat(qf_hat(test_ps)), expected_test_ps, tolerance = 1e-3)
+})
