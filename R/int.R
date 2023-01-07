@@ -14,6 +14,10 @@
 #'     components.
 #'   - `cont_ps`: probability levels for the continous part of the distribution
 #'   - `cont_qs`: quantile values for the continous part of the distribution
+#'   - `disc_ps_range`: a list of length equal to the number of point masses in
+#'     the discrete distribution. Each entry is a numeric vector of length two
+#'     with the value of the cdf approaching the point mass from the left and
+#'     from the right.
 split_disc_cont_ps_qs <- function(ps, qs) {
     # Short-circuit if all qs are duplicates
     # we have no information from which to estimate a continuous
@@ -112,7 +116,8 @@ mono_Hermite_spline <- function(x, y, m) {
     #        + (2 y[i] + m[i] - 2 y[i+1] + m[i+1]) (d / delta[i])^3
     #      = c0 + c1 * d + c2 * d^2 + c3 * d^3, where
     #
-    # Label these coefficients as c0 = y[i], c1 = m[i] / delta[i],
+    # c0 = y[i],
+    # c1 = m[i] / delta[i],
     # c2 = (-3 y[i] - 2 m[i] + 3 y[i+1] - m[i+1]) / delta[i]^2, and
     # c3 = (2 y[i] + m[i] - 2 y[i+1] + m[i+1]) / delta[i]^3
     n <- length(y)
@@ -155,14 +160,14 @@ mono_Hermite_spline <- function(x, y, m) {
 #' 
 #' @param ps vector of probability levels
 #' @param qs vector of quantile values correponding to ps
+#' @param lower_tail_dist name of parametric distribution for the lower tail
+#' @param upper_tail_dist name of parametric distribution for the upper tail
 #' @param fn_type the type of function that is requested: `"d"` for a pdf,
 #'   `"p"` for a cdf, or `"q"` for a quantile function.
-#' @param spline_method the type of monotonic spline to fit: "hyman" or "monH.FC"
 #' 
 #' @return a function to evaluate the pdf, cdf, or quantile function.
-spline_cdf <- function(ps, qs, fn_type = c("d", "p", "q"),
-                       lower_tail_dist,
-                       upper_tail_dist) {
+spline_cdf <- function(ps, qs, lower_tail_dist, upper_tail_dist,
+                       fn_type = c("d", "p", "q")) {
     fn_type <- match.arg(fn_type)
 
     # split ps and qs into discrete and continuous part, along with the weight

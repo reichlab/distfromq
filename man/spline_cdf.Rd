@@ -12,9 +12,9 @@ we invert the approximation to the cdf, tracking any discontinuities.}
 spline_cdf(
   ps,
   qs,
-  fn_type = c("d", "p", "q"),
   lower_tail_dist,
-  upper_tail_dist
+  upper_tail_dist,
+  fn_type = c("d", "p", "q")
 )
 }
 \arguments{
@@ -22,10 +22,12 @@ spline_cdf(
 
 \item{qs}{vector of quantile values correponding to ps}
 
+\item{lower_tail_dist}{name of parametric distribution for the lower tail}
+
+\item{upper_tail_dist}{name of parametric distribution for the upper tail}
+
 \item{fn_type}{the type of function that is requested: \code{"d"} for a pdf,
 \code{"p"} for a cdf, or \code{"q"} for a quantile function.}
-
-\item{spline_method}{the type of monotonic spline to fit: "hyman" or "monH.FC"}
 }
 \value{
 a function to evaluate the pdf, cdf, or quantile function.

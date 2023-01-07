@@ -24,6 +24,10 @@ values in the input \code{qs}. May be \code{numeric(0)} if there are no discrete
 components.
 \item \code{cont_ps}: probability levels for the continous part of the distribution
 \item \code{cont_qs}: quantile values for the continous part of the distribution
+\item \code{disc_ps_range}: a list of length equal to the number of point masses in
+the discrete distribution. Each entry is a numeric vector of length two
+with the value of the cdf approaching the point mass from the left and
+from the right.
 }
 }
 \description{
