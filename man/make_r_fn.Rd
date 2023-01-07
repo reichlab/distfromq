@@ -2,14 +2,15 @@
 % Please edit documentation in R/make_dist_fns.R
 \name{make_r_fn}
 \alias{make_r_fn}
-\title{Creates a function that evaluates the quantile function of an approximation
+\title{Creates a function that generates random deviates from an approximation
 to a distribution obtained by interpolating and extrapolating from a set of
 quantiles of the distribution.}
 \usage{
 make_r_fn(
   ps,
   qs,
-  interior_method = c("hyman", "monoH.FC"),
+  interior_method = c("spline_cdf", "spline_qf"),
+  interior_args = list(),
   lower_tail_dist = "norm",
   upper_tail_dist = "norm"
 )
@@ -19,9 +20,13 @@ make_r_fn(
 
 \item{qs}{vector of quantile values correponding to ps}
 
-\item{interior_method}{method for monotonic cubic spline fit to the quantiles
-used for approximating the distribution on the interior of the quantiles.
-See \code{\link[stats:splinefun]{stats::splinefun()}}. One of \code{"hyman"} or \code{"monoH.FC"}.}
+\item{interior_method}{method for interpolating the distribution on the
+interior of the provided \code{qs}. Options provided by this package include
+\code{"spline_cdf"} and \code{"spline_qf"}. The user may also provide a custom
+function; see details for more.}
+
+\item{interior_args}{an optional named list of arguments that are passed
+on to the \code{interior_method}}
 
 \item{lower_tail_dist}{name of parametric distribution for the lower tail}
 
@@ -32,7 +37,21 @@ a function with argument \code{n} that can be used to generate a sample of
 size \code{n} from the approximated distribution.
 }
 \description{
-Creates a function that evaluates the quantile function of an approximation
+Creates a function that generates random deviates from an approximation
 to a distribution obtained by interpolating and extrapolating from a set of
 quantiles of the distribution.
+}
+\details{
+The default \code{interior_method}, \code{"spline_cdf"}, represents the
+distribution as a sum of a discrete component at any points where there
+are duplicated \code{qs} for multiple different \code{ps} and a continuous component
+that is estimated by using a monotonic cubic spline that interpolates the
+provided \verb{(q, p)} pairs as an estimate of the cdf. The quantile function
+is then obtained by inverting this estimate of the cdf.
+
+Optionally, the user may provide another function that accepts arguments
+\code{ps}, \code{qs}, \code{lower_tail_dist}, \code{upper_tail_dist}, and \code{fn_type} (which
+will be either \code{"d"}, \code{"p"}, or \code{"q"}), and optionally additional named
+arguments to be specified via \code{interior_args}. This function should return
+a function with argument \code{p} that evaluates the quantile function.
 }

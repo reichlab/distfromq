@@ -22,8 +22,8 @@ make_d_fn(
 
 \item{interior_method}{method for interpolating the distribution on the
 interior of the provided \code{qs}. Options provided by this package include
-\code{"spline_cdf"} and \code{"spline_qf"}. The user may also provide a custom function;
-see details for more.}
+\code{"spline_cdf"} and \code{"spline_qf"}. The user may also provide a custom
+function; see details for more.}
 
 \item{interior_args}{an optional named list of arguments that are passed
 on to the \code{interior_method}}
@@ -42,15 +42,17 @@ approximation to a distribution obtained by interpolating and extrapolating
 from a set of quantiles of the distribution.
 }
 \details{
-The default \code{interior_method}, \code{"spline_cdf"}, represents the distribution
-as a sum of a discrete component at any points where there are duplicated
-\code{qs} for multiple different \code{ps} and a continuous component that is estimated
-by using a monotonic cubic spline that interpolates the provided \verb{(q, p)} pairs
-as an estimate of the cdf. The density function is then obtained by differentiating
-this estimate of the cdf.
+The default \code{interior_method}, \code{"spline_cdf"}, represents the
+distribution as a sum of a discrete component at any points where there
+are duplicated \code{qs} for multiple different \code{ps} and a continuous component
+that is estimated by using a monotonic cubic spline that interpolates the
+provided \verb{(q, p)} pairs as an estimate of the cdf. The density function is
+then obtained by differentiating this estimate of the cdf.
 
 Optionally, the user may provide another function that accepts arguments
-\code{ps}, \code{qs}, \code{fn_type} (which will be either \code{"d"}, \code{"p"}, or \code{"q"}), and additional named
-arguments to be specified via \code{interior_args}. This function should return a function
-with arguments \code{x}, \code{log} that evaluates the pdf or its logarithm.
+\code{ps}, \code{qs}, \code{lower_tail_dist}, \code{upper_tail_dist}, and \code{fn_type} (which
+will be either \code{"d"}, \code{"p"}, or \code{"q"}), and optionally additional named
+arguments to be specified via \code{interior_args}. This function should return
+a function with arguments \code{x}, \code{log} that evaluates the pdf or its
+logarithm.
 }
