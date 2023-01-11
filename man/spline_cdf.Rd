@@ -14,7 +14,8 @@ spline_cdf(
   qs,
   lower_tail_dist,
   upper_tail_dist,
-  fn_type = c("d", "p", "q")
+  fn_type = c("d", "p", "q"),
+  n_grid = NULL
 )
 }
 \arguments{
@@ -28,6 +29,17 @@ spline_cdf(
 
 \item{fn_type}{the type of function that is requested: \code{"d"} for a pdf,
 \code{"p"} for a cdf, or \code{"q"} for a quantile function.}
+
+\item{n_grid}{grid size for a piecewise linear approximation to the spline.
+The default is \code{NULL}, in which case a piecewise linear approximation is
+not used. The estimate of the cdf is a piecewise degree three polynomial,
+the pdf is the derivative of the cdf, and the qf is obtained by inverting
+the polynomial. This inversion process is not numerically precise, so the
+cdf and qf will in general not be exact inverses. In settings where it is
+important that the cdf and qf are inverses, we recommend setting \code{n_grid}
+to an integer number of points that will be inserted between each pair of
+consecutive qs. The spline is evaluated at these points, and a piecewise
+linear approximation to the cdf is inverted.}
 }
 \value{
 a function to evaluate the pdf, cdf, or quantile function.

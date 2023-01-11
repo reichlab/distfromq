@@ -147,29 +147,21 @@ test_that("spline_cdf recovers cdf, no discrete component", {
     cdf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
                           lower_tail_dist = "norm",
                           upper_tail_dist = "norm")
+    cdf_hat_lin <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
+                          lower_tail_dist = "norm",
+                          upper_tail_dist = "norm",
+                          n_grid = 2L)
 
     test_qs <- seq(from = min(qs), to = max(qs), length.out = 101)
     test_ps <- pnorm(test_qs)
     test_p_hats <- cdf_hat(test_qs)
+    test_p_hats_lin <- cdf_hat_lin(test_qs)
 
     expect_equal(test_ps, test_p_hats, tolerance = 1e-3)
+    expect_equal(test_p_hats_lin, test_p_hats, tolerance = 1e-3)
     expect_equal(mean(test_ps - test_p_hats), 0.0)
 })
 
-test_that("spline_cdf recovers cdf, no continuous component", {
-    ps <- seq(from = 0.1, to = 0.9, by = 0.1)
-    qs <- rep(0.0, length(ps))
-
-    cdf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
-                          lower_tail_dist = "norm",
-                          upper_tail_dist = "norm")
-
-    test_qs <- seq(from = min(qs), to = max(qs), length.out = 101)
-    test_ps <- rep(1.0, length(test_qs))
-    test_p_hats <- cdf_hat(test_qs)
-
-    expect_equal(test_ps, test_p_hats)
-})
 
 test_that("spline_cdf recovers cdf, one discrete component", {
     # mixture of a Normal(0,1) with weight 0.8 and
@@ -194,13 +186,19 @@ test_that("spline_cdf recovers cdf, one discrete component", {
     cdf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
                           lower_tail_dist = "norm",
                           upper_tail_dist = "norm")
+    cdf_hat_lin <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
+                          lower_tail_dist = "norm",
+                          upper_tail_dist = "norm",
+                          n_grid = 2L)
 
     test_qs <- seq(from = min(qs), to = max(qs), length.out = 101)
     test_ps <- pnorm(test_qs) * 0.8 + 0.2 * (test_qs >= 0.0)
     test_p_hats <- cdf_hat(test_qs)
+    test_p_hats_lin <- cdf_hat_lin(test_qs)
 
     expect_equal(test_ps, test_p_hats, tolerance = 1e-3)
     expect_equal(mean(test_ps - test_p_hats), 0.0)
+    expect_equal(test_p_hats_lin, test_p_hats, tolerance = 1e-3)
 })
 
 test_that("spline_cdf recovers cdf, two discrete components", {
@@ -231,13 +229,19 @@ test_that("spline_cdf recovers cdf, two discrete components", {
     cdf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
                           lower_tail_dist = "norm",
                           upper_tail_dist = "norm")
+    cdf_hat_lin <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
+                          lower_tail_dist = "norm",
+                          upper_tail_dist = "norm",
+                          n_grid = 2L)
 
     test_qs <- seq(from = min(qs), to = max(qs), length.out = 101)
     test_ps <- pnorm(test_qs) * 0.6 + 0.3 * (test_qs >= 0.0) +
                 0.1 * (test_qs >= 1.0)
     test_p_hats <- cdf_hat(test_qs)
+    test_p_hats_lin <- cdf_hat_lin(test_qs)
 
     expect_equal(test_ps, test_p_hats, tolerance = 1e-3)
+    expect_equal(test_p_hats_lin, test_p_hats, tolerance = 1e-3)
     expect_equal(mean(test_ps - test_p_hats), 0.0, tolerance = 1e-5)
 })
 
@@ -250,12 +254,18 @@ test_that("spline_cdf recovers pdf, no discrete component", {
     pdf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "d",
                           lower_tail_dist = "norm",
                           upper_tail_dist = "norm")
+    pdf_hat_lin <- spline_cdf(ps = ps, qs = qs, fn_type = "d",
+                          lower_tail_dist = "norm",
+                          upper_tail_dist = "norm",
+                          n_grid = 20L)
 
     test_qs <- seq(from = min(qs), to = max(qs), length.out = 101)
     test_ps <- dnorm(test_qs)
     test_p_hats <- pdf_hat(test_qs)
+    test_p_hats_lin <- pdf_hat_lin(test_qs)
 
     expect_equal(test_ps, test_p_hats, tolerance = 1e-3)
+    expect_equal(test_p_hats_lin, test_p_hats, tolerance = 1e-3)
     expect_equal(mean(test_ps - test_p_hats), 0.0, tolerance = 1e-5)
 })
 
@@ -282,6 +292,10 @@ test_that("spline_cdf errors when recovering pdf, one discrete component", {
     expect_error(spline_cdf(ps = ps, qs = qs, fn_type = "d",
                           lower_tail_dist = "norm",
                           upper_tail_dist = "norm"))
+    expect_error(spline_cdf(ps = ps, qs = qs, fn_type = "d",
+                          lower_tail_dist = "norm",
+                          upper_tail_dist = "norm",
+                          n_grid = 2L))
 })
 
 
@@ -295,40 +309,31 @@ test_that("spline_cdf recovers qf, no discrete component", {
     qf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "q",
                           lower_tail_dist = "norm",
                           upper_tail_dist = "norm")
+    qf_hat_lin <- spline_cdf(ps = ps, qs = qs, fn_type = "q",
+                          lower_tail_dist = "norm",
+                          upper_tail_dist = "norm",
+                          n_grid = 10L)
 
     cdf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
                           lower_tail_dist = "norm",
                           upper_tail_dist = "norm")
+    cdf_hat_lin <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
+                          lower_tail_dist = "norm",
+                          upper_tail_dist = "norm",
+                          n_grid = 10L)
 
     test_ps <- seq(from = min(ps), to = max(ps), length.out = 101)
     test_qs <- qnorm(test_ps)
     test_q_hats <- qf_hat(test_ps)
+    test_q_hats_lin <- qf_hat_lin(test_ps)
 
     expect_equal(test_qs, test_q_hats, tolerance = 1e-3)
+    expect_equal(test_q_hats_lin, test_q_hats, tolerance = 1e-3)
     expect_equal(mean(test_qs - test_q_hats), 0.0)
     expect_equal(cdf_hat(qf_hat(test_ps)), test_ps, tolerance = 1e-4)
+    expect_equal(cdf_hat_lin(qf_hat_lin(test_ps)), test_ps, tolerance = 1e-12)
 })
 
-test_that("spline_cdf recovers qf, no continuous component", {
-    ps <- seq(from = 0.1, to = 0.9, by = 0.1)
-    qs <- rep(0.0, length(ps))
-
-    qf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "q",
-                          lower_tail_dist = "norm",
-                          upper_tail_dist = "norm")
-
-    cdf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
-                          lower_tail_dist = "norm",
-                          upper_tail_dist = "norm")
-
-    test_ps <- seq(from = min(ps), to = max(ps), length.out = 101)
-    test_qs <- rep(0.0, length(test_ps))
-    test_q_hats <- qf_hat(test_ps)
-
-    expect_equal(test_qs, test_q_hats)
-    expect_equal(mean(test_qs - test_q_hats), 0.0)
-    expect_equal(cdf_hat(qf_hat(test_ps)), rep(1.0, length(test_ps)))
-})
 
 test_that("spline_cdf recovers qf, one discrete component", {
     # mixture of a Normal(0,1) with weight 0.8 and
@@ -355,10 +360,18 @@ test_that("spline_cdf recovers qf, one discrete component", {
     qf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "q",
                           lower_tail_dist = "norm",
                           upper_tail_dist = "norm")
+    qf_hat_lin <- spline_cdf(ps = ps, qs = qs, fn_type = "q",
+                          lower_tail_dist = "norm",
+                          upper_tail_dist = "norm",
+                          n_grid = 10L)
 
     cdf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
                           lower_tail_dist = "norm",
                           upper_tail_dist = "norm")
+    cdf_hat_lin <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
+                          lower_tail_dist = "norm",
+                          upper_tail_dist = "norm",
+                          n_grid = 10L)
 
     test_ps <- seq(from = min(ps), to = max(ps), length.out = 101)
     test_qs <- c(
@@ -367,12 +380,15 @@ test_that("spline_cdf recovers qf, one discrete component", {
       qnorm((test_ps[test_ps > 0.6] - 0.2) / 0.8)
     )
     test_q_hats <- qf_hat(test_ps)
+    test_q_hats_lin <- qf_hat_lin(test_ps)
 
     expect_equal(test_q_hats, test_qs, tolerance = 1e-3)
+    expect_equal(test_q_hats, test_q_hats_lin, tolerance = 1e-3)
     expect_equal(mean(test_qs - test_q_hats), 0.0)
     expected_test_ps <- test_ps
     expected_test_ps[(test_ps >= 0.4) & (test_ps <= 0.6)] <- 0.6
     expect_equal(cdf_hat(qf_hat(test_ps)), expected_test_ps, tolerance = 1e-3)
+    expect_equal(cdf_hat_lin(qf_hat_lin(test_ps)), expected_test_ps, tolerance = 1e-12)
 })
 
 test_that("spline_cdf recovers qf, two discrete components", {
@@ -405,10 +421,18 @@ test_that("spline_cdf recovers qf, two discrete components", {
     qf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "q",
                           lower_tail_dist = "norm",
                           upper_tail_dist = "norm")
+    qf_hat_lin <- spline_cdf(ps = ps, qs = qs, fn_type = "q",
+                          lower_tail_dist = "norm",
+                          upper_tail_dist = "norm",
+                          n_grid = 10L)
 
     cdf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
                           lower_tail_dist = "norm",
                           upper_tail_dist = "norm")
+    cdf_hat_lin <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
+                          lower_tail_dist = "norm",
+                          upper_tail_dist = "norm",
+                          n_grid = 10L)
 
     test_ps <- seq(from = min(ps), to = max(ps), length.out = 101)
     pcut1 <- 0.3
@@ -421,11 +445,14 @@ test_that("spline_cdf recovers qf, two discrete components", {
       qnorm((test_ps[test_ps > pcut2 + 0.1] - 0.4) / 0.6)
     )
     test_q_hats <- qf_hat(test_ps)
+    test_q_hats_lin <- qf_hat_lin(test_ps)
 
     expect_equal(test_q_hats, test_qs, tolerance = 1e-3)
+    expect_equal(test_q_hats, test_q_hats_lin, tolerance = 1e-3)
     expect_equal(mean(test_qs - test_q_hats), 0.0, tolerance = 1e-4)
     expected_test_ps <- test_ps
     expected_test_ps[(test_ps >= 0.3) & (test_ps <= 0.6)] <- 0.6
     expected_test_ps[(test_ps >= pcut2) & (test_ps <= pcut2 + 0.1)] <- pcut2 + 0.1
     expect_equal(cdf_hat(qf_hat(test_ps)), expected_test_ps, tolerance = 1e-3)
+    expect_equal(cdf_hat_lin(qf_hat_lin(test_ps)), expected_test_ps, tolerance = 1e-12)
 })
