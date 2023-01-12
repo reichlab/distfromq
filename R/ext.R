@@ -130,3 +130,4 @@ q_ext_factory <- function(ps, qs, dist) {
 
     return(q_ext)
 }
+
