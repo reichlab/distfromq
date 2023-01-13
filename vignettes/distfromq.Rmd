@@ -32,7 +32,7 @@ The next section of the vignette describes the methods that are used for approxi
 
 # Methods description
 
-Suppose that at the probability levels $\tau_1, \ldots, \tau_K \in (0, 1)$, we have available the corresponding quantiles $q_1 = F^{-1}(\tau_1), \ldots, q_K = F^{-1}(\tau_K)$ for some distribution with CDF $F$. Our goal is to reconstruct an estimate of $F$, the corresponding PDF $f$, and the QF $F^{-1}$, as well ast a method for sampling from the distribution.
+Suppose that we have a collection of pairs $(q_k, \tau_k)$, $k = 1, \ldots, K$, where for each $k$, $\tau_k = F(q_k)$ or $q_k = F^{-1}(\tau_k)$ for some distribution with CDF $F$ and quantile function $F^{-1}$. We allow for the distribution to have regions with no density or with discrete point masses, corresponding to regions where $F$ is flat or has a vertical step. In these instances, the points $(q_k, \tau_k)$ may fall within the flat region or partway up the vertical step, as will be illustrated below. Our goal is to reconstruct an estimate of $F$, the corresponding PDF $f$ (if the distribution is continuous), and the QF $F^{-1}$, as well as a method for sampling from the distribution.
 
 Our approach takes different strategies for interpolating on the interior of the provided quantiles and for extrapolating into the tails; we outline these procedures briefly here and give more detail below:
 
@@ -43,11 +43,15 @@ Our approach takes different strategies for interpolating on the interior of the
     * For the PDF, we use the derivative of the spline-based approximation to the CDF if there are no discrete components.
 2. we approximate the tails with a distribution in a specified location-scale family.
 
-In cases where there are repeated quantiles, we take the discrete component of the distribution to have a point mass at each quantile value that is repeated. The discrete distribution assigns probability to each such point $q$ corresponding to $\max(\{\tau_{k}: q_k = q\}) - \min(\{\tau_{k}: q_k = q\})$. The continuous distribution is then estimated based on a set of adjusted quantile pairs that is obtained by eliminating duplicate quantiles and subtracting the discrete distribution.
+## Estimation on the interior
 
-To approximate the CDF of the continuous distribution component at interior points, we fit a monotonic cubic spline that interpolates the set of "observations" $\{(q_1, \tau_1), \ldots, (q_K, \tau_K)\}$ (where these now denote the adjusted quantiles for the continuous distribution component). This spline is an estimate of the CDF. Because the spline passes through the points $(q_1, \tau_1)$ and $(q_K, \tau_K)$, the integral of its derivative over the interval $[q_1, q_K]$ is equal to $\tau_K - \tau_1$.
+In cases where there are repeated quantiles, we take the discrete component of the distribution to have a point mass at each quantile value that is repeated. The discrete distribution assigns probability to each such point $q$ corresponding to $\max(\{\tau_{k}: q_k = q\}) - \min(\{\tau_{k}: q_k = q\})$. The continuous distribution is then estimated based on a set of adjusted quantile pairs that is obtained by eliminating duplicate quantiles and subtracting the discrete distribution. To approximate the CDF of the continuous distribution component at interior points, we fit a monotonic cubic Hermite spline that interpolates the set of "observations" $\{(q_1, \tau_1), \ldots, (q_K, \tau_K)\}$ (where these now denote the adjusted quantiles for the continuous distribution component). The combination of these discrete and continuous components yields a "stage 1" CDF estimate, $\hat{F}^{(1)}$.
 
-To approximate the QF, we invert the CDF estimate. For the continuous component, in principle the inverse can be calculated analytically by directly inverting the cubic spline. However, we have noticed that this can yield a QF estimate that is not a precise inverse of the CDF estimate due to numerical instabilities in the inversion. Therefore, as an alternative we allow for the use of a piecewise linear approximation to the spline that is obtained by evaluating the cdf at a grid of quantile values. The inverse of this piecewise linear function can be calculated with more numerical stability, and this approach is recommended when it is critical that the CDF and QF be inverses.
+To address issues with numerical stability in inverting the spline in the process of obtaining an estimate of the QF, we evaluate this stage 1 estimate at a grid of quantile values that are inserted between each consecutive pair of input quantiles (the number of new quantile values to use is an argument to the functions). We then use a "stage 2" CDF estimate that linearly interpolates this augmented grid of $(q, \tau)$ pairs. This behavior can be disabled if desired, though this is not recommended.
+
+To estimate the QF, we invert the CDF estimate, allowing for jumps in regions where the CDF is flat. To estimate the PDF in instances where the CDF estimate corresponds to a continuous distribution, we differentiate the CDF estimate. If the stage 2 CDF estimate is used, this yields a "histogram density" estimate, which is discontinuous and piecewise constant. If this presents a challenge, the grid size can be increased or the stage 1 CDF estimate used instead.
+
+## Estimation in the tails
 
 We estimate the distribution for the left and right tails separately, assuming that they come from a specified location-scale family which may be different in each tail. Setting notation, suppose that $Y = a + b \cdot Z$ where the random variable $Z$ has a specified distribution. Recall that at the probability level $\tau$, a quantile of $Y$ can be calculated in terms of the corresponding quantile of $Z$ via $F_Y^{-1}(\tau) = a + b \cdot F_Z^{-1}(\tau)$. Using the quantiles at two probability levels $\tau_i$ and $\tau_j$, we can calculate the value of $b$ using
 
@@ -219,6 +223,49 @@ dplyr::bind_rows(
         theme_bw()
 ```
 
+We emphasize that the density is piecewise linear. We illustrate this by setting the `n_grid` parameter to the artificially low value of 1:
+
+```{r}
+d_lognormal_approx_n_grid_1 <- make_d_fn(ps = quantile_probs,
+                                qs = q_lognormal,
+                                lower_tail_dist = "lnorm",
+                                upper_tail_dist = "lnorm",
+                                interior_args = list(n_grid = 1))
+
+pdf_lognormal_approx_n_grid_1 <- d_lognormal_approx_n_grid_1(x)
+
+dplyr::bind_rows(
+    data.frame(
+        x = x,
+        y = pdf_lognormal_approx,
+        dist = "Spline interpolation,\n n_grid = 20"
+    ),
+    data.frame(
+        x = x,
+        y = pdf_lognormal_approx_n_grid_1,
+        dist = "Spline interpolation,\n n_grid = 1"
+    )
+) %>%
+    ggplot() +
+        geom_vline(
+            data = data.frame(q = q_lognormal),
+            mapping = aes(xintercept = q),
+            size = 0.2
+        ) +
+        geom_line(
+            mapping = aes(x = x, y = y, color = dist),
+            size = 0.8) +
+        scale_color_viridis_d(
+            "Distribution",
+            end = 0.7
+        ) +
+        scale_linetype_discrete("Distribution") +
+        ylab("Probability Density") +
+        xlab("") +
+        theme_bw()
+
+```
+
 ```{r}
 r_normal_approx <- make_r_fn(ps = quantile_probs,
                              qs = q_lognormal,
@@ -378,7 +425,7 @@ samples_normal_approx <- r_normal_approx(n = 10000)
 mean(samples_normal_approx == 3.0)
 ```
 
-As described earlier, in general the estimated cdf and quantile function are not precise inverses due to numerical issues that arise when inverting the monotonic spline. We illustrate below that the estimated cdf composed with the estimated quantile function may not be an identity function, even in regions where the distribution is continuous.
+We confirm here that the estimated CDF and QF are indeed inverses to a high degree of numerical precision in regions where the distribution is continuous:
 
 ```{r}
 ps <- seq(from = 0.0, to = 1.0, length = 101)
@@ -388,41 +435,31 @@ out_ps
 ps[(ps < 0.3) | (ps > 0.7)] - out_ps[(ps < 0.3) | (ps > 0.7)]
 ```
 
-These errors can be mitigated by using a piecewise linear representation of the cdf estimate:
+As described earlier, we use a piecewise linear representation of the CDF to avoid numerical issues that arise when inverting the monotonic spline. We illustrate these problems by manually setting `n_grid = NULL`, i.e., using the stage 1 CDF estimate based directly on splines. The two representations of the CDF are generally quite similar, but the QF estimates can differ substantially.
 
 ```{r}
-p_normal_approx_lin <- make_p_fn(ps = quantile_probs,
+p_normal_approx_spline <- make_p_fn(ps = quantile_probs,
                              qs = quantile_values,
                              lower_tail_dist = "norm",
                              upper_tail_dist = "norm",
-                             interior_args = list(n_grid = 20))
-q_normal_approx_lin <- make_q_fn(ps = quantile_probs,
+                             interior_args = list(n_grid = NULL))
+q_normal_approx_spline <- make_q_fn(ps = quantile_probs,
                              qs = quantile_values,
                              lower_tail_dist = "norm",
                              upper_tail_dist = "norm",
-                             interior_args = list(n_grid = 20))
+                             interior_args = list(n_grid = NULL))
 
-ps <- seq(from = 0.0, to = 1.0, length = 101)
-out_ps <- p_normal_approx_lin(q_normal_approx_lin(ps))
-out_ps
-
-ps[(ps < 0.3) | (ps > 0.7)] - out_ps[(ps < 0.3) | (ps > 0.7)]
-```
-
-We note that the two representations of the CDF are generally quite similar, but the QF estimates can differ substantially:
-
-```{r}
 x <- seq(from = 0.0, to = 20.0, length = 5001)
 plot_df <- rbind(
     data.frame(
         x = x,
         cdf = p_normal_approx(x),
-        type = "spline"
+        type = "piecewise linear"
     ),
     data.frame(
         x = x,
-        cdf = p_normal_approx_lin(x),
-        type = "piecewise linear"
+        cdf = p_normal_approx_spline(x),
+        type = "spline"
     )
 )
 ggplot() +
@@ -438,12 +475,12 @@ plot_df <- rbind(
     data.frame(
         p = ps,
         qf = q_normal_approx(ps),
-        type = "spline"
+        type = "piecewise linear"
     ),
     data.frame(
         p = ps,
-        qf = q_normal_approx_lin(ps),
-        type = "piecewise linear"
+        qf = q_normal_approx_spline(ps),
+        type = "spline"
     )
 )
 ggplot() +
@@ -453,7 +490,7 @@ ggplot() +
                mapping = aes(x = x, y = y))
 ```
 
-We therefore recommend using the piecewise linear representation when using a quantile function.
+We therefore recommend using the piecewise linear representation when using a quantile function or generating random deviates, which uses the quantile function in the background.
 
 ## Example 3: duplicated quantiles in the tails
 
@@ -522,5 +559,4 @@ ggplot() +
               mapping = aes(x = p, y = qf, color = type, linetype = type)) +
     geom_point(data = data.frame(x = quantile_probs, y = quantile_values),
                mapping = aes(x = x, y = y))
-
 ```

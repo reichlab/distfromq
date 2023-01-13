@@ -4,10 +4,8 @@
 \alias{spline_cdf}
 \title{Approximate density function, cdf, or quantile function on the interior of
 provided quantiles by representing the distribution as a sum of a discrete
-part at any duplicated \code{qs} and a continuous part. The cdf of the continuous
-part is estimated using a monotonic spline that interpolates the quantiles.
-To obtain a pdf, we differentiate this spline. To obtain a quantile function,
-we invert the approximation to the cdf, tracking any discontinuities.}
+part at any duplicated \code{qs} and a continuous part for which the cdf is
+estimated using a monotonic Hermite spline. See details for more.}
 \usage{
 spline_cdf(
   ps,
@@ -15,7 +13,7 @@ spline_cdf(
   lower_tail_dist,
   upper_tail_dist,
   fn_type = c("d", "p", "q"),
-  n_grid = NULL
+  n_grid = 20
 )
 }
 \arguments{
@@ -30,16 +28,12 @@ spline_cdf(
 \item{fn_type}{the type of function that is requested: \code{"d"} for a pdf,
 \code{"p"} for a cdf, or \code{"q"} for a quantile function.}
 
-\item{n_grid}{grid size for a piecewise linear approximation to the spline.
-The default is \code{NULL}, in which case a piecewise linear approximation is
-not used. The estimate of the cdf is a piecewise degree three polynomial,
-the pdf is the derivative of the cdf, and the qf is obtained by inverting
-the polynomial. This inversion process is not numerically precise, so the
-cdf and qf will in general not be exact inverses. In settings where it is
-important that the cdf and qf are inverses, we recommend setting \code{n_grid}
-to an integer number of points that will be inserted between each pair of
-consecutive qs. The spline is evaluated at these points, and a piecewise
-linear approximation to the cdf is inverted.}
+\item{n_grid}{grid size to use when augmenting the input \code{qs} to obtain a
+finer grid of points along which we form a piecewise linear approximation
+to the spline. \code{n_grid} evenly-spaced points are inserted between each
+pair of consecutive values in \code{qs}. The default value is 20. This can
+be set to \code{NULL}, in which case the piecewise linear approximation is not
+used. This is not recommended if the \code{fn_type} is \code{"q"}.}
 }
 \value{
 a function to evaluate the pdf, cdf, or quantile function.
@@ -47,8 +41,24 @@ a function to evaluate the pdf, cdf, or quantile function.
 \description{
 Approximate density function, cdf, or quantile function on the interior of
 provided quantiles by representing the distribution as a sum of a discrete
-part at any duplicated \code{qs} and a continuous part. The cdf of the continuous
-part is estimated using a monotonic spline that interpolates the quantiles.
-To obtain a pdf, we differentiate this spline. To obtain a quantile function,
-we invert the approximation to the cdf, tracking any discontinuities.
+part at any duplicated \code{qs} and a continuous part for which the cdf is
+estimated using a monotonic Hermite spline. See details for more.
+}
+\details{
+The cdf of the continuous part of the distribution is estimated
+using a monotonic degree 3 Hermite spline that interpolates the quantiles
+after subtracting the discrete distribution and renormalizing. In theory,
+an estimate of the quantile function could be obtained by directly inverting
+this spline. However, in practice, we have observed that this can suffer from
+numerical problems. Therefore, the default behavior of this function is to
+evaluate the "stage 1" cdf estimate corresponding to discrete point masses
+plus monotonic spline at a fine grid of points, and use the "stage 2" cdf
+estimate that linearly interpolates these points with steps at any duplicated
+q values. The quantile function estimate is obtained by inverting this
+"stage 2" cdf estimate. When the distribution is continuous, we can obtain an
+estimate of the pdf by differentiating the cdf estimate, resulting in a
+discontinuous "histogram density". The size of the grid can be specified with
+the \code{n_grid} argument. In settings where it is desirable to obtain a
+continuous density function, the "stage 1" cdf estimate can be used by
+setting \code{n_grid = NULL}.
 }
