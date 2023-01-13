@@ -1,148 +1,15 @@
 #' @importFrom stats runif
 #' @importFrom utils head tail
 #' @importFrom zeallot %<-%
+#' @importFrom splines backSpline
 NULL
 
 
-#' Calculate location and scale parameters for a specified distribution so that
-#' it matches two specified quantiles
-#' 
-#' @param ps vector of two probability levels at which the distribution's
-#'   quantiles are distinct
-#' @param qs vector of two distinct quantile values corresponding to the
-#'   probability levels in ps
-#' @param dist the probability distribution to use for extrapolation. This
-#'   distribution should be in a location-scale family, such as `"norm"`al or
-#'   `"cauchy"`
-#' 
-#' @param named list with entries `"a"`, the location parameter, and `"b"`, the
-#'   scale parameter
-calc_loc_scale_params <- function(ps, qs, dist) {
-    if (dist == "lnorm") {
-        if (any(qs <= 0.0)) {
-            stop("For dist = 'lnorm', all qs must be positive")
-        }
-        qs <- log(qs)
-        qdst <- qnorm
-    } else {
-        qdst <- get(paste0("q", dist))
-    }
-    b <- (qs[2] - qs[1]) / (qdst(ps[2]) - qdst(ps[1]))
-    a <- qs[1] - b * qdst(ps[1])
-    return(list(a = a, b = b))
-}
-
-
-#' Extrapolate density function in a location-scale family matching specified
-#' quantiles.
-#'
-#' @param ps vector of two probability levels at which the distribution's
-#'   quantiles are distinct
-#' @param qs vector of two distinct quantile values corresponding to the
-#'   probability levels in ps
-#' @param dist the probability distribution to use for extrapolation. This
-#'   distribution should be in a location-scale family, such as "normal" or
-#'   "Cauchy"
-#'
-#' @return a function with parameters `x` and `log` that can be used to
-#'   evaluate the density function (or its log) of the distribution in the
-#'   specified location-scale family that has quantiles matching those in `ps`
-#'   and `qs`
-d_ext_factory <- function(ps, qs, dist) {
-    c(a, b) %<-% calc_loc_scale_params(ps, qs, dist)
-
-    if (dist == "lnorm") {
-        d_ext <- function(x, log = FALSE) {
-            return(dlnorm(x, meanlog = a, sdlog = b, log = log))
-        }
-    } else {
-        ddst <- get(paste0("d", dist))
-        d_ext <- function(x, log = FALSE) {
-            result <- ddst((x - a) / b, log = TRUE) - log(b)
-            if (log) {
-                return(result)
-            } else {
-                return(exp(result))
-            }
-        }
-    }
-
-    return(d_ext)
-}
-
-
-#' Extrapolate cumulative distribution function in a location-scale family
-#' matching specified quantiles.
-#'
-#' @param ps vector of two probability levels at which the distribution's
-#'   quantiles are distinct
-#' @param qs vector of two distinct quantile values corresponding to the
-#'   probability levels in ps
-#' @param dist the probability distribution to use for extrapolation. This
-#'   distribution should be in a location-scale family, such as "normal" or
-#'   "Cauchy"
-#'
-#' @return a function with parameter `x` and `log.p` that can be used to
-#'   evaluate the cumulative distribution function (or its log) of the
-#'   distribution in the specified location-scale family that has quantiles
-#'   matching those in `ps` and `qs`
-p_ext_factory <- function(ps, qs, dist) {
-    c(a, b) %<-% calc_loc_scale_params(ps, qs, dist)
-
-    if (dist == "lnorm") {
-        p_ext <- function(q, log.p = FALSE) {
-            return(plnorm(q, meanlog = a, sdlog = b, log.p = log.p))
-        }
-    } else {
-        pdst <- get(paste0("p", dist))
-
-        p_ext <- function(q, log.p = FALSE) {
-            return(pdst((q - a) / b, log.p = log.p))
-        }
-    }
-
-    return(p_ext)
-}
-
-
-#' Extrapolate quantile function in a location-scale family matching specified
-#' quantiles.
-#'
-#' @param ps vector of two probability levels at which the distribution's
-#'   quantiles are distinct
-#' @param qs vector of two distinct quantile values corresponding to the
-#'   probability levels in ps
-#' @param dist the probability distribution to use for extrapolation. This
-#'   distribution should be in a location-scale family, such as "normal" or
-#'   "Cauchy"
-#'
-#' @return a function with parameter `p` that can be used to evaluate the
-#'   quantile function of the distribution in the specified location-scale
-#'   family that has quantiles matching those in `ps` and `qs`
-q_ext_factory <- function(ps, qs, dist) {
-    c(a, b) %<-% calc_loc_scale_params(ps, qs, dist)
-
-    if (dist == "lnorm") {
-        q_ext <- function(p) {
-            return(qlnorm(p, meanlog = a, sdlog = b))
-        }
-    } else {
-        qdst <- get(paste0("q", dist))
-
-        q_ext <- function(p) {
-            return(a + b * qdst(p))
-        }
-    }
-
-    return(q_ext)
-}
-
-
 #' Clean up ps and qs provided by user: handle missing and unsorted values
-#' 
+#'
 #' @param ps vector of probability levels
 #' @param qs vector of quantile values correponding to ps
-#' 
+#'
 #' @return named list with entries `ps` and `qs`
 clean_ps_and_qs <- function(ps, qs) {
     # drop missing values for qs
@@ -156,7 +23,7 @@ clean_ps_and_qs <- function(ps, qs) {
     ps <- sort(ps)
     qs <- sort(qs)
 
-    return(list(ps=ps, qs=qs))
+    return(list(ps = ps, qs = qs))
 }
 
 
@@ -166,16 +33,35 @@ clean_ps_and_qs <- function(ps, qs) {
 #'
 #' @param ps vector of probability levels
 #' @param qs vector of quantile values correponding to ps
-#' @param interior_method method for monotonic cubic spline fit to the quantiles
-#'   used for approximating the distribution on the interior of the quantiles.
-#'   See [stats::splinefun()]. One of `"hyman"` or `"monoH.FC"`.
+#' @param interior_method method for interpolating the distribution on the
+#'    interior of the provided `qs`. This package provides one method for this,
+#'    `"spline_cdf"`. The user may also provide a custom function; see the
+#'    details for more.
+#' @param interior_args an optional named list of arguments that are passed
+#'    on to the `interior_method`
 #' @param lower_tail_dist name of parametric distribution for the lower tail
 #' @param upper_tail_dist name of parametric distribution for the upper tail
+#' 
+#' @details The default `interior_method`, `"spline_cdf"`, represents the
+#'    distribution as a sum of a discrete component at any points where there
+#'    are duplicated `qs` for multiple different `ps` and a continuous component
+#'    that is estimated by using a monotonic cubic spline that interpolates the
+#'    provided `(q, p)` pairs as an estimate of the cdf. The density function is
+#'    then obtained by differentiating this estimate of the cdf.
+#' 
+#'    Optionally, the user may provide another function that accepts arguments
+#'    `ps`, `qs`, `lower_tail_dist`, `upper_tail_dist`, and `fn_type` (which
+#'    will be either `"d"`, `"p"`, or `"q"`), and optionally additional named
+#'    arguments to be specified via `interior_args`. This function should return
+#'    a function with arguments `x`, `log` that evaluates the pdf or its
+#'    logarithm.
 #'
 #' @return a function with arguments `x` and `log` that can be used to evaluate
 #'   the approximate density function (or its `log`) at the points `x`.
 #' @export
-make_d_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
+make_d_fn <- function(ps, qs,
+                      interior_method = "spline_cdf",
+                      interior_args = list(),
                       lower_tail_dist = "norm", upper_tail_dist = "norm") {
     interior_method <- match.arg(interior_method)
 
@@ -187,9 +73,12 @@ make_d_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
         stop("make_d_fn requires all values in qs to be unique")
     }
 
-    # fit a monotonic spline to the qs and ps to approximate the distribution
-    # on the interior
-    interior_pdf <- stats::splinefun(qs, ps, method = interior_method)
+    # approximate the pdf on the interior by interpolating quantiles
+    interior_args <- c(
+        list(ps = ps, qs = qs, lower_tail_dist = lower_tail_dist,
+             upper_tail_dist = upper_tail_dist, fn_type = "d"),
+        interior_args)
+    interior_pdf <- do.call(interior_method, args = interior_args)
 
     # approximate the pdf in the lower tail by extrapolating from the two
     # lowest quantiles within a location-scale family
@@ -211,10 +100,7 @@ make_d_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
         # interior points
         interior_idx <- (x >= qs[1]) & (x <= tail(qs, 1))
         if (any(interior_idx)) {
-            result[interior_idx] <- interior_pdf(x[interior_idx], deriv = 1)
-            if (log) {
-                result[interior_idx] <- log(result[interior_idx])
-            }
+            result[interior_idx] <- interior_pdf(x[interior_idx], log = log)
         }
 
         # lower points
@@ -243,25 +129,46 @@ make_d_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
 #'
 #' @param ps vector of probability levels
 #' @param qs vector of quantile values correponding to ps
-#' @param interior_method method for monotonic cubic spline fit to the quantiles
-#'   used for approximating the distribution on the interior of the quantiles.
-#'   See [stats::splinefun()]. One of `"hyman"` or `"monoH.FC"`.
+#' @param interior_method method for interpolating the distribution on the
+#'    interior of the provided `qs`. This package provides one method for this,
+#'    `"spline_cdf"`. The user may also provide a custom function; see the
+#'    details for more.
+#' @param interior_args an optional named list of arguments that are passed
+#'    on to the `interior_method`
 #' @param lower_tail_dist name of parametric distribution for the lower tail
 #' @param upper_tail_dist name of parametric distribution for the upper tail
+#' 
+#' @details The default `interior_method`, `"spline_cdf"`, represents the
+#'    distribution as a sum of a discrete component at any points where there
+#'    are duplicated `qs` for multiple different `ps` and a continuous component
+#'    that is estimated by using a monotonic cubic spline that interpolates the
+#'    provided `(q, p)` pairs as an estimate of the cdf.
+#' 
+#'    Optionally, the user may provide another function that accepts arguments
+#'    `ps`, `qs`, `lower_tail_dist`, `upper_tail_dist`, and `fn_type` (which
+#'    will be either `"d"`, `"p"`, or `"q"`), and optionally additional named
+#'    arguments to be specified via `interior_args`. This function should return
+#'    a function with arguments `x`, `log` that evaluates the pdf or its
+#'    logarithm.
 #'
 #' @return a function with arguments `q` and `log.p` that can be used to
 #'   evaluate the approximate cumulative distribution function (or its `log`)
 #'   at the points `q`.
 #' @export
-make_p_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
+make_p_fn <- function(ps, qs,
+                      interior_method = "spline_cdf",
+                      interior_args = list(),
                       lower_tail_dist = "norm", upper_tail_dist = "norm") {
     interior_method <- match.arg(interior_method)
 
     c(ps, qs) %<-% clean_ps_and_qs(ps, qs)
 
-    # fit a monotonic spline to the qs and ps to approximate the distribution
-    # on the interior
-    interior_cdf <- stats::splinefun(qs, ps, method = interior_method)
+    # approximate the cdf on the interior by interpolating quantiles
+    interior_args <- c(
+        list(ps = ps, qs = qs, lower_tail_dist = lower_tail_dist,
+             upper_tail_dist = upper_tail_dist, fn_type = "p"),
+        interior_args)
+    interior_cdf <- do.call(interior_method, args = interior_args)
 
     # approximate the cdf in the lower tail by extrapolating from the two
     # lowest quantiles within a location-scale family
@@ -283,16 +190,13 @@ make_p_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
         # interior points
         interior_idx <- (q >= qs[1]) & (q <= tail(qs, 1))
         if (any(interior_idx)) {
-            result[interior_idx] <- interior_cdf(q[interior_idx], deriv = 0)
-            if (log.p) {
-                result[interior_idx] <- log(result[interior_idx])
-            }
+            result[interior_idx] <- interior_cdf(q[interior_idx], log.p = log.p)
         }
 
         # lower points
         lower_idx <- (q < qs[1])
         if (any(lower_idx)) {
-            result[lower_idx] <- lower_cdf(q[lower_idx], log.p=log.p)
+            result[lower_idx] <- lower_cdf(q[lower_idx], log.p = log.p)
         }
 
         # upper points
@@ -315,25 +219,46 @@ make_p_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
 #'
 #' @param ps vector of probability levels
 #' @param qs vector of quantile values correponding to ps
-#' @param interior_method method for monotonic cubic spline fit to the quantiles
-#'   used for approximating the distribution on the interior of the quantiles.
-#'   See [stats::splinefun()]. One of `"hyman"` or `"monoH.FC"`.
+#' @param interior_method method for interpolating the distribution on the
+#'    interior of the provided `qs`. This package provides one method for this,
+#'    `"spline_cdf"`. The user may also provide a custom function; see the
+#'    details for more.
+#' @param interior_args an optional named list of arguments that are passed
+#'    on to the `interior_method`
 #' @param lower_tail_dist name of parametric distribution for the lower tail
 #' @param upper_tail_dist name of parametric distribution for the upper tail
+#' 
+#' @details The default `interior_method`, `"spline_cdf"`, represents the
+#'    distribution as a sum of a discrete component at any points where there
+#'    are duplicated `qs` for multiple different `ps` and a continuous component
+#'    that is estimated by using a monotonic cubic spline that interpolates the
+#'    provided `(q, p)` pairs as an estimate of the cdf. The quantile function
+#'    is then obtained by inverting this estimate of the cdf.
+#' 
+#'    Optionally, the user may provide another function that accepts arguments
+#'    `ps`, `qs`, `lower_tail_dist`, `upper_tail_dist`, and `fn_type` (which
+#'    will be either `"d"`, `"p"`, or `"q"`), and optionally additional named
+#'    arguments to be specified via `interior_args`. This function should return
+#'    a function with argument `p` that evaluates the quantile function.
 #'
 #' @return a function with argument `p` that can be used to calculate quantiles
 #'   of the approximated distribution at the probability levels `p`.
 #'
 #' @export
-make_q_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
+make_q_fn <- function(ps, qs,
+                      interior_method = "spline_cdf",
+                      interior_args = list(),
                       lower_tail_dist = "norm", upper_tail_dist = "norm") {
     interior_method <- match.arg(interior_method)
 
     c(ps, qs) %<-% clean_ps_and_qs(ps, qs)
 
-    # fit a monotonic spline to the ps and qs to approximate the distribution
-    # on the interior
-    interior_qf <- stats::splinefun(ps, qs, method = interior_method)
+    # approximate the pdf on the interior by interpolating quantiles
+    interior_args <- c(
+        list(ps = ps, qs = qs, lower_tail_dist = lower_tail_dist,
+             upper_tail_dist = upper_tail_dist, fn_type = "q"),
+        interior_args)
+    interior_qf <- do.call(interior_method, args = interior_args)
 
     # approximate the quantile function in the lower tail by extrapolating from
     # the two lowest quantiles within a location-scale family
@@ -377,25 +302,44 @@ make_q_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
 }
 
 
-#' Creates a function that evaluates the quantile function of an approximation
+#' Creates a function that generates random deviates from an approximation
 #' to a distribution obtained by interpolating and extrapolating from a set of
 #' quantiles of the distribution.
 #'
 #' @param ps vector of probability levels
 #' @param qs vector of quantile values correponding to ps
-#' @param interior_method method for monotonic cubic spline fit to the quantiles
-#'   used for approximating the distribution on the interior of the quantiles.
-#'   See [stats::splinefun()]. One of `"hyman"` or `"monoH.FC"`.
+#' @param interior_method method for interpolating the distribution on the
+#'    interior of the provided `qs`. This package provides one method for this,
+#'    `"spline_cdf"`. The user may also provide a custom function; see the
+#'    details for more.
+#' @param interior_args an optional named list of arguments that are passed
+#'    on to the `interior_method`
 #' @param lower_tail_dist name of parametric distribution for the lower tail
 #' @param upper_tail_dist name of parametric distribution for the upper tail
 #'
+#' @details The default `interior_method`, `"spline_cdf"`, represents the
+#'    distribution as a sum of a discrete component at any points where there
+#'    are duplicated `qs` for multiple different `ps` and a continuous component
+#'    that is estimated by using a monotonic cubic spline that interpolates the
+#'    provided `(q, p)` pairs as an estimate of the cdf. The quantile function
+#'    is then obtained by inverting this estimate of the cdf.
+#' 
+#'    Optionally, the user may provide another function that accepts arguments
+#'    `ps`, `qs`, `lower_tail_dist`, `upper_tail_dist`, and `fn_type` (which
+#'    will be either `"d"`, `"p"`, or `"q"`), and optionally additional named
+#'    arguments to be specified via `interior_args`. This function should return
+#'    a function with argument `p` that evaluates the quantile function.
+#' 
 #' @return a function with argument `n` that can be used to generate a sample of
 #'   size `n` from the approximated distribution.
 #' @export
-make_r_fn <- function(ps, qs, interior_method = c("hyman", "monoH.FC"),
+make_r_fn <- function(ps, qs,
+                      interior_method = "spline_cdf",
+                      interior_args = list(),
                       lower_tail_dist = "norm", upper_tail_dist = "norm") {
     interior_method <- match.arg(interior_method)
-    q_fn <- make_q_fn(ps, qs, interior_method, lower_tail_dist, upper_tail_dist)
+    q_fn <- make_q_fn(ps, qs, interior_method, interior_args, lower_tail_dist,
+                      upper_tail_dist)
 
     r_fn <- function(n) {
         u <- runif(n)
