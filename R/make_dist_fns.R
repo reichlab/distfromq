@@ -34,9 +34,9 @@ clean_ps_and_qs <- function(ps, qs) {
 #' @param ps vector of probability levels
 #' @param qs vector of quantile values correponding to ps
 #' @param interior_method method for interpolating the distribution on the
-#'    interior of the provided `qs`. Options provided by this package include
-#'    `"spline_cdf"` and `"spline_qf"`. The user may also provide a custom
-#'    function; see details for more.
+#'    interior of the provided `qs`. This package provides one method for this,
+#'    `"spline_cdf"`. The user may also provide a custom function; see the
+#'    details for more.
 #' @param interior_args an optional named list of arguments that are passed
 #'    on to the `interior_method`
 #' @param lower_tail_dist name of parametric distribution for the lower tail
@@ -60,7 +60,7 @@ clean_ps_and_qs <- function(ps, qs) {
 #'   the approximate density function (or its `log`) at the points `x`.
 #' @export
 make_d_fn <- function(ps, qs,
-                      interior_method = c("spline_cdf", "spline_qf"),
+                      interior_method = "spline_cdf",
                       interior_args = list(),
                       lower_tail_dist = "norm", upper_tail_dist = "norm") {
     interior_method <- match.arg(interior_method)
@@ -130,9 +130,9 @@ make_d_fn <- function(ps, qs,
 #' @param ps vector of probability levels
 #' @param qs vector of quantile values correponding to ps
 #' @param interior_method method for interpolating the distribution on the
-#'    interior of the provided `qs`. Options provided by this package include
-#'    `"spline_cdf"` and `"spline_qf"`. The user may also provide a custom
-#'    function; see details for more.
+#'    interior of the provided `qs`. This package provides one method for this,
+#'    `"spline_cdf"`. The user may also provide a custom function; see the
+#'    details for more.
 #' @param interior_args an optional named list of arguments that are passed
 #'    on to the `interior_method`
 #' @param lower_tail_dist name of parametric distribution for the lower tail
@@ -156,7 +156,7 @@ make_d_fn <- function(ps, qs,
 #'   at the points `q`.
 #' @export
 make_p_fn <- function(ps, qs,
-                      interior_method = c("spline_cdf", "spline_qf"),
+                      interior_method = "spline_cdf",
                       interior_args = list(),
                       lower_tail_dist = "norm", upper_tail_dist = "norm") {
     interior_method <- match.arg(interior_method)
@@ -220,9 +220,9 @@ make_p_fn <- function(ps, qs,
 #' @param ps vector of probability levels
 #' @param qs vector of quantile values correponding to ps
 #' @param interior_method method for interpolating the distribution on the
-#'    interior of the provided `qs`. Options provided by this package include
-#'    `"spline_cdf"` and `"spline_qf"`. The user may also provide a custom
-#'    function; see details for more.
+#'    interior of the provided `qs`. This package provides one method for this,
+#'    `"spline_cdf"`. The user may also provide a custom function; see the
+#'    details for more.
 #' @param interior_args an optional named list of arguments that are passed
 #'    on to the `interior_method`
 #' @param lower_tail_dist name of parametric distribution for the lower tail
@@ -246,7 +246,7 @@ make_p_fn <- function(ps, qs,
 #'
 #' @export
 make_q_fn <- function(ps, qs,
-                      interior_method = c("spline_cdf", "spline_qf"),
+                      interior_method = "spline_cdf",
                       interior_args = list(),
                       lower_tail_dist = "norm", upper_tail_dist = "norm") {
     interior_method <- match.arg(interior_method)
@@ -309,9 +309,9 @@ make_q_fn <- function(ps, qs,
 #' @param ps vector of probability levels
 #' @param qs vector of quantile values correponding to ps
 #' @param interior_method method for interpolating the distribution on the
-#'    interior of the provided `qs`. Options provided by this package include
-#'    `"spline_cdf"` and `"spline_qf"`. The user may also provide a custom
-#'    function; see details for more.
+#'    interior of the provided `qs`. This package provides one method for this,
+#'    `"spline_cdf"`. The user may also provide a custom function; see the
+#'    details for more.
 #' @param interior_args an optional named list of arguments that are passed
 #'    on to the `interior_method`
 #' @param lower_tail_dist name of parametric distribution for the lower tail
@@ -334,7 +334,7 @@ make_q_fn <- function(ps, qs,
 #'   size `n` from the approximated distribution.
 #' @export
 make_r_fn <- function(ps, qs,
-                      interior_method = c("spline_cdf", "spline_qf"),
+                      interior_method = "spline_cdf",
                       interior_args = list(),
                       lower_tail_dist = "norm", upper_tail_dist = "norm") {
     interior_method <- match.arg(interior_method)

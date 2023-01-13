@@ -9,7 +9,7 @@ quantiles of the distribution.}
 make_q_fn(
   ps,
   qs,
-  interior_method = c("spline_cdf", "spline_qf"),
+  interior_method = "spline_cdf",
   interior_args = list(),
   lower_tail_dist = "norm",
   upper_tail_dist = "norm"
@@ -21,9 +21,9 @@ make_q_fn(
 \item{qs}{vector of quantile values correponding to ps}
 
 \item{interior_method}{method for interpolating the distribution on the
-interior of the provided \code{qs}. Options provided by this package include
-\code{"spline_cdf"} and \code{"spline_qf"}. The user may also provide a custom
-function; see details for more.}
+interior of the provided \code{qs}. This package provides one method for this,
+\code{"spline_cdf"}. The user may also provide a custom function; see the
+details for more.}
 
 \item{interior_args}{an optional named list of arguments that are passed
 on to the \code{interior_method}}

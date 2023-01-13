@@ -258,10 +258,8 @@ step_interp_factory <- function(x, y, cont_dir = c("right", "left"),
 
 #' Approximate density function, cdf, or quantile function on the interior of
 #' provided quantiles by representing the distribution as a sum of a discrete
-#' part at any duplicated `qs` and a continuous part. The cdf of the continuous
-#' part is estimated using a monotonic spline that interpolates the quantiles.
-#' To obtain a pdf, we differentiate this spline. To obtain a quantile function,
-#' we invert the approximation to the cdf, tracking any discontinuities.
+#' part at any duplicated `qs` and a continuous part for which the cdf is
+#' estimated using a monotonic Hermite spline. See details for more.
 #'
 #' @param ps vector of probability levels
 #' @param qs vector of quantile values correponding to ps
@@ -269,21 +267,34 @@ step_interp_factory <- function(x, y, cont_dir = c("right", "left"),
 #' @param upper_tail_dist name of parametric distribution for the upper tail
 #' @param fn_type the type of function that is requested: `"d"` for a pdf,
 #'   `"p"` for a cdf, or `"q"` for a quantile function.
-#' @param n_grid grid size for a piecewise linear approximation to the spline.
-#'   The default is `NULL`, in which case a piecewise linear approximation is
-#'   not used. The estimate of the cdf is a piecewise degree three polynomial,
-#'   the pdf is the derivative of the cdf, and the qf is obtained by inverting
-#'   the polynomial. This inversion process is not numerically precise, so the
-#'   cdf and qf will in general not be exact inverses. In settings where it is
-#'   important that the cdf and qf are inverses, we recommend setting `n_grid`
-#'   to an integer number of points that will be inserted between each pair of
-#'   consecutive qs. The spline is evaluated at these points, and a piecewise
-#'   linear approximation to the cdf is inverted.
+#' @param n_grid grid size to use when augmenting the input `qs` to obtain a
+#'   finer grid of points along which we form a piecewise linear approximation
+#'   to the spline. `n_grid` evenly-spaced points are inserted between each
+#'   pair of consecutive values in `qs`. The default value is 20. This can
+#'   be set to `NULL`, in which case the piecewise linear approximation is not
+#'   used. This is not recommended if the `fn_type` is `"q"`.
+#'
+#' @details The cdf of the continuous part of the distribution is estimated
+#' using a monotonic degree 3 Hermite spline that interpolates the quantiles
+#' after subtracting the discrete distribution and renormalizing. In theory,
+#' an estimate of the quantile function could be obtained by directly inverting
+#' this spline. However, in practice, we have observed that this can suffer from
+#' numerical problems. Therefore, the default behavior of this function is to
+#' evaluate the "stage 1" cdf estimate corresponding to discrete point masses
+#' plus monotonic spline at a fine grid of points, and use the "stage 2" cdf
+#' estimate that linearly interpolates these points with steps at any duplicated
+#' q values. The quantile function estimate is obtained by inverting this
+#' "stage 2" cdf estimate. When the distribution is continuous, we can obtain an
+#' estimate of the pdf by differentiating the cdf estimate, resulting in a
+#' discontinuous "histogram density". The size of the grid can be specified with
+#' the `n_grid` argument. In settings where it is desirable to obtain a
+#' continuous density function, the "stage 1" cdf estimate can be used by
+#' setting `n_grid = NULL`.
 #'
 #' @return a function to evaluate the pdf, cdf, or quantile function.
 spline_cdf <- function(ps, qs, lower_tail_dist, upper_tail_dist,
                        fn_type = c("d", "p", "q"),
-                       n_grid = NULL) {
+                       n_grid = 20) {
     fn_type <- match.arg(fn_type)
 
     if ((any(duplicated(qs)) || length(qs) == 1L) & fn_type == "d") {
