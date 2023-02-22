@@ -105,7 +105,8 @@ split_disc_cont_ps_qs <- function(ps, qs, tol = 1e-6) {
 #'
 #' @details This function essentially reproduces `stats::splinefunH`, but it
 #'   returns a polynomial spline object as used in the `splines` package rather
-#'   than a function that evaluates the spline.
+#'   than a function that evaluates the spline, and potentially makes
+#'   adjustments to the input slopes `m` to enforce monotonicity.
 #'
 #' @return An object of class `polySpline` with the spline object, suitable for
 #'   use with other functionality from the `splines` package.
@@ -136,12 +137,33 @@ mono_Hermite_spline <- function(x, y, m) {
     x_ip1 <- x[-1]
     y_i <- y[-n]
     y_ip1 <- y[-1]
-    m_i <- m[-n]
-    m_ip1 <- m[-1]
     delta <- x_ip1 - x_i
     delta2 <- delta^2
     delta3 <- delta^3
+    
+    # adjustments to m to ensure monotonicity; see steps 3 through 5 at
+    # https://en.wikipedia.org/wiki/Monotone_cubic_interpolation#Monotone_cubic_Hermite_interpolation
+    for (i in seq_along(x_i)) {
+        if (y_i[i] == y_ip1[i]) {
+            m[i] <- m[i+1] <- 0.0
+        }
+    }
+    for (i in seq_along(x_i)) {
+        if (y_i[i] != y_ip1[i]) {
+            d <- (y_ip1[i] - y_i[i]) / (x_ip1[i] - x_i[i])
+            alpha <- m[i] / d
+            beta <- m[i+1] / d
+            ab_sq <- alpha^2 + beta^2
+            if (ab_sq > 9) {
+                tau <- 3 / sqrt(ab_sq)
+                m[i] <- tau * m[i]
+                m[i+1] <- tau * m[i+1]
+            }
+        }
+    }
 
+    m_i <- m[-n]
+    m_ip1 <- m[-1]
     m_i <- m_i * delta
     m_ip1 <- m_ip1 * delta
 

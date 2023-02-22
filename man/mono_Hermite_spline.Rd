@@ -29,5 +29,6 @@ interpolating a given set of points.
 \details{
 This function essentially reproduces \code{stats::splinefunH}, but it
 returns a polynomial spline object as used in the \code{splines} package rather
-than a function that evaluates the spline.
+than a function that evaluates the spline, and potentially makes
+adjustments to the input slopes \code{m} to enforce monotonicity.
 }
