@@ -3,6 +3,11 @@
 #' 
 #' @param ps vector of probability levels
 #' @param qs vector of quantile values correponding to ps
+#' @param tol numeric tolerance for identifying duplicated values indicating a
+#'   discrete component of the distribution. If there is a run of values where
+#'   each consecutive pair is closer together than the tolerance, all are
+#'   labeled as duplicates even if not all values in the run are within the
+#'   tolerance.
 #' 
 #' @return named list with the following entries:
 #'   - `disc_weight`: estimated numeric weight of the discrete part of the
@@ -18,15 +23,18 @@
 #'     the discrete distribution. Each entry is a numeric vector of length two
 #'     with the value of the cdf approaching the point mass from the left and
 #'     from the right.
-split_disc_cont_ps_qs <- function(ps, qs) {
+#' 
+#' @export
+split_disc_cont_ps_qs <- function(ps, qs, tol = 1e-6) {
     # Short-circuit if all qs are duplicates
     # we have no information from which to estimate a continuous
     # part of the distribution.
-    if (length(unique(qs)) == 1L) {
+    uq <- unique_tol(qs, tol = tol)
+    if (length(uq) == 1L) {
         return(list(
             disc_weight = 1.0,
             disc_ps = 1.0,
-            disc_qs = qs[1L],
+            disc_qs = uq,
             cont_ps = numeric(),
             cont_qs = numeric(),
             disc_ps_range = list(range(ps))
@@ -35,15 +43,18 @@ split_disc_cont_ps_qs <- function(ps, qs) {
 
     # Isolate the discrete portion of the distribution:
     # duplicated quantiles and the associated point mass probabilities
-    dup_q_inds <- duplicated(qs)
-    dup_qs <- qs[dup_q_inds]
-    disc_qs <- sort(unique(dup_qs))
-    disc_ps_range <- purrr::map(
-        disc_qs,
-        function(q) range(ps[qs == q]))
+    dup_q_inds_t <- duplicated_tol(qs, tol = tol, incl_first = TRUE)
+    dup_q_inds_f <- duplicated_tol(qs, tol = tol, incl_first = FALSE)
+    disc_qs <- unique_tol(qs[dup_q_inds_t], tol = tol)
+    # dup_qs <- qs[dup_q_inds]
+    # disc_qs <- sort(unique(dup_qs))
+    c(dup_run_starts, dup_run_ends) %<-% get_dup_run_inds(dup_q_inds_f)
+    disc_ps_range <- purrr::map2(
+        dup_run_starts, dup_run_ends,
+        function(start, end) range(ps[start:end]))
     disc_ps_mass <- purrr::map_dbl(
-        disc_qs,
-        function(q) diff(range(ps[qs == q])))
+        disc_ps_range,
+        function(range_i) diff(range_i))
     disc_cum_ps <- cumsum(disc_ps_mass)
 
     # remaining quantiles correspond to a continuous portion of the
@@ -52,8 +63,8 @@ split_disc_cont_ps_qs <- function(ps, qs) {
     # Note that we do keep the first instance of a duplicated q.
     # That means that fits for the continuous portion of a distribution
     # will see one (q, p) pair for the duplicated q
-    cont_ps <- ps[!dup_q_inds]
-    cont_qs <- qs[!dup_q_inds]
+    cont_ps <- ps[!dup_q_inds_f]
+    cont_qs <- uq
     for (i in seq_along(disc_qs)) {
         adj_inds <- (cont_qs > disc_qs[i])
         cont_ps[adj_inds] <- cont_ps[adj_inds] - disc_ps_mass[i]
@@ -273,6 +284,11 @@ step_interp_factory <- function(x, y, cont_dir = c("right", "left"),
 #'   pair of consecutive values in `qs`. The default value is 20. This can
 #'   be set to `NULL`, in which case the piecewise linear approximation is not
 #'   used. This is not recommended if the `fn_type` is `"q"`.
+#' @param tol numeric tolerance for identifying duplicated quantiles indicating
+#'   a discrete component of the distribution. If there is a run of values where
+#'   each consecutive pair is closer together than the tolerance, all are
+#'   labeled as duplicates even if not all values in the run are within the
+#'   tolerance.
 #'
 #' @details The cdf of the continuous part of the distribution is estimated
 #' using a monotonic degree 3 Hermite spline that interpolates the quantiles
@@ -294,7 +310,8 @@ step_interp_factory <- function(x, y, cont_dir = c("right", "left"),
 #' @return a function to evaluate the pdf, cdf, or quantile function.
 spline_cdf <- function(ps, qs, lower_tail_dist, upper_tail_dist,
                        fn_type = c("d", "p", "q"),
-                       n_grid = 20) {
+                       n_grid = 20,
+                       tol = 1e-6) {
     fn_type <- match.arg(fn_type)
 
     if ((any(duplicated(qs)) || length(qs) == 1L) & fn_type == "d") {
@@ -371,7 +388,7 @@ spline_cdf <- function(ps, qs, lower_tail_dist, upper_tail_dist,
         # split ps and qs into discrete and continuous part, along with the
         # weight given to the discrete part
         c(disc_weight, disc_ps, disc_qs, cont_ps, cont_qs, disc_ps_range) %<-%
-            split_disc_cont_ps_qs(ps, qs)
+            split_disc_cont_ps_qs(ps, qs, tol = tol)
 
         # fit a monotonic spline to the qs and ps for the continuous part of the
         # distribution to approximate the cdf on the interior
@@ -487,7 +504,7 @@ spline_qf <- function(ps, qs, lower_tail_dist, upper_tail_dist,
     # split ps and qs into discrete and continuous part, along with the weight
     # given to the discrete part
     c(disc_weight, disc_ps, disc_qs, cont_ps, cont_qs, disc_ps_range) %<-%
-        split_disc_cont_ps_qs(ps, qs)
+        split_disc_cont_ps_qs(ps, qs, tol = tol)
 
     # fit a monotonic spline to the qs and ps for the continuous part of the
     # distribution to approximate the qf on the interior

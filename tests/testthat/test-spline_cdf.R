@@ -456,3 +456,26 @@ test_that("spline_cdf recovers qf, two discrete components", {
     expect_equal(cdf_hat(qf_hat(test_ps)), expected_test_ps, tolerance = 1e-3)
     expect_equal(cdf_hat_lin(qf_hat_lin(test_ps)), expected_test_ps, tolerance = 1e-12)
 })
+
+test_that("spline_cdf is well-behaved with near-equal quantiles", {
+    # probabilities and quantiles with a near-duplicate q
+    ps <- c(0.01, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45,
+        0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.975, 0.99)
+    qs <- c(0, 0, 2.99327779507948e-16, 4.94582028429876, 8.22187599370956,
+        9.89992446804951, 11.2927083522741, 12.5925601513011, 13.8718728208768,
+        15.0382200560432, 16.0565760032992, 16.9592610229454, 17.7662853190937,
+        18.6751481876927, 19.7650748463216, 21.0314540241319, 22.5188110517322,
+        24.3155280557975, 26.5953673396936, 30.2878452640675, 37.6971667663299,
+        46.5930391567271, 52.2594821457131)
+
+    cdf_hat <- distfromq:::spline_cdf(ps = ps, qs = qs, fn_type = "p",
+                          lower_tail_dist = "norm",
+                          upper_tail_dist = "norm")
+
+    test_qs <- seq(from = 0.0, to = 100.0, length.out = 1001)
+    cdf_vals <- cdf_hat(test_qs)
+    cdf_vals_in_range <- cdf_vals[test_qs >= min(qs) & test_qs <= max(qs)]
+
+    testthat::expect_true(all(cdf_vals_in_range >= 0.0))
+    testthat::expect_true(all(cdf_vals_in_range <= 1.0))
+})

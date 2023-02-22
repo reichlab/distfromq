@@ -5,12 +5,18 @@
 \title{Split ps and qs into those corresponding to discrete and continuous
 parts of a distribution.}
 \usage{
-split_disc_cont_ps_qs(ps, qs)
+split_disc_cont_ps_qs(ps, qs, tol = 1e-06)
 }
 \arguments{
 \item{ps}{vector of probability levels}
 
 \item{qs}{vector of quantile values correponding to ps}
+
+\item{tol}{numeric tolerance for identifying duplicated values indicating a
+discrete component of the distribution. If there is a run of values where
+each consecutive pair is closer together than the tolerance, all are
+labeled as duplicates even if not all values in the run are within the
+tolerance.}
 }
 \value{
 named list with the following entries:
