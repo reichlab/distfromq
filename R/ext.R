@@ -123,8 +123,14 @@ q_ext_factory <- function(ps, qs, dist) {
     } else {
         qdst <- get(paste0("q", dist))
 
-        q_ext <- function(p) {
-            return(a + b * qdst(p))
+        if (b == 0) {
+            q_ext <- function(p) {
+                rep(a, length(p))
+            }
+        } else {
+            q_ext <- function(p) {
+                return(a + b * qdst(p))
+            }
         }
     }
 

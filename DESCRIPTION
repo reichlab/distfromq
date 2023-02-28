@@ -1,6 +1,6 @@
 Package: distfromq
 Title: Reconstruct a Distribution from a Collection of Quantiles
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: 
     c(person("Evan", "Ray", , "elray@umass.edu", role = c("aut", "cre")),
     person("Aaron", "Gerding", , "elray@umass.edu", role = c("aut")))
