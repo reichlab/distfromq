@@ -72,6 +72,9 @@ make_d_fn <- function(ps, qs,
     if (any(duplicated(qs))) {
         stop("make_d_fn requires all values in qs to be unique")
     }
+    if (length(unique(qs)) < 2) {
+        stop("make_d_fn requires at least two unique qs")
+    }
 
     # approximate the pdf on the interior by interpolating quantiles
     interior_args <- c(
@@ -89,11 +92,6 @@ make_d_fn <- function(ps, qs,
     upper_pdf <- d_ext_factory(tail(ps, 2), tail(qs, 2), upper_tail_dist)
 
     d_fn <- function(x, log=FALSE) {
-        # short-circuit if less than two unique value in qs
-        if (length(unique(qs)) < 2) {
-            return(rep(qs, length(x)))
-        }
-
         # instantiate result
         result <- rep(NA_real_, length(x))
 
@@ -271,7 +269,7 @@ make_q_fn <- function(ps, qs,
     q_fn <- function(p) {
         # short-circuit if less than two unique value in qs
         if (length(unique(qs)) < 2) {
-            return(rep(qs, length(p)))
+            return(rep(unique(qs), length(p)))
         }
 
         # instantiate result
