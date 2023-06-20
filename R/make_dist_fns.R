@@ -41,14 +41,20 @@ clean_ps_and_qs <- function(ps, qs) {
 #'    on to the `interior_method`
 #' @param lower_tail_dist name of parametric distribution for the lower tail
 #' @param upper_tail_dist name of parametric distribution for the upper tail
-#' 
+#' @param lnorm_zero_buffer boolean or numeric specifying how to handle zero
+#'   quantiles in the upper tail when `dist = "lnorm"`. If `FALSE`, an error is
+#'   raised if the first element of `qs` is zero, the second element of `qs` is
+#'   non-zero, and `is_lower` is `FALSE`. Otherwise, must be a positive numeric
+#'   value, and in this situation the first element of `qs` is replaced by
+#'   `min(lnorm_zero_buffer, qs[2] / 2)`.
+#'
 #' @details The default `interior_method`, `"spline_cdf"`, represents the
 #'    distribution as a sum of a discrete component at any points where there
 #'    are duplicated `qs` for multiple different `ps` and a continuous component
 #'    that is estimated by using a monotonic cubic spline that interpolates the
 #'    provided `(q, p)` pairs as an estimate of the cdf. The density function is
 #'    then obtained by differentiating this estimate of the cdf.
-#' 
+#'
 #'    Optionally, the user may provide another function that accepts arguments
 #'    `ps`, `qs`, `lower_tail_dist`, `upper_tail_dist`, and `fn_type` (which
 #'    will be either `"d"`, `"p"`, or `"q"`), and optionally additional named
@@ -62,14 +68,16 @@ clean_ps_and_qs <- function(ps, qs) {
 make_d_fn <- function(ps, qs,
                       interior_method = "spline_cdf",
                       interior_args = list(),
-                      lower_tail_dist = "norm", upper_tail_dist = "norm") {
+                      lower_tail_dist = "norm", upper_tail_dist = "norm",
+                      lnorm_zero_buffer = 1e-6) {
     interior_method <- match.arg(interior_method)
 
     c(ps, qs) %<-% clean_ps_and_qs(ps, qs)
 
-    # throw an error if there are duplicated qs: the distribution is not
-    # continuous
-    if (any(duplicated(qs))) {
+    # throw an error if there are duplicated qs or
+    # any qs are 0 and the lower_tail_dist is "lnorm":
+    # the distribution is not continuous
+    if (any(duplicated(qs)) || (lower_tail_dist == "lnorm" && any(qs == 0.0))) {
         stop("make_d_fn requires all values in qs to be unique")
     }
     if (length(unique(qs)) < 2) {
@@ -79,17 +87,22 @@ make_d_fn <- function(ps, qs,
     # approximate the pdf on the interior by interpolating quantiles
     interior_args <- c(
         list(ps = ps, qs = qs, lower_tail_dist = lower_tail_dist,
-             upper_tail_dist = upper_tail_dist, fn_type = "d"),
+             upper_tail_dist = upper_tail_dist,
+             lnorm_zero_buffer = lnorm_zero_buffer, fn_type = "d"),
         interior_args)
     interior_pdf <- do.call(interior_method, args = interior_args)
 
     # approximate the pdf in the lower tail by extrapolating from the two
     # lowest quantiles within a location-scale family
-    lower_pdf <- d_ext_factory(head(ps, 2), head(qs, 2), lower_tail_dist)
+    lower_pdf <- d_ext_factory(head(ps, 2), head(qs, 2), lower_tail_dist,
+                               is_lower = TRUE,
+                               lnorm_zero_buffer = lnorm_zero_buffer)
 
     # approximate the pdf in the upper tail by extrapolating from the two
     # largest quantiles within a location-scale family
-    upper_pdf <- d_ext_factory(tail(ps, 2), tail(qs, 2), upper_tail_dist)
+    upper_pdf <- d_ext_factory(tail(ps, 2), tail(qs, 2), upper_tail_dist,
+                               is_lower = FALSE,
+                               lnorm_zero_buffer = lnorm_zero_buffer)
 
     d_fn <- function(x, log=FALSE) {
         # instantiate result
@@ -135,13 +148,13 @@ make_d_fn <- function(ps, qs,
 #'    on to the `interior_method`
 #' @param lower_tail_dist name of parametric distribution for the lower tail
 #' @param upper_tail_dist name of parametric distribution for the upper tail
-#' 
+#'
 #' @details The default `interior_method`, `"spline_cdf"`, represents the
 #'    distribution as a sum of a discrete component at any points where there
 #'    are duplicated `qs` for multiple different `ps` and a continuous component
 #'    that is estimated by using a monotonic cubic spline that interpolates the
 #'    provided `(q, p)` pairs as an estimate of the cdf.
-#' 
+#'
 #'    Optionally, the user may provide another function that accepts arguments
 #'    `ps`, `qs`, `lower_tail_dist`, `upper_tail_dist`, and `fn_type` (which
 #'    will be either `"d"`, `"p"`, or `"q"`), and optionally additional named
@@ -156,7 +169,8 @@ make_d_fn <- function(ps, qs,
 make_p_fn <- function(ps, qs,
                       interior_method = "spline_cdf",
                       interior_args = list(),
-                      lower_tail_dist = "norm", upper_tail_dist = "norm") {
+                      lower_tail_dist = "norm", upper_tail_dist = "norm",
+                      lnorm_zero_buffer = 1e-6) {
     interior_method <- match.arg(interior_method)
 
     c(ps, qs) %<-% clean_ps_and_qs(ps, qs)
@@ -164,17 +178,22 @@ make_p_fn <- function(ps, qs,
     # approximate the cdf on the interior by interpolating quantiles
     interior_args <- c(
         list(ps = ps, qs = qs, lower_tail_dist = lower_tail_dist,
-             upper_tail_dist = upper_tail_dist, fn_type = "p"),
+             upper_tail_dist = upper_tail_dist,
+             lnorm_zero_buffer = lnorm_zero_buffer, fn_type = "p"),
         interior_args)
     interior_cdf <- do.call(interior_method, args = interior_args)
 
     # approximate the cdf in the lower tail by extrapolating from the two
     # lowest quantiles within a location-scale family
-    lower_cdf <- p_ext_factory(head(ps, 2), head(qs, 2), lower_tail_dist)
+    lower_cdf <- p_ext_factory(head(ps, 2), head(qs, 2), lower_tail_dist,
+                               is_lower = TRUE,
+                               lnorm_zero_buffer = lnorm_zero_buffer)
 
     # approximate the pdf in the upper tail by extrapolating from the two
     # largest quantiles within a location-scale family
-    upper_cdf <- p_ext_factory(tail(ps, 2), tail(qs, 2), upper_tail_dist)
+    upper_cdf <- p_ext_factory(tail(ps, 2), tail(qs, 2), upper_tail_dist,
+                               is_lower = FALSE,
+                               lnorm_zero_buffer = lnorm_zero_buffer)
 
     p_fn <- function(q, log.p=FALSE) {
         # short-circuit if less than two unique value in qs
@@ -200,7 +219,7 @@ make_p_fn <- function(ps, qs,
         # upper points
         upper_idx <- (q > tail(qs, 1))
         if (any(upper_idx)) {
-            result[upper_idx] <- upper_cdf(q[upper_idx], log.p=log.p)
+            result[upper_idx] <- upper_cdf(q[upper_idx], log.p = log.p)
         }
 
         return(result)
@@ -246,7 +265,8 @@ make_p_fn <- function(ps, qs,
 make_q_fn <- function(ps, qs,
                       interior_method = "spline_cdf",
                       interior_args = list(),
-                      lower_tail_dist = "norm", upper_tail_dist = "norm") {
+                      lower_tail_dist = "norm", upper_tail_dist = "norm",
+                      lnorm_zero_buffer = 1e-6) {
     interior_method <- match.arg(interior_method)
 
     c(ps, qs) %<-% clean_ps_and_qs(ps, qs)
@@ -254,17 +274,22 @@ make_q_fn <- function(ps, qs,
     # approximate the pdf on the interior by interpolating quantiles
     interior_args <- c(
         list(ps = ps, qs = qs, lower_tail_dist = lower_tail_dist,
-             upper_tail_dist = upper_tail_dist, fn_type = "q"),
+             upper_tail_dist = upper_tail_dist,
+             lnorm_zero_buffer = lnorm_zero_buffer, fn_type = "q"),
         interior_args)
     interior_qf <- do.call(interior_method, args = interior_args)
 
     # approximate the quantile function in the lower tail by extrapolating from
     # the two lowest quantiles within a location-scale family
-    lower_qf <- q_ext_factory(head(ps, 2), head(qs, 2), lower_tail_dist)
+    lower_qf <- q_ext_factory(head(ps, 2), head(qs, 2), lower_tail_dist,
+                              is_lower = TRUE,
+                              lnorm_zero_buffer = lnorm_zero_buffer)
 
     # approximate the quantile function in the upper tail by extrapolating from
     # the two largest quantiles within a location-scale family
-    upper_qf <- q_ext_factory(tail(ps, 2), tail(qs, 2), upper_tail_dist)
+    upper_qf <- q_ext_factory(tail(ps, 2), tail(qs, 2), upper_tail_dist,
+                              is_lower = FALSE,
+                              lnorm_zero_buffer = lnorm_zero_buffer)
 
     q_fn <- function(p) {
         # short-circuit if less than two unique value in qs
@@ -334,10 +359,11 @@ make_q_fn <- function(ps, qs,
 make_r_fn <- function(ps, qs,
                       interior_method = "spline_cdf",
                       interior_args = list(),
-                      lower_tail_dist = "norm", upper_tail_dist = "norm") {
+                      lower_tail_dist = "norm", upper_tail_dist = "norm",
+                      lnorm_zero_buffer = 1e-6) {
     interior_method <- match.arg(interior_method)
     q_fn <- make_q_fn(ps, qs, interior_method, interior_args, lower_tail_dist,
-                      upper_tail_dist)
+                      upper_tail_dist, lnorm_zero_buffer)
 
     r_fn <- function(n) {
         u <- runif(n)

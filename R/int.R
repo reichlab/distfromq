@@ -298,6 +298,12 @@ step_interp_factory <- function(x, y, cont_dir = c("right", "left"),
 #' @param qs vector of quantile values correponding to ps
 #' @param lower_tail_dist name of parametric distribution for the lower tail
 #' @param upper_tail_dist name of parametric distribution for the upper tail
+#' @param lnorm_zero_buffer boolean or numeric specifying how to handle zero
+#'   quantiles in the upper tail when `upper_tail_dist = "lnorm"`. If `FALSE`,
+#'   an error is raised if the first element of `qs` is zero, the second element
+#'   of `qs` is non-zero, and `is_lower` is `FALSE`. Otherwise, must be a
+#'   positive numeric value, and in this situation the first element of `qs` is
+#'   replaced by `min(lnorm_zero_buffer, qs[2] / 2)`.
 #' @param fn_type the type of function that is requested: `"d"` for a pdf,
 #'   `"p"` for a cdf, or `"q"` for a quantile function.
 #' @param n_grid grid size to use when augmenting the input `qs` to obtain a
@@ -331,6 +337,7 @@ step_interp_factory <- function(x, y, cont_dir = c("right", "left"),
 #'
 #' @return a function to evaluate the pdf, cdf, or quantile function.
 spline_cdf <- function(ps, qs, lower_tail_dist, upper_tail_dist,
+                       lnorm_zero_buffer,
                        fn_type = c("d", "p", "q"),
                        n_grid = 20,
                        tol = 1e-6) {
@@ -354,10 +361,11 @@ spline_cdf <- function(ps, qs, lower_tail_dist, upper_tail_dist,
             # by recursing but with n_grid = NULL, get a function that evaluates
             # the approximated cdf based on a spline + discrete steps
             p_fn <- spline_cdf(ps = ps, qs = qs,
-                            lower_tail_dist = lower_tail_dist,
-                            upper_tail_dist = upper_tail_dist,
-                            fn_type = "p",
-                            n_grid = NULL)
+                               lower_tail_dist = lower_tail_dist,
+                               upper_tail_dist = upper_tail_dist,
+                               lnorm_zero_buffer = lnorm_zero_buffer,
+                               fn_type = "p",
+                               n_grid = NULL)
 
             # obtain a grid of intermediate points (between the provided qs) at
             # which we will evaluate the spline approximation
@@ -409,6 +417,13 @@ spline_cdf <- function(ps, qs, lower_tail_dist, upper_tail_dist,
     } else {
         # split ps and qs into discrete and continuous part, along with the
         # weight given to the discrete part
+        # if lower_tail_dist is "lnorm" and the smallest q is 0,
+        # augment ps and qs with an extra 0 to ensure that we place a point mass
+        # at 0.
+        if (lower_tail_dist == "lnorm" && min(qs) == 0.0 && min(ps) > 0.0) {
+            ps <- c(ps[1] / 2, ps)
+            qs <- c(0.0, qs)
+        }
         c(disc_weight, disc_ps, disc_qs, cont_ps, cont_qs, disc_ps_range) %<-%
             split_disc_cont_ps_qs(ps, qs, tol = tol)
 
@@ -417,14 +432,29 @@ spline_cdf <- function(ps, qs, lower_tail_dist, upper_tail_dist,
         # on ends, slope of cdf approximation should match tail distribution pdf
         # on interior, slope is the mean of the slopes of the adjacent segments
         if (disc_weight < 1.0) {
-            d_lower <- d_ext_factory(ps = head(cont_ps, 2),
-                                     qs = head(cont_qs, 2),
-                                     dist = lower_tail_dist)
-            m_lower <- d_lower(cont_qs[1])
-            d_upper <- d_ext_factory(ps = tail(cont_ps, 2),
-                                     qs = tail(cont_qs, 2),
-                                     dist = upper_tail_dist)
-            m_upper <- d_upper(tail(cont_qs, 1))
+            lower_ps <- head(cont_ps, 2)
+            lower_qs <- head(cont_qs, 2)
+            if (lower_tail_dist == "lnorm" && min(lower_qs) == 0.0) {
+                lower_qs <- apply_lnorm_zero_buffer(lower_qs, lnorm_zero_buffer)
+            }
+            d_lower <- d_ext_factory(ps = lower_ps,
+                                     qs = lower_qs,
+                                     dist = lower_tail_dist,
+                                     is_lower = TRUE,
+                                     lnorm_zero_buffer = lnorm_zero_buffer)
+            m_lower <- d_lower(lower_qs[1])
+
+            upper_ps <- tail(cont_ps, 2)
+            upper_qs <- tail(cont_qs, 2)
+            if (lower_tail_dist == "lnorm" && min(upper_qs) == 0.0) {
+                upper_qs <- apply_lnorm_zero_buffer(lower_qs, lnorm_zero_buffer)
+            }
+            d_upper <- d_ext_factory(ps = upper_ps,
+                                     qs = upper_qs,
+                                     dist = upper_tail_dist,
+                                     is_lower = FALSE,
+                                     lnorm_zero_buffer = lnorm_zero_buffer)
+            m_upper <- d_upper(tail(upper_qs, 1))
 
             m_segments <- diff(cont_ps) / diff(cont_qs)
             n <- length(m_segments)

@@ -201,6 +201,48 @@ test_that("spline_cdf recovers cdf, one discrete component", {
     expect_equal(test_p_hats_lin, test_p_hats, tolerance = 1e-3)
 })
 
+
+test_that("spline_cdf recovers cdf, one discrete component at 0, lnorm family", {
+    # mixture of a lognormal(0,1) with weight 0.8 and
+    # a point mass at 0 with weight 0.2
+
+    # probabilities and quantiles for normal component
+    lnorm_ps <- seq(from = 0.1, to = 0.9, by = 0.1)
+    lnorm_qs <- qlnorm(lnorm_ps)
+    adj_lnorm_ps <- lnorm_ps * 0.8 + 0.2 * (lnorm_qs > 0.0)
+
+    # probabilities and quantiles for point mass at 0
+    point_ps <- seq(from = 0.1, to = 1.0, by = 0.1)
+    point_qs <- rep(0.0, length(point_ps))
+    adj_point_ps <- 0.0 * 0.8 + point_ps * 0.2
+
+    ps <- sort(c(adj_lnorm_ps, adj_point_ps))
+    qs <- sort(c(lnorm_qs, point_qs))
+    dup_inds <- duplicated(ps)
+    ps <- ps[!dup_inds]
+    qs <- qs[!dup_inds]
+
+    cdf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
+                          lower_tail_dist = "lnorm",
+                          upper_tail_dist = "lnorm",
+                          lnorm_zero_buffer = 1e-6)
+    cdf_hat_lin <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
+                              lower_tail_dist = "lnorm",
+                              upper_tail_dist = "lnorm",
+                              lnorm_zero_buffer = 1e-6,
+                              n_grid = 2L)
+
+    test_qs <- seq(from = min(qs), to = max(qs), length.out = 101)
+    test_ps <- plnorm(test_qs) * 0.8 + 0.2 * (test_qs >= 0.0)
+    test_p_hats <- cdf_hat(test_qs)
+    test_p_hats_lin <- cdf_hat_lin(test_qs)
+
+    expect_equal(test_ps, test_p_hats, tolerance = 1e-3)
+    expect_equal(mean(test_ps - test_p_hats), 0.0, tolerance = 1e-3)
+    expect_equal(test_p_hats_lin, test_p_hats, tolerance = 1e-3)
+})
+
+
 test_that("spline_cdf recovers cdf, two discrete components", {
     # mixture of a Normal(0,1) with weight 0.6,
     # a point mass at 0 with weight 0.3, and a point mass at 1 with weight 0.1
@@ -299,6 +341,37 @@ test_that("spline_cdf errors when recovering pdf, one discrete component", {
 })
 
 
+test_that("spline_cdf errors when recovering pdf, one discrete component at 0, lnorm family", {
+    # mixture of a lognormal(0,1) with weight 0.8 and
+    # a point mass at 0 with weight 0.2
+
+    # probabilities and quantiles for normal component
+    lnorm_ps <- seq(from = 0.1, to = 0.9, by = 0.1)
+    lnorm_qs <- qlnorm(lnorm_ps)
+    adj_lnorm_ps <- lnorm_ps * 0.8 + 0.2 * (lnorm_qs > 0.0)
+
+    # probabilities and quantiles for point mass at 0
+    point_ps <- seq(from = 0.0, to = 1.0, by = 0.1)
+    point_qs <- rep(0.0, length(point_ps))
+    adj_point_ps <- 0.0 * 0.8 + point_ps * 0.2
+
+    ps <- sort(c(adj_lnorm_ps, adj_point_ps))
+    qs <- sort(c(lnorm_qs, point_qs))
+    dup_inds <- duplicated(ps)
+    ps <- ps[!dup_inds]
+    qs <- qs[!dup_inds]
+
+    expect_error(spline_cdf(ps = ps, qs = qs, fn_type = "d",
+                          lower_tail_dist = "lnorm",
+                          upper_tail_dist = "lnorm",
+                          lnorm_zero_buffer = 1e-6))
+    expect_error(spline_cdf(ps = ps, qs = qs, fn_type = "d",
+                          lower_tail_dist = "lnorm",
+                          upper_tail_dist = "lnorm",
+                          lnorm_zero_buffer = 1e-6,
+                          n_grid = 2L))
+})
+
 
 
 test_that("spline_cdf recovers qf, no discrete component", {
@@ -390,6 +463,65 @@ test_that("spline_cdf recovers qf, one discrete component", {
     expect_equal(cdf_hat(qf_hat(test_ps)), expected_test_ps, tolerance = 1e-3)
     expect_equal(cdf_hat_lin(qf_hat_lin(test_ps)), expected_test_ps, tolerance = 1e-12)
 })
+
+
+test_that("spline_cdf recovers qf, one discrete component at 0, lnorm family", {
+    # mixture of a lognormal(0,1) with weight 0.8 and
+    # a point mass at 0 with weight 0.2
+
+    # probabilities and quantiles for normal component
+    lnorm_ps <- seq(from = 0.1, to = 0.9, by = 0.1)
+    lnorm_qs <- qlnorm(lnorm_ps)
+    adj_lnorm_ps <- lnorm_ps * 0.8 + 0.2 * (lnorm_qs > 0.0)
+
+    # probabilities and quantiles for point mass at 0
+    point_ps <- seq(from = 0.1, to = 1.0, by = 0.1)
+    point_qs <- rep(0.0, length(point_ps))
+    adj_point_ps <- 0.0 * 0.8 + point_ps * 0.2
+
+    ps <- sort(c(adj_lnorm_ps, adj_point_ps))
+    qs <- sort(c(lnorm_qs, point_qs))
+    dup_inds <- duplicated(ps)
+    ps <- ps[!dup_inds]
+    qs <- qs[!dup_inds]
+
+    qf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "q",
+                          lower_tail_dist = "lnorm",
+                          upper_tail_dist = "lnorm",
+                          lnorm_zero_buffer = 1e-6)
+    qf_hat_lin <- spline_cdf(ps = ps, qs = qs, fn_type = "q",
+                          lower_tail_dist = "lnorm",
+                          upper_tail_dist = "lnorm",
+                          lnorm_zero_buffer = 1e-6,
+                          n_grid = 10L)
+
+    cdf_hat <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
+                          lower_tail_dist = "lnorm",
+                          upper_tail_dist = "lnorm",
+                          lnorm_zero_buffer = 1e-6)
+    cdf_hat_lin <- spline_cdf(ps = ps, qs = qs, fn_type = "p",
+                              lower_tail_dist = "lnorm",
+                              upper_tail_dist = "lnorm",
+                              lnorm_zero_buffer = 1e-6,
+                              n_grid = 10L)
+
+    test_ps <- seq(from = min(ps), to = max(ps), length.out = 101)
+    test_qs <- c(
+      rep(0.0, sum(test_ps <= 0.2)),
+      qlnorm((test_ps[test_ps > 0.2] - 0.2) / 0.8)
+    )
+    test_q_hats <- qf_hat(test_ps)
+    test_q_hats_lin <- qf_hat_lin(test_ps)
+
+    expect_equal(test_q_hats, test_qs, tolerance = 1e-2)
+    expect_equal(test_q_hats, test_q_hats_lin, tolerance = 1e-3)
+    expect_equal(mean(test_qs - test_q_hats), 0.0, tolerance = 1e-3)
+    expected_test_ps <- test_ps
+    expected_test_ps[test_ps <= 0.2] <- 0.2
+    expect_equal(cdf_hat(qf_hat(test_ps)), expected_test_ps, tolerance = 1e-3)
+    expect_equal(cdf_hat_lin(qf_hat_lin(test_ps)), expected_test_ps, tolerance = 1e-12)
+})
+
 
 test_that("spline_cdf recovers qf, two discrete components", {
     # mixture of a Normal(0,1) with weight 0.6,

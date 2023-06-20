@@ -72,3 +72,28 @@ get_dup_run_inds <- function(dups) {
         return(list(starts = integer(), ends = integer()))
     }
 }
+
+#' Modify qs by replacing a leading zero with
+#' `min(lnorm_zero_buffer, qs[2] / 2)`
+#'
+#' @param qs numeric vector of quantile values
+#' @param lnorm_zero_buffer boolean or numeric specifying how to handle zero
+#'   quantiles when `dist = "lnorm"`. If `FALSE`, an error is raised if the
+#'   first element of `qs` is zero. Otherwise, must be a positive numeric value,
+#'   and the first element of `qs` is replaced by
+#'   `min(lnorm_zero_buffer, qs[2] / 2)`.
+#'
+#' @return updated qs
+apply_lnorm_zero_buffer <- function(qs, lnorm_zero_buffer) {
+    if (!lnorm_zero_buffer) {
+        stop("For dist = 'lnorm', require two positive quantiles")
+    } else {
+        lnorm_zero_buffer <- as.numeric(lnorm_zero_buffer)
+        if (lnorm_zero_buffer <= 0.0) {
+            stop("lnorm_zero_buffer must be a boolean or a non-negative numeric value")
+        }
+        qs[1] <- min(lnorm_zero_buffer, qs[2] / 2)
+    }
+
+    return(qs)
+}
