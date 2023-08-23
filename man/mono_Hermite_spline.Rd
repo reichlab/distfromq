@@ -10,8 +10,10 @@ mono_Hermite_spline(x, y, m)
 \arguments{
 \item{x, }{y: vectors giving the coordinates of the points to be
 interpolated.  Alternatively a single plotting structure can
-be specified: see ‘xy.coords’.\preformatted{  ‘y’ must be increasing or decreasing for ‘method = "hyman"’.
-}
+be specified: see ‘xy.coords’.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{  ‘y’ must be increasing or decreasing for ‘method = "hyman"’.
+}\if{html}{\out{</div>}}
 
 m: (for ‘splinefunH()’): vector of \emph{slopes} m\link{i} at the points
 (x\link{i},y\link{i}); these together determine the \emph{H}ermite “spline”

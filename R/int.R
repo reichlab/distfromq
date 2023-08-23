@@ -336,13 +336,14 @@ spline_cdf <- function(ps, qs, lower_tail_dist, upper_tail_dist,
                        tol = 1e-6) {
     fn_type <- match.arg(fn_type)
 
-    if ((any(duplicated(qs)) || length(qs) == 1L) & fn_type == "d") {
+    if ((any(duplicated_tol(qs, tol = tol)) || length(qs) == 1L) &&
+            fn_type == "d") {
         stop("Distribution has a discrete component;",
              " cannot create a density function.")
     }
 
     if (!is.null(n_grid)) {
-        uq <- unique(qs)
+        uq <- unique_tol(qs, tol = tol)
         if (length(uq) > 1L) {
             # augment originally provided ps and qs with new grid of qs
 
@@ -392,7 +393,7 @@ spline_cdf <- function(ps, qs, lower_tail_dist, upper_tail_dist,
             return(int_d_fn)
         } else if (fn_type == "p") {
             step_interp <- step_interp_factory(x = qs, y = ps,
-                                                cont_dir = "right")
+                                               cont_dir = "right")
             int_p_fn <- function(q, log.p = FALSE) {
                 result <- step_interp(q)
                 if (log.p) return(log(result)) else return(result)
@@ -498,109 +499,5 @@ spline_cdf <- function(ps, qs, lower_tail_dist, upper_tail_dist,
             }
             return(int_q_fn)
         }
-    }
-}
-
-
-#' Approximate density function, cdf, or quantile function on the interior of
-#' provided quantiles by using a monotonic spline that interpolates the
-#' quantiles to estimate the quantile function, inverting the quantile function
-#' to estimate the cdf, and differentiating the cdf to estimate the pdf.
-#' 
-#' @param ps vector of probability levels. These must be unique.
-#' @param qs vector of quantile values correponding to ps
-#' @param lower_tail_dist name of parametric distribution for the lower tail
-#' @param upper_tail_dist name of parametric distribution for the upper tail
-#' @param fn_type the type of function that is requested: `"d"` for a pdf,
-#'   `"p"` for a cdf, or `"q"` for a quantile function.
-#' 
-#' @return a function to evaluate the pdf, cdf, or quantile function.
-spline_qf <- function(ps, qs, lower_tail_dist, upper_tail_dist,
-                       fn_type = c("d", "p", "q")) {
-    fn_type <- match.arg(fn_type)
-
-    if (any(duplicated(ps))) {
-        stop("For `spline_qf`, all ps must be distinct.")
-    }
-
-    # split ps and qs into discrete and continuous part, along with the weight
-    # given to the discrete part
-    c(disc_weight, disc_ps, disc_qs, cont_ps, cont_qs, disc_ps_range) %<-%
-        split_disc_cont_ps_qs(ps, qs, tol = tol)
-
-    # fit a monotonic spline to the qs and ps for the continuous part of the
-    # distribution to approximate the qf on the interior
-    # on ends, slope of qf approximation should equal the reciprocal of the tail
-    # distribution pdf evaluated at the quantile corresponding to the extreme ps
-    # on interior, slope is the mean of the slopes of the adjacent line segments
-    d_lower <- d_ext_factory(ps = head(ps, 2), qs = head(qs, 2),
-                            dist = lower_tail_dist)
-    p_lower <- p_ext_factory(ps = head(ps, 2), qs = head(qs, 2),
-                            dist = lower_tail_dist)
-    q_lower <- q_ext_factory(ps = head(ps, 2), qs = head(qs, 2),
-                            dist = lower_tail_dist)
-    m_lower <- 1 / d_lower(q_lower(ps[1]))
-
-    d_upper <- d_ext_factory(ps = tail(ps, 2), qs = tail(qs, 2),
-                                dist = upper_tail_dist)
-    p_upper <- p_ext_factory(ps = tail(ps, 2), qs = tail(qs, 2),
-                                dist = upper_tail_dist)
-    q_upper <- q_ext_factory(ps = tail(ps, 2), qs = tail(qs, 2),
-                                dist = upper_tail_dist)
-    m_upper <- 1 / d_upper(q_upper(tail(ps, 1)))
-
-    m_segments <- diff(qs) / diff(ps)
-    n <- length(m_segments)
-    m_interior <- apply(cbind(m_segments[-1], m_segments[-n]), 1, mean)
-    m <- c(m_lower, m_interior, m_upper)
-
-    interior_qf_spline <- mono_Hermite_spline(x = ps, y = qs, m = m)
-    
-    if (fn_type %in% c("d", "p")) {
-        interior_cdf_spline <- backSpline(interior_qf_spline)
-    }
-
-    # get a function that calculates the pdf, cdf, or quantile function
-    if (fn_type == "d") {
-        if (any(duplicated(qs))) {
-            stop("Distribution has a discrete component;",
-                 " cannot create a density function.")
-        }
-        int_d_fn <- function(x, log = FALSE) {
-            result <- predict(interior_cdf_spline, x, deriv = 1)$y
-            if (log) {
-                return(log(result))
-            } else {
-                return(result)
-            }
-        }
-        return(int_d_fn)
-    } else if (fn_type == "p") {
-        int_p_fn <- function(x, log.p = FALSE) {
-            if (disc_weight < 1.0) {
-                result <- predict(interior_cdf_spline, x, deriv = 0)$y
-                result <- result * (1 - disc_weight)
-            } else {
-                result <- rep(0.0, length(x))
-            }
-
-            for (i in seq_along(disc_ps)) {
-                inds <- (x >= disc_qs[i])
-                result[inds] <- result[inds] + disc_ps[i] * disc_weight
-            }
-
-            if (log.p) {
-                return(log(result))
-            } else {
-                return(result)
-            }
-        }
-        return(int_p_fn)
-    } else if (fn_type == "q") {
-        int_q_fn <- function(p) {
-            result <- predict(interior_qf_spline, p)$y
-            return(result)
-        }
-        return(int_q_fn)
     }
 }

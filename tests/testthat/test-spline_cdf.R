@@ -503,3 +503,15 @@ test_that("spline_cdf is well-behaved with near-equal quantiles", {
     testthat::expect_true(all(cdf_vals_in_range >= 0.0))
     testthat::expect_true(all(cdf_vals_in_range <= 1.0))
 })
+
+test_that("spline_cdf is well-behaved with near-zero quantiles", {
+    # probabilities and quantiles with a near-duplicate q
+    ps <- seq(0.1, 0.9, 0.2)
+    qs <- c(0, 0, 0, 1e-07, 1e-05)
+
+    testthat::expect_no_error(
+        cdf_hat <- distfromq:::spline_cdf(ps = ps, qs = qs, fn_type = "p",
+                                          lower_tail_dist = "norm",
+                                          upper_tail_dist = "norm")
+    )
+})
