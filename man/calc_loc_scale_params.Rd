@@ -5,7 +5,7 @@
 \title{Calculate location and scale parameters for a specified distribution so that
 it matches two specified quantiles}
 \usage{
-calc_loc_scale_params(ps, qs, dist)
+calc_loc_scale_params(ps, qs, dist, dup_tol, zero_tol, zero_discrete, is_lower)
 }
 \arguments{
 \item{ps}{vector of two probability levels at which the distribution's
@@ -17,6 +17,21 @@ probability levels in ps}
 \item{dist}{the probability distribution to use for extrapolation. This
 distribution should be in a location-scale family, such as \code{"norm"}al or
 \code{"cauchy"}}
+
+\item{dup_tol}{numeric tolerance for identifying duplicated values indicating
+a discrete component of the distribution. If there is a run of values where
+each consecutive pair is closer together than the tolerance, all are
+labeled as duplicates even if not all values in the run are within the
+tolerance.}
+
+\item{zero_tol}{numeric tolerance for identifying values in \code{qs} that are
+(approximately) zero.}
+
+\item{zero_discrete}{boolean indicating whether qs of zero should always
+indicate the presence of a point mass at 0.}
+
+\item{is_lower}{boolean indicator of whether we are extending into the lower
+or upper tail}
 
 \item{named}{list with entries \code{"a"}, the location parameter, and \code{"b"}, the
 scale parameter}

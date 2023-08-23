@@ -12,7 +12,9 @@ make_r_fn(
   interior_method = "spline_cdf",
   interior_args = list(),
   lower_tail_dist = "norm",
-  upper_tail_dist = "norm"
+  upper_tail_dist = "norm",
+  dup_tol = 1e-06,
+  zero_tol = 1e-12
 )
 }
 \arguments{
@@ -31,6 +33,15 @@ on to the \code{interior_method}}
 \item{lower_tail_dist}{name of parametric distribution for the lower tail}
 
 \item{upper_tail_dist}{name of parametric distribution for the upper tail}
+
+\item{dup_tol}{numeric tolerance for identifying duplicated values indicating
+a discrete component of the distribution. If there is a run of values where
+each consecutive pair is closer together than the tolerance, all are
+labeled as duplicates even if not all values in the run are within the
+tolerance.}
+
+\item{zero_tol}{numeric tolerance for identifying values in \code{qs} that are
+(approximately) zero.}
 }
 \value{
 a function with argument \code{n} that can be used to generate a sample of

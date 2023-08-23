@@ -5,7 +5,7 @@
 \title{Extrapolate quantile function in a location-scale family matching specified
 quantiles.}
 \usage{
-q_ext_factory(ps, qs, dist)
+q_ext_factory(ps, qs, dist, dup_tol, zero_tol, zero_discrete, is_lower)
 }
 \arguments{
 \item{ps}{vector of two probability levels at which the distribution's

@@ -14,7 +14,8 @@ spline_cdf(
   upper_tail_dist,
   fn_type = c("d", "p", "q"),
   n_grid = 20,
-  tol = 1e-06
+  dup_tol = 1e-06,
+  zero_tol = 1e-12
 )
 }
 \arguments{
@@ -36,11 +37,15 @@ pair of consecutive values in \code{qs}. The default value is 20. This can
 be set to \code{NULL}, in which case the piecewise linear approximation is not
 used. This is not recommended if the \code{fn_type} is \code{"q"}.}
 
-\item{tol}{numeric tolerance for identifying duplicated quantiles indicating
-a discrete component of the distribution. If there is a run of values where
-each consecutive pair is closer together than the tolerance, all are
-labeled as duplicates even if not all values in the run are within the
-tolerance.}
+\item{dup_tol}{numeric tolerance for identifying duplicated quantiles
+indicating a discrete component of the distribution. If there is a run of
+values where each consecutive pair is closer together than the tolerance,
+all are labeled as duplicates even if not all values in the run are within
+the tolerance.}
+
+\item{zero_tol}{numeric tolerance for identifying whether elements of \code{qs}
+are equal to zero. This is used only for identifying point masses at zero
+if \code{lower_tail_dist} or \code{upper_tail_dist} is "lnorm".}
 }
 \value{
 a function to evaluate the pdf, cdf, or quantile function.

@@ -5,18 +5,33 @@
 \title{Split ps and qs into those corresponding to discrete and continuous
 parts of a distribution.}
 \usage{
-split_disc_cont_ps_qs(ps, qs, tol = 1e-06)
+split_disc_cont_ps_qs(
+  ps,
+  qs,
+  dup_tol = 1e-06,
+  zero_tol = 1e-12,
+  zero_discrete = FALSE
+)
 }
 \arguments{
 \item{ps}{vector of probability levels}
 
 \item{qs}{vector of quantile values correponding to ps}
 
-\item{tol}{numeric tolerance for identifying duplicated values indicating a
-discrete component of the distribution. If there is a run of values where
+\item{dup_tol}{numeric tolerance for identifying duplicated values indicating
+a discrete component of the distribution. If there is a run of values where
 each consecutive pair is closer together than the tolerance, all are
 labeled as duplicates even if not all values in the run are within the
 tolerance.}
+
+\item{zero_tol}{numeric tolerance for identifying values in \code{qs} that are
+(approximately) zero.}
+
+\item{zero_discrete}{boolean indicating whether qs of zero should always
+indicate the presence of a point mass at 0. If so, 0 is not included among
+the returned \code{cont_qs}. Primarily appropriate when we
+are working with a distributional family that is bounded above 0 (and may
+have density 0 at 0, as with a lognormal).}
 }
 \value{
 named list with the following entries:
