@@ -1,94 +1,3 @@
-#' Split ps and qs into those corresponding to discrete and continuous
-#' parts of a distribution.
-#' 
-#' @param ps vector of probability levels
-#' @param qs vector of quantile values correponding to ps
-#' @param tol numeric tolerance for identifying duplicated values indicating a
-#'   discrete component of the distribution. If there is a run of values where
-#'   each consecutive pair is closer together than the tolerance, all are
-#'   labeled as duplicates even if not all values in the run are within the
-#'   tolerance.
-#' 
-#' @return named list with the following entries:
-#'   - `disc_weight`: estimated numeric weight of the discrete part of the
-#'     distribution.
-#'   - `disc_ps`: estimated probabilities of discrete components. May be
-#'     `numeric(0)` if there are no estimated discrete components.
-#'   - `disc_qs`: locations of discrete components, corresponding to duplicated
-#'     values in the input `qs`. May be `numeric(0)` if there are no discrete
-#'     components.
-#'   - `cont_ps`: probability levels for the continous part of the distribution
-#'   - `cont_qs`: quantile values for the continous part of the distribution
-#'   - `disc_ps_range`: a list of length equal to the number of point masses in
-#'     the discrete distribution. Each entry is a numeric vector of length two
-#'     with the value of the cdf approaching the point mass from the left and
-#'     from the right.
-#' 
-#' @export
-split_disc_cont_ps_qs <- function(ps, qs, tol = 1e-6) {
-    # Short-circuit if all qs are duplicates
-    # we have no information from which to estimate a continuous
-    # part of the distribution.
-    uq <- unique_tol(qs, tol = tol)
-    if (length(uq) == 1L) {
-        return(list(
-            disc_weight = 1.0,
-            disc_ps = 1.0,
-            disc_qs = uq,
-            cont_ps = numeric(),
-            cont_qs = numeric(),
-            disc_ps_range = list(range(ps))
-        ))
-    }
-
-    # Isolate the discrete portion of the distribution:
-    # duplicated quantiles and the associated point mass probabilities
-    dup_q_inds_t <- duplicated_tol(qs, tol = tol, incl_first = TRUE)
-    dup_q_inds_f <- duplicated_tol(qs, tol = tol, incl_first = FALSE)
-    disc_qs <- unique_tol(qs[dup_q_inds_t], tol = tol)
-    # dup_qs <- qs[dup_q_inds]
-    # disc_qs <- sort(unique(dup_qs))
-    c(dup_run_starts, dup_run_ends) %<-% get_dup_run_inds(dup_q_inds_f)
-    disc_ps_range <- purrr::map2(
-        dup_run_starts, dup_run_ends,
-        function(start, end) range(ps[start:end]))
-    disc_ps_mass <- purrr::map_dbl(
-        disc_ps_range,
-        function(range_i) diff(range_i))
-    disc_cum_ps <- cumsum(disc_ps_mass)
-
-    # remaining quantiles correspond to a continuous portion of the
-    # distribution; extract those ps and qs, and adjust the ps,
-    # removing any jumps due to point masses
-    # Note that we do keep the first instance of a duplicated q.
-    # That means that fits for the continuous portion of a distribution
-    # will see one (q, p) pair for the duplicated q
-    cont_ps <- ps[!dup_q_inds_f]
-    cont_qs <- uq
-    for (i in seq_along(disc_qs)) {
-        adj_inds <- (cont_qs > disc_qs[i])
-        cont_ps[adj_inds] <- cont_ps[adj_inds] - disc_ps_mass[i]
-    }
-
-    # adjust for the weight going to the discrete portion of the distribution
-    if (length(disc_cum_ps) > 0) {
-        disc_weight <- tail(disc_cum_ps, 1)
-        disc_ps_mass <- disc_ps_mass / disc_weight
-        cont_ps <- cont_ps / (1 - disc_weight)
-    } else {
-        disc_weight <- 0.0
-    }
-
-    return(list(
-        disc_weight = disc_weight,
-        disc_ps = disc_ps_mass,
-        disc_qs = disc_qs,
-        cont_ps = cont_ps,
-        cont_qs = cont_qs,
-        disc_ps_range = disc_ps_range
-    ))
-}
-
 #' Create a polySpline object representing a monotonic Hermite spline
 #' interpolating a given set of points.
 #'
@@ -296,8 +205,7 @@ step_interp_factory <- function(x, y, cont_dir = c("right", "left"),
 #'
 #' @param ps vector of probability levels
 #' @param qs vector of quantile values correponding to ps
-#' @param lower_tail_dist name of parametric distribution for the lower tail
-#' @param upper_tail_dist name of parametric distribution for the upper tail
+#' @param tail_dist name of parametric distribution for the tails
 #' @param fn_type the type of function that is requested: `"d"` for a pdf,
 #'   `"p"` for a cdf, or `"q"` for a quantile function.
 #' @param n_grid grid size to use when augmenting the input `qs` to obtain a
@@ -330,174 +238,155 @@ step_interp_factory <- function(x, y, cont_dir = c("right", "left"),
 #' setting `n_grid = NULL`.
 #'
 #' @return a function to evaluate the pdf, cdf, or quantile function.
-spline_cdf <- function(ps, qs, lower_tail_dist, upper_tail_dist,
+spline_cdf <- function(ps, qs, tail_dist,
                        fn_type = c("d", "p", "q"),
-                       n_grid = 20,
-                       tol = 1e-6) {
+                       n_grid = 20) {
     fn_type <- match.arg(fn_type)
 
-    if ((any(duplicated_tol(qs, tol = tol)) || length(qs) == 1L) &&
-            fn_type == "d") {
-        stop("Distribution has a discrete component;",
-             " cannot create a density function.")
+    if (!is.null(n_grid)) {
+        return(spline_cdf_grid_interp(ps, qs, tail_dist, fn_type, n_grid))
+    } else {
+        return(spline_cdf_direct(ps, qs, tail_dist, fn_type))
+    }
+}
+
+spline_cdf_grid_interp <- function(ps, qs, tail_dist,
+                                   fn_type = c("d", "p", "q"),
+                                   n_grid = 20) {
+    # augment originally provided ps and qs with new grid of qs
+    c(ps, qs) %<-% grid_augment_ps_qs(ps, qs, tail_dist, n_grid)
+
+    # Create resulting function and return
+    if (fn_type == "d") {
+        # note that upstream, we have already validated that qs are all
+        # distinct and there are at least two qs
+        slopes <- diff(ps) / diff(qs)
+        slopes <- c(slopes, tail(slopes, 1))
+        int_d_fn <- function(x, log = FALSE) {
+            result <- approx(x = qs, y = slopes, xout = x,
+                                method = "constant", f = 0.0)$y
+            if (log) return(log(result)) else return(result)
+        }
+        return(int_d_fn)
+    } else if (fn_type == "p") {
+        step_interp <- step_interp_factory(x = qs, y = ps,
+                                            cont_dir = "right")
+        int_p_fn <- function(q, log.p = FALSE) {
+            result <- step_interp(q)
+            if (log.p) return(log(result)) else return(result)
+        }
+        return(int_p_fn)
+    } else if (fn_type == "q") {
+        step_interp <- step_interp_factory(x = ps, y = qs,
+                                            cont_dir = "left")
+        int_q_fn <- function(p) {
+            return(step_interp(p))
+        }
+        return(int_q_fn)
+    }
+}
+
+#' Internal function that augments ps and qs by filling in a grid of
+#' intermediate values for qs. n_grid new points are inserted between each
+#' pair of consecutive values in qs, and the corresponding ps are filled in
+#' by evaluating the spline output from `spline_cdf_direct` at the qs grid.
+grid_augment_ps_qs <- function(ps, qs, tail_dist, n_grid) {
+    n_grid <- as.integer(n_grid)
+    if (n_grid < 0) {
+        stop("If provided, `n_grid` must be a non-negative integer.")
+    } else if (n_grid == 0) {
+        # if the user just wants to linearly interpolate the given qs, ps
+        return(list(ps = ps, qs = qs))
     }
 
-    if (!is.null(n_grid)) {
-        uq <- unique_tol(qs, tol = tol)
-        if (length(uq) > 1L) {
-            # augment originally provided ps and qs with new grid of qs
+    # get a function that evaluates the approximated cdf based on a spline
+    p_fn <- spline_cdf_direct(ps = ps, qs = qs, tail_dist = tail_dist,
+                              fn_type = "p")
 
-            n_grid <- as.integer(n_grid)
-            if (n_grid < 1) {
-                stop("If provided, `n_grid` must be a positive integer.")
-            }
+    # obtain a grid of intermediate points (between the provided qs) at
+    # which we will evaluate the spline approximation
+    q_grid <- purrr::map(
+        seq_len(length(qs) - 1),
+        function(i) {
+            new_q <- seq(from = qs[i], to = qs[i + 1], length = n_grid + 2L)
+            return(new_q[2:(n_grid + 1)])
+        }) %>%
+        unlist()
 
-            # by recursing but with n_grid = NULL, get a function that evaluates
-            # the approximated cdf based on a spline + discrete steps
-            p_fn <- spline_cdf(ps = ps, qs = qs,
-                            lower_tail_dist = lower_tail_dist,
-                            upper_tail_dist = upper_tail_dist,
-                            fn_type = "p",
-                            n_grid = NULL)
+    # evaluate spline-based cdf approximation at new q values, and
+    # append to the inputs.
+    p_grid <- p_fn(q_grid)
 
-            # obtain a grid of intermediate points (between the provided qs) at
-            # which we will evaluate the spline approximation
-            q_grid <- purrr::map(
-                seq_len(length(uq) - 1),
-                function(i) {
-                    new_q <- seq(from = uq[i], to = uq[i + 1],
-                                 length = n_grid + 2L)
-                    return(new_q[2:(n_grid + 1)])
-                }) %>%
-                unlist()
+    ps <- sort(c(ps, p_grid))
+    qs <- sort(c(qs, q_grid))
 
-            # evaluate spline-based cdf approximation at new q values, and
-            # append to the inputs.
-            p_grid <- p_fn(q_grid)
+    return(list(ps = ps, qs = qs))
+}
 
-            ps <- sort(c(ps, p_grid))
-            qs <- sort(c(qs, q_grid))
-        }
+#' Internal function that constructs a monotonic Hermite spline interpolating
+#' ps and qs.
+spline_cdf_direct <- function(ps, qs, tail_dist,
+                              fn_type = c("d", "p", "q")) {
+    # fit a monotonic spline to the qs and ps for the continuous part of the
+    # distribution to approximate the cdf on the interior
+    # the vector m that we assemble here has the target slopes of the spline
+    # at each data point (qs[i], ps[i])
+    # on ends, slope of cdf approximation should match tail distribution pdf
+    # on interior, slope is the mean of the slopes of the adjacent segments
+    # note: there is probably room for improvement for this interior behavior,
+    # but this seems to be the standard strategy for monotonic splines
+    d_lower <- d_ext_factory(ps = head(ps, 2), qs = head(qs, 2),
+                             dist = tail_dist)
+    m_lower <- d_lower(qs[1])
+    d_upper <- d_ext_factory(ps = tail(ps, 2), qs = tail(qs, 2),
+                             dist = tail_dist)
+    m_upper <- d_upper(tail(qs, 1))
 
-        # Create resulting function and return
-        if (fn_type == "d") {
-            # note that we have already validated that qs are all distinct and
-            # there are at least two qs
-            slopes <- diff(ps) / diff(qs)
-            slopes <- c(slopes, tail(slopes, 1))
-            int_d_fn <- function(x, log = FALSE) {
-                result <- approx(x = qs, y = slopes, xout = x,
-                                 method = "constant", f = 0.0)$y
-                if (log) return(log(result)) else return(result)
-            }
-            return(int_d_fn)
-        } else if (fn_type == "p") {
-            step_interp <- step_interp_factory(x = qs, y = ps,
-                                               cont_dir = "right")
-            int_p_fn <- function(q, log.p = FALSE) {
-                result <- step_interp(q)
-                if (log.p) return(log(result)) else return(result)
-            }
-            return(int_p_fn)
-        } else if (fn_type == "q") {
-            step_interp <- step_interp_factory(x = ps, y = qs,
-                                                cont_dir = "left")
-            int_q_fn <- function(p) {
-                return(step_interp(p))
-            }
-            return(int_q_fn)
-        }
-    } else {
-        # split ps and qs into discrete and continuous part, along with the
-        # weight given to the discrete part
-        c(disc_weight, disc_ps, disc_qs, cont_ps, cont_qs, disc_ps_range) %<-%
-            split_disc_cont_ps_qs(ps, qs, tol = tol)
+    m_segments <- diff(ps) / diff(qs)
+    n <- length(m_segments)
+    m_interior <- apply(cbind(m_segments[-1], m_segments[-n]), 1, mean)
 
-        # fit a monotonic spline to the qs and ps for the continuous part of the
-        # distribution to approximate the cdf on the interior
-        # on ends, slope of cdf approximation should match tail distribution pdf
-        # on interior, slope is the mean of the slopes of the adjacent segments
-        if (disc_weight < 1.0) {
-            d_lower <- d_ext_factory(ps = head(cont_ps, 2),
-                                     qs = head(cont_qs, 2),
-                                     dist = lower_tail_dist)
-            m_lower <- d_lower(cont_qs[1])
-            d_upper <- d_ext_factory(ps = tail(cont_ps, 2),
-                                     qs = tail(cont_qs, 2),
-                                     dist = upper_tail_dist)
-            m_upper <- d_upper(tail(cont_qs, 1))
+    # in case of errors in evaluating density function at endpoints,
+    # repeat interior values
+    if (is.nan(m_lower) || !is.finite(m_lower)) {
+        m_lower <- m_interior[1]
+    }
+    if (is.nan(m_upper) || !is.finite(m_upper)) {
+        m_upper <- tail(m_interior, 1)
+    }
 
-            m_segments <- diff(cont_ps) / diff(cont_qs)
-            n <- length(m_segments)
-            m_interior <- apply(cbind(m_segments[-1], m_segments[-n]), 1, mean)
-            m <- c(m_lower, m_interior, m_upper)
+    m <- c(m_lower, m_interior, m_upper)
 
-            interior_cdf_spline <- mono_Hermite_spline(x = cont_qs, y = cont_ps,
-                                                       m = m)
-        }
+    interior_cdf_spline <- mono_Hermite_spline(x = qs, y = ps, m = m)
 
-        # get a function that calculates the pdf, cdf, or quantile function
-        if (fn_type == "d") {
-            if (disc_weight > 0) {
-                stop("Distribution has a discrete component;",
-                    " cannot create a density function.")
-            }
-            int_d_fn <- function(x, log = FALSE) {
-                result <- predict(interior_cdf_spline, x, deriv = 1)$y
-                if (log) {
-                    return(log(result))
-                } else {
-                    return(result)
-                }
-            }
-            return(int_d_fn)
-        } else if (fn_type == "p") {
-            int_p_fn <- function(q, log.p = FALSE) {
-                if (disc_weight < 1.0) {
-                    result <- predict(interior_cdf_spline, q, deriv = 0)$y
-                    result <- result * (1 - disc_weight)
-                } else {
-                    result <- rep(0.0, length(q))
-                }
-
-                for (i in seq_along(disc_ps)) {
-                    inds <- (q >= disc_qs[i])
-                    result[inds] <- result[inds] + disc_ps[i] * disc_weight
-                }
-
-                if (log.p) {
-                    return(log(result))
-                } else {
-                    return(result)
-                }
-            }
-            return(int_p_fn)
-        } else if (fn_type == "q") {
-            if (disc_weight < 1.0) {
-                interior_qf_spline <- backSpline(interior_cdf_spline)
-            }
-            int_q_fn <- function(p) {
-                result <- rep(NA_real_, length(p))
-                cont_inds <- rep(TRUE, length(p))
-                cont_p <- p
-                for (i in seq_along(disc_ps_range)) {
-                    dpr <- disc_ps_range[[i]]
-                    inds <- (p >= dpr[1]) & (p <= dpr[2])
-                    result[inds] <- disc_qs[i]
-                    cont_inds[inds] <- FALSE
-
-                    inds <- (p > dpr[2])
-                    cont_p[inds] <- cont_p[inds] - disc_ps[i] * disc_weight
-                }
-
-                if (disc_weight < 1.0) {
-                    cont_p <- cont_p / (1 - disc_weight)
-                    result[cont_inds] <- predict(interior_qf_spline,
-                                                cont_p[cont_inds])$y
-                }
+    # get a function that calculates the pdf, cdf, or quantile function
+    if (fn_type == "d") {
+        int_d_fn <- function(x, log = FALSE) {
+            result <- predict(interior_cdf_spline, x, deriv = 1)$y
+            if (log) {
+                return(log(result))
+            } else {
                 return(result)
             }
-            return(int_q_fn)
         }
+        return(int_d_fn)
+    } else if (fn_type == "p") {
+        int_p_fn <- function(q, log.p = FALSE) {
+            result <- predict(interior_cdf_spline, q, deriv = 0)$y
+
+            if (log.p) {
+                return(log(result))
+            } else {
+                return(result)
+            }
+        }
+        return(int_p_fn)
+    } else if (fn_type == "q") {
+        interior_qf_spline <- backSpline(interior_cdf_spline)
+
+        int_q_fn <- function(p) {
+            return(predict(interior_qf_spline, p)$y)
+        }
+        return(int_q_fn)
     }
 }

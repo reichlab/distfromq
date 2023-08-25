@@ -21,8 +21,8 @@ calc_loc_scale_params <- function(ps, qs, dist) {
     } else {
         qdst <- get(paste0("q", dist))
     }
-    b <- (qs[2] - qs[1]) / (qdst(ps[2]) - qdst(ps[1]))
-    a <- qs[1] - b * qdst(ps[1])
+    b <- suppressWarnings((qs[2] - qs[1]) / (qdst(ps[2]) - qdst(ps[1])))
+    a <- suppressWarnings(qs[1] - b * qdst(ps[1]))
     return(list(a = a, b = b))
 }
 
@@ -136,4 +136,3 @@ q_ext_factory <- function(ps, qs, dist) {
 
     return(q_ext)
 }
-

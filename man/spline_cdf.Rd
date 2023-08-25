@@ -7,24 +7,14 @@ provided quantiles by representing the distribution as a sum of a discrete
 part at any duplicated \code{qs} and a continuous part for which the cdf is
 estimated using a monotonic Hermite spline. See details for more.}
 \usage{
-spline_cdf(
-  ps,
-  qs,
-  lower_tail_dist,
-  upper_tail_dist,
-  fn_type = c("d", "p", "q"),
-  n_grid = 20,
-  tol = 1e-06
-)
+spline_cdf(ps, qs, tail_dist, fn_type = c("d", "p", "q"), n_grid = 20)
 }
 \arguments{
 \item{ps}{vector of probability levels}
 
 \item{qs}{vector of quantile values correponding to ps}
 
-\item{lower_tail_dist}{name of parametric distribution for the lower tail}
-
-\item{upper_tail_dist}{name of parametric distribution for the upper tail}
+\item{tail_dist}{name of parametric distribution for the tails}
 
 \item{fn_type}{the type of function that is requested: \code{"d"} for a pdf,
 \code{"p"} for a cdf, or \code{"q"} for a quantile function.}

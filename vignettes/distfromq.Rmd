@@ -34,26 +34,28 @@ The next section of the vignette describes the methods that are used for approxi
 
 Suppose that we have a collection of pairs $(q_k, \tau_k)$, $k = 1, \ldots, K$, where for each $k$, $\tau_k = F(q_k)$ or $q_k = F^{-1}(\tau_k)$ for some distribution with CDF $F$ and quantile function $F^{-1}$. We allow for the distribution to have regions with no density or with discrete point masses, corresponding to regions where $F$ is flat or has a vertical step. In these instances, the points $(q_k, \tau_k)$ may fall within the flat region or partway up the vertical step, as will be illustrated below. Our goal is to reconstruct an estimate of $F$, the corresponding PDF $f$ (if the distribution is continuous), and the QF $F^{-1}$, as well as a method for sampling from the distribution.
 
-Our approach takes different strategies for interpolating on the interior of the provided quantiles and for extrapolating into the tails; we outline these procedures briefly here and give more detail below:
+Our approach first splits the provided quantiles into a discrete part of the distribution and a continuous part. Then, for the continuous part it takes different strategies for interpolating on the interior of the provided quantiles and for extrapolating into the tails. We outline these procedures briefly here and give more detail below:
 
-1. We estimate the distribution on the interior of the predictive quantiles using the following procedure:
-    * If there are repeated quantiles across different probability levels (i.e., $q_k = q_{k'}$ for some indices $k \neq k'$) indicating the presence of one or more discrete point masses, we will represent the distribution as a mixture of a continuous component and a discrete component. To facilitate that, we split the quantiles into groups corresponding to those two components.
-    * For the CDF, we estimate the continuous component using a monotonic spline that interpolates the quantiles, along with discrete point masses at any points where there is a repeated quantile for multiple distinct probability levels.
-    * For the QF, we invert the estimate of the CDF.
-    * For the PDF, we use the derivative of the spline-based approximation to the CDF if there are no discrete components.
-2. we approximate the tails with a distribution in a specified location-scale family.
+1. Split into discrete and continuous parts.
+    * Discrete components of the distribution (i.e., point masses) are identified in the following cases:
+        * there are repeated quantiles across different probability levels (i.e., $q_k \approx q_{k'}$ for some indices $k \neq k'$). In this case, we say that there is a point mass at the value(s) of $q$ that was (were) repeated. The discrete distribution assigns probability to each such point $q$ corresponding to $\max(\{\tau_{k}: q_k \approx q\}) - \min(\{\tau_{k}: q_k \approx q\})$. The parameter `dup_tol` controls identification of quantiles that are "close enough" to identify a point mass.
+        * the parametric family to be used for extrapolation into the tails is a lognormal distribution and there are one or more quantiles that are approximately 0. In this case, we say that there is a point mass at zero, with probability equal to $\max(\{\tau_{k}: q_k \approx 0\})$. The parameter `zero_tol` controls identification of quantiles that are "close enough to zero" to identify a point mass.
+    * The result of this step is a collection of locations of discrete point masses and their associated probabilities, and a set of quantiles and associated probability levels that can be used for estimating the continuous part of the distribution in the following step.
+2. Estimate the continuous part of the distribution.
+    * On the interior of the quantiles for the continuous part of the distribution, we estimate the continuous component using a monotonic spline that interpolates the quantiles.
+    * We approximate the tails with a distribution in a specified location-scale family.
 
-## Estimation on the interior
+To estimate the quantile function (QF), we invert the estimate of the CDF. To estimate the probability density function (PDF), we use the derivative of the spline-based approximation to the CDF if there are no discrete components. This function does not support estimation of a density function if the distribution has any discrete components.
 
-In cases where there are repeated quantiles, we take the discrete component of the distribution to have a point mass at each quantile value that is repeated. The discrete distribution assigns probability to each such point $q$ corresponding to $\max(\{\tau_{k}: q_k = q\}) - \min(\{\tau_{k}: q_k = q\})$. The continuous distribution is then estimated based on a set of adjusted quantile pairs that is obtained by eliminating duplicate quantiles and subtracting the discrete distribution. To approximate the CDF of the continuous distribution component at interior points, we fit a monotonic cubic Hermite spline that interpolates the set of "observations" $\{(q_1, \tau_1), \ldots, (q_K, \tau_K)\}$ (where these now denote the adjusted quantiles for the continuous distribution component). The combination of these discrete and continuous components yields a "stage 1" CDF estimate, $\hat{F}^{(1)}$.
+## CDF estimation on the interior
+
+The continuous distribution is estimated based on a set of adjusted quantile pairs that is obtained by eliminating duplicate quantiles, subtracting the cumulative probabilities associated with the discrete distribution, and renormalizing by the total probability mass associated with the discrete distribution. To approximate the CDF of the continuous distribution component at interior points, we fit a monotonic cubic Hermite spline that interpolates the set of "observations" $\{(q_1, \tau_1), \ldots, (q_K, \tau_K)\}$ (where these now denote the adjusted quantiles for the continuous distribution component). This spline fit yields a "stage 1" CDF estimate, $\hat{F}^{(1)}$.
 
 To address issues with numerical stability in inverting the spline in the process of obtaining an estimate of the QF, we evaluate this stage 1 estimate at a grid of quantile values that are inserted between each consecutive pair of input quantiles (the number of new quantile values to use is an argument to the functions). We then use a "stage 2" CDF estimate that linearly interpolates this augmented grid of $(q, \tau)$ pairs. This behavior can be disabled if desired, though this is not recommended.
 
-To estimate the QF, we invert the CDF estimate, allowing for jumps in regions where the CDF is flat. To estimate the PDF in instances where the CDF estimate corresponds to a continuous distribution, we differentiate the CDF estimate. If the stage 2 CDF estimate is used, this yields a "histogram density" estimate, which is discontinuous and piecewise constant. If this presents a challenge, the grid size can be increased or the stage 1 CDF estimate used instead.
+## CDF estimation in the tails
 
-## Estimation in the tails
-
-We estimate the distribution for the left and right tails separately, assuming that they come from a specified location-scale family which may be different in each tail. Setting notation, suppose that $Y = a + b \cdot Z$ where the random variable $Z$ has a specified distribution. Recall that at the probability level $\tau$, a quantile of $Y$ can be calculated in terms of the corresponding quantile of $Z$ via $F_Y^{-1}(\tau) = a + b \cdot F_Z^{-1}(\tau)$. Using the quantiles at two probability levels $\tau_i$ and $\tau_j$, we can calculate the value of $b$ using
+We estimate the distribution for the left and right tails separately, assuming that they come from a specified location-scale family. The distributional family is assumed to be the same in each tail, but the location and scale parameters may differ in the left and right tails. Setting notation, suppose that $Y = a + b \cdot Z$ where the random variable $Z$ has a specified distribution. Recall that at the probability level $\tau$, a quantile of $Y$ can be calculated in terms of the corresponding quantile of $Z$ via $F_Y^{-1}(\tau) = a + b \cdot F_Z^{-1}(\tau)$. Using the quantiles at two probability levels $\tau_i$ and $\tau_j$, we can calculate the value of $b$ using
 
 \begin{align*}
 \frac{F_Y^{-1}(\tau_i) - F_Y^{-1}(\tau_j)}{F_Z^{-1}(\tau_i) - F_Z^{-1}(\tau_j)} &= \frac{a + b \cdot F_Z^{-1}(\tau_i) - (a + b \cdot F_Z^{-1}(\tau_j))} {F_Z^{-1}(\tau_i) - F_Z^{-1}(\tau_j)} \\
@@ -69,11 +71,18 @@ In the above expressions, we use the two smallest quantiles when estimating the 
 
 As an alternative, we also allow for the use of a log-normal distribution for extrapolation into the tails. The parameters of the log-normal distribution are estimated by applying the approach outlined above to the logarithms of the quantiles.
 
+## Estimation of the QF and PDF, and random deviate generation
+
+
+To estimate the QF, we invert the CDF estimate, allowing for jumps in regions where the CDF is flat. As noted above, this can be numerically unstable if `n_grid = NULL` (thus using the spline fit directly), so it is recommended that the `n_grid` parameter be set to an integer if QF estimates are desired.
+
+To estimate the PDF in instances where the CDF estimate corresponds to a continuous distribution, we differentiate the CDF estimate. If the stage 2 CDF estimate is used, this yields a "histogram density" estimate, which is discontinuous and piecewise constant. If this presents a challenge, the grid size can be increased or the stage 1 CDF estimate used instead.
+
 Random deviates are obtained by sampling $U \sim \text{Unif}(0,1)$ and then evaluating the approximated quantile function: $Y = F_Y^{-1}(U)$.
 
 # Illustration of package functionality
 
-We illustrate the package functionality with a series of three examples. The first example is a setting where the distribution is for a continuous random variable with a defined probability density funciton. The second and third examples illustrate the behavior of the functions in settings where the provided quantiles are the same at multiple probability levels, indicating that there is some discrete component to the distribution.
+We illustrate the package functionality with a series of four examples. The first example is a setting where the distribution is for a continuous random variable with a defined probability density funciton. The remaining examples illustrate the behavior of the functions in settings where the provided quantiles are the same at multiple probability levels or a lognormal distribution is used for tail extrapolation and there is at least one quantile at zero, indicating that there is some discrete component to the distribution.
 
 ```{r setup}
 library(distfromq)
@@ -103,21 +112,18 @@ cdf_lognormal <- plnorm(x, meanlog = meanlog, sdlog = sdlog)
 
 p_lognormal_approx <- make_p_fn(ps = quantile_probs,
                                 qs = q_lognormal,
-                                lower_tail_dist = "lnorm",
-                                upper_tail_dist = "lnorm")
+                                tail_dist = "lnorm")
 cdf_lognormal_approx <- p_lognormal_approx(x)
 
-
+# note that `tail_dist = "norm"` is the default; we specify it here for clarity
 p_normal_approx <- make_p_fn(ps = quantile_probs,
                              qs = q_lognormal,
-                             lower_tail_dist = "norm",
-                             upper_tail_dist = "norm")
+                             tail_dist = "norm")
 cdf_normal_approx <- p_normal_approx(x)
 
 p_cauchy_approx <- make_p_fn(ps = quantile_probs,
                              qs = q_lognormal,
-                             lower_tail_dist = "cauchy",
-                             upper_tail_dist = "cauchy")
+                             tail_dist = "cauchy")
 cdf_cauchy_approx <- p_cauchy_approx(x)
 
 dplyr::bind_rows(
@@ -161,21 +167,20 @@ dplyr::bind_rows(
         theme_bw()
 ```
 
+The following illustrates differences in the density estimates.
+
 ```{r}
 d_lognormal_approx <- make_d_fn(ps = quantile_probs,
                                 qs = q_lognormal,
-                                lower_tail_dist = "lnorm",
-                                upper_tail_dist = "lnorm")
+                                tail_dist = "lnorm")
 
 d_normal_approx <- make_d_fn(ps = quantile_probs,
                              qs = q_lognormal,
-                             lower_tail_dist = "norm",
-                             upper_tail_dist = "norm")
+                             tail_dist = "norm")
 
 d_cauchy_approx <- make_d_fn(ps = quantile_probs,
                              qs = q_lognormal,
-                             lower_tail_dist = "cauchy",
-                             upper_tail_dist = "cauchy")
+                             tail_dist = "cauchy")
 
 pdf_lognormal <- dlnorm(x, meanlog = meanlog, sdlog = sdlog)
 pdf_lognormal_approx <- d_lognormal_approx(x)
@@ -223,13 +228,12 @@ dplyr::bind_rows(
         theme_bw()
 ```
 
-We emphasize that the density is piecewise linear. We illustrate this by setting the `n_grid` parameter to the artificially low value of 1:
+We emphasize that the density is a step function. We illustrate this by setting the `n_grid` parameter to the artificially low value of 1:
 
 ```{r}
 d_lognormal_approx_n_grid_1 <- make_d_fn(ps = quantile_probs,
                                 qs = q_lognormal,
-                                lower_tail_dist = "lnorm",
-                                upper_tail_dist = "lnorm",
+                                tail_dist = "lnorm",
                                 interior_args = list(n_grid = 1))
 
 pdf_lognormal_approx_n_grid_1 <- d_lognormal_approx_n_grid_1(x)
@@ -263,22 +267,20 @@ dplyr::bind_rows(
         ylab("Probability Density") +
         xlab("") +
         theme_bw()
-
 ```
+
+We can generate random deviates from the distribution estimates as follows:
 
 ```{r}
 r_normal_approx <- make_r_fn(ps = quantile_probs,
                              qs = q_lognormal,
-                             lower_tail_dist = "norm",
-                             upper_tail_dist = "norm")
+                             tail_dist = "norm")
 r_lognormal_approx <- make_r_fn(ps = quantile_probs,
                                 qs = q_lognormal,
-                                lower_tail_dist = "lnorm",
-                                upper_tail_dist = "lnorm")
+                                tail_dist = "lnorm")
 r_cauchy_approx <- make_r_fn(ps = quantile_probs,
                              qs = q_lognormal,
-                             lower_tail_dist = "cauchy",
-                             upper_tail_dist = "cauchy")
+                             tail_dist = "cauchy")
                              
 normal_approx_sample <- r_normal_approx(n=10000)
 lognormal_approx_sample <- r_lognormal_approx(n=10000)
@@ -299,6 +301,7 @@ bind_rows(
         theme_bw()
 ```
 
+The heavy tails of the Cauchy distribution dominate the display. Here we restrict the range of the horizontal axis:
 
 ```{r}
 bind_rows(
@@ -317,25 +320,20 @@ bind_rows(
         theme_bw()
 ```
 
-```{r}
-x <- seq(from = 0.0, to = 400.0, length = 501)
-```
+Finally, we display quantile function estimates:
 
 ```{r}
 ps <- seq(from = 0.01, to = 0.99, by = 0.01)
 
 q_normal_approx <- make_q_fn(ps = quantile_probs,
                              qs = q_lognormal,
-                             lower_tail_dist = "norm",
-                             upper_tail_dist = "norm")
+                             tail_dist = "norm")
 q_lognormal_approx <- make_q_fn(ps = quantile_probs,
                                 qs = q_lognormal,
-                                lower_tail_dist = "lnorm",
-                                upper_tail_dist = "lnorm")
+                                tail_dist = "lnorm")
 q_cauchy_approx <- make_q_fn(ps = quantile_probs,
                              qs = q_lognormal,
-                             lower_tail_dist = "cauchy",
-                             upper_tail_dist = "cauchy")
+                             tail_dist = "cauchy")
 
 quantiles_lognormal <- qlnorm(ps, meanlog = meanlog, sdlog = sdlog)
 quantiles_normal_approx <- q_normal_approx(ps)
@@ -379,9 +377,146 @@ dplyr::bind_rows(
         theme_bw()
 ```
 
-## Example 2: duplicated quantiles on the interior
+## Example 2: lognormal tails with a point mass at 0
 
-When quantile values are the same at multiple probability levels, the distribution assigns non-zero probability to that value, corresponding to a "step" or "jump" in the cumulative distribution function. We note that in this case, `make_d_fn` will throw an error because a continuous density does not exist. We illustrate the behavior of the estimates provided by `make_p_fn` and `make_q_fn` in the presence of repeated quantiles in this and the following example.
+A lognormal distribution specifies that $P(X \leq 0) = 0$, i.e., the random variable will always non-negative values. If a lognormal tail distribution is used, e.g. to ensure that the distribution's support is non-negative and to capture a long right tail, the package inserts a point mass at 0 if any provided quantiles are 0. We illustrate this behavior in this example.
+
+```{r}
+# mixture of a LogNormal(4, 0.5) distribution with weight 0.8 and
+# a point mass at 0 with weight 0.2
+
+# probabilities and quantiles for the lognormal component
+lnorm_ps <- seq(from = 0.1, to = 0.9, by = 0.1)
+lnorm_qs <- qlnorm(lnorm_ps, meanlog = 4.0, sdlog = 0.5)
+adj_lnorm_ps <- 0.2 + lnorm_ps * 0.8
+
+# quantile at 0 with probability 0.2 for the point mass at 0
+point_p <- 0.2
+point_q <- 0.0
+
+ps <- c(point_p, adj_lnorm_ps)
+qs <- c(point_q, lnorm_qs)
+```
+
+Note that the cdf estimate is zero below 0, jumps to 0.2 at 0, and is continuous thereafter.
+
+```{r}
+x <- seq(from = -100.0, to = 400.0, length = 501)
+
+p_lognormal_approx <- make_p_fn(ps = ps,
+                                qs = qs,
+                                tail_dist = "lnorm")
+cdf_lognormal_approx <- p_lognormal_approx(x)
+
+data.frame(
+    x = x,
+    y = cdf_lognormal_approx
+) %>%
+    ggplot() +
+        geom_line(
+            mapping = aes(x = x, y = y),
+            size = 0.8) +
+        geom_point(
+            data = data.frame(q = qs, p = ps),
+            mapping = aes(x = q, y = p),
+            size = 1.2
+        ) +
+        ylim(0, 1) +
+        ylab("Probability") +
+        xlab("") +
+        theme_bw()
+```
+
+As expected, the quantile function inverts the cdf.
+
+```{r}
+plot_ps <- seq(from = 0.00, to = 0.99, by = 0.001)
+
+q_lognormal_approx <- make_q_fn(ps = ps,
+                                qs = qs,
+                                tail_dist = "lnorm")
+qf_lognormal_approx <- q_lognormal_approx(plot_ps)
+
+data.frame(
+    x = plot_ps,
+    y = qf_lognormal_approx
+) %>%
+    ggplot() +
+        geom_line(
+            mapping = aes(x = x, y = y),
+            size = 0.8) +
+        geom_point(
+            data = data.frame(q = ps, p = qs),
+            mapping = aes(x = q, y = p),
+            size = 1.2
+        ) +
+        xlim(0, 1) +
+        xlab("Probability") +
+        ylab("") +
+        theme_bw()
+```
+
+We can verify this by plotting the quantile function estimate with inverted axes on the same display as the cdf estimate:
+
+```{r}
+dplyr::bind_rows(
+    data.frame(
+        x = x,
+        y = cdf_lognormal_approx,
+        method = "CDF Estimate"
+    ),
+    data.frame(
+        x = qf_lognormal_approx,
+        y = plot_ps,
+        method = "Flipped QF Estimate"
+    )
+) %>%
+    ggplot() +
+        geom_line(
+            mapping = aes(x = x, y = y, color = method, linetype = method),
+            size = 0.8) +
+        geom_point(
+            data = data.frame(q = qs, p = ps),
+            mapping = aes(x = q, y = p),
+            size = 1.2
+        ) +
+        ylim(0, 1) +
+        ylab("Probability") +
+        xlab("") +
+        theme_bw()
+
+```
+
+Samples from this distribution estimate will include a concentration of values at 0:
+
+```{r}
+r_fn <- make_r_fn(ps = ps, qs = qs, tail_dist = "lnorm")
+
+sampled_values_df <- data.frame(x = r_fn(10000))
+
+ggplot(sampled_values_df) +
+    geom_histogram(mapping = aes(x = x), bins = 100) +
+    theme_bw()
+
+mean(sampled_values_df$x == 0)
+```
+
+
+Because the distribution has a discrete component, we cannot produce a density estimate:
+
+```{r, error=TRUE}
+d_fn_lnorm <- make_d_fn(ps = ps, qs = qs, tail_dist = "lnorm")
+```
+
+Note that we do not get an error when estimating the density with a normal tail distribution, because in this case we are not forced to assume that there is a point mass at 0:
+
+```{r}
+d_fn_norm <- make_d_fn(ps = ps, qs = qs, tail_dist = "norm")
+```
+
+## Example 3: duplicated quantiles on the interior
+
+When quantile values are the same at multiple probability levels, the distribution assigns non-zero probability to that value, corresponding to a "step" or "jump" in the cumulative distribution function. Again, we note that in this case, `make_d_fn` will throw an error because a continuous density does not exist. We illustrate the behavior of the estimates provided by `make_p_fn` and `make_q_fn` in the presence of repeated quantiles in this and the following example.
 
 ```{r, error=TRUE}
 quantile_probs <- seq(from = 0.1, to = 0.9, by = 0.1)
@@ -389,37 +524,32 @@ quantile_values <- c(1.0, 2.0, 3.0, 3.0, 3.0, 3.0, 3.0, 8.0, 9.0)
 
 d_normal_approx <- make_d_fn(ps = quantile_probs,
                              qs = quantile_values,
-                             lower_tail_dist = "norm",
-                             upper_tail_dist = "norm")
+                             tail_dist = "norm")
 p_normal_approx <- make_p_fn(ps = quantile_probs,
                              qs = quantile_values,
-                             lower_tail_dist = "norm",
-                             upper_tail_dist = "norm")
+                             tail_dist = "norm")
 q_normal_approx <- make_q_fn(ps = quantile_probs,
                              qs = quantile_values,
-                             lower_tail_dist = "norm",
-                             upper_tail_dist = "norm")
+                             tail_dist = "norm")
 r_normal_approx <- make_r_fn(ps = quantile_probs,
                              qs = quantile_values,
-                             lower_tail_dist = "norm",
-                             upper_tail_dist = "norm")
-
+                             tail_dist = "norm")
 
 x <- seq(from = 0.0, to = 20.0, length = 5001)
 cdf_normal_approx <- p_normal_approx(x)
 ggplot() +
-  geom_line(data=data.frame(x=x, y=cdf_normal_approx),
-            mapping = aes(x=x, y=y)) +
-  geom_point(data=data.frame(x=quantile_values, y=quantile_probs),
-             mapping = aes(x=x, y=y))
+  geom_line(data = data.frame(x = x, y = cdf_normal_approx),
+            mapping = aes(x = x, y = y)) +
+  geom_point(data = data.frame(x = quantile_values, y = quantile_probs),
+             mapping = aes(x = x, y = y))
 
 ps <- seq(from = 0.0, to = 1.0, length = 5001)
 qf_normal_approx <- q_normal_approx(ps)
 ggplot() +
-  geom_line(data=data.frame(p=ps, y=qf_normal_approx),
-            mapping = aes(x=p, y=y)) +
-  geom_point(data=data.frame(x=quantile_probs, y = quantile_values),
-             mapping = aes(x=x, y=y))
+  geom_line(data = data.frame(p = ps, y = qf_normal_approx),
+            mapping = aes(x = p, y = y)) +
+  geom_point(data = data.frame(x = quantile_probs, y = quantile_values),
+             mapping = aes(x = x, y = y))
 
 samples_normal_approx <- r_normal_approx(n = 10000)
 mean(samples_normal_approx == 3.0)
@@ -440,13 +570,11 @@ As described earlier, we use a piecewise linear representation of the CDF to avo
 ```{r}
 p_normal_approx_spline <- make_p_fn(ps = quantile_probs,
                              qs = quantile_values,
-                             lower_tail_dist = "norm",
-                             upper_tail_dist = "norm",
+                             tail_dist = "norm",
                              interior_args = list(n_grid = NULL))
 q_normal_approx_spline <- make_q_fn(ps = quantile_probs,
                              qs = quantile_values,
-                             lower_tail_dist = "norm",
-                             upper_tail_dist = "norm",
+                             tail_dist = "norm",
                              interior_args = list(n_grid = NULL))
 
 x <- seq(from = 0.0, to = 20.0, length = 5001)
@@ -492,9 +620,9 @@ ggplot() +
 
 We therefore recommend using the piecewise linear representation when using a quantile function or generating random deviates, which uses the quantile function in the background.
 
-## Example 3: duplicated quantiles in the tails
+## Example 4: duplicated quantiles in the tails
 
-Our final example illustrates the behavior when there are duplicated quantiles at the edges. In these cases, we ignore the specified `lower_tail_dist` and/or `upper_tail_dist`, and assume that the point mass at the edge contains all of the tail probability.
+Our final example illustrates the behavior when there are duplicated quantiles at the edges. In these cases, we ignore the specified `tail_dist`, and assume that the point mass at the edge contains all of the tail probability.
 
 ```{r}
 quantile_probs <- seq(from = 0.1, to = 0.9, by = 0.1)
@@ -502,21 +630,17 @@ quantile_values <- c(1.0, 1.0, 3.0, 3.0, 3.0, 3.0, 3.0, 9.0, 9.0)
 
 p_normal_approx <- make_p_fn(ps = quantile_probs,
                              qs = quantile_values,
-                             lower_tail_dist = "norm",
-                             upper_tail_dist = "norm")
+                             tail_dist = "norm")
 p_normal_approx_lin <- make_p_fn(ps = quantile_probs,
                              qs = quantile_values,
-                             lower_tail_dist = "norm",
-                             upper_tail_dist = "norm",
+                             tail_dist = "norm",
                              interior_args = list(n_grid = 20))
 q_normal_approx <- make_q_fn(ps = quantile_probs,
                              qs = quantile_values,
-                             lower_tail_dist = "norm",
-                             upper_tail_dist = "norm")
+                             tail_dist = "norm")
 q_normal_approx_lin <- make_q_fn(ps = quantile_probs,
                              qs = quantile_values,
-                             lower_tail_dist = "norm",
-                             upper_tail_dist = "norm",
+                             tail_dist = "norm",
                              interior_args = list(n_grid = 20))
 
 x <- seq(from = 0.0, to = 20.0, length = 5001)

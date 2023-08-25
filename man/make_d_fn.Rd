@@ -11,8 +11,9 @@ make_d_fn(
   qs,
   interior_method = "spline_cdf",
   interior_args = list(),
-  lower_tail_dist = "norm",
-  upper_tail_dist = "norm"
+  tail_dist = "norm",
+  dup_tol = 1e-06,
+  zero_tol = 1e-12
 )
 }
 \arguments{
@@ -28,9 +29,16 @@ details for more.}
 \item{interior_args}{an optional named list of arguments that are passed
 on to the \code{interior_method}}
 
-\item{lower_tail_dist}{name of parametric distribution for the lower tail}
+\item{tail_dist}{name of parametric distribution for the tails}
 
-\item{upper_tail_dist}{name of parametric distribution for the upper tail}
+\item{dup_tol}{numeric tolerance for identifying duplicated values indicating
+a discrete component of the distribution. If there is a run of values where
+each consecutive pair is closer together than the tolerance, all are
+labeled as duplicates even if not all values in the run are within the
+tolerance.}
+
+\item{zero_tol}{numeric tolerance for identifying values in \code{qs} that are
+(approximately) zero.}
 }
 \value{
 a function with arguments \code{x} and \code{log} that can be used to evaluate
@@ -50,9 +58,8 @@ provided \verb{(q, p)} pairs as an estimate of the cdf. The density function is
 then obtained by differentiating this estimate of the cdf.
 
 Optionally, the user may provide another function that accepts arguments
-\code{ps}, \code{qs}, \code{lower_tail_dist}, \code{upper_tail_dist}, and \code{fn_type} (which
-will be either \code{"d"}, \code{"p"}, or \code{"q"}), and optionally additional named
-arguments to be specified via \code{interior_args}. This function should return
-a function with arguments \code{x}, \code{log} that evaluates the pdf or its
-logarithm.
+\code{ps}, \code{qs}, \code{tail_dist}, and \code{fn_type} (which will be either \code{"d"}, \code{"p"},
+or \code{"q"}), and optionally additional named arguments to be specified via
+\code{interior_args}. This function should return a function with arguments
+\code{x}, \code{log} that evaluates the pdf or its logarithm.
 }
