@@ -245,7 +245,7 @@ spline_cdf <- function(ps, qs, tail_dist,
 
     if (!is.null(n_grid)) {
         return(spline_cdf_grid_interp(ps, qs, tail_dist, fn_type, n_grid))
-    } else{
+    } else {
         return(spline_cdf_direct(ps, qs, tail_dist, fn_type))
     }
 }
@@ -286,11 +286,17 @@ spline_cdf_grid_interp <- function(ps, qs, tail_dist,
     }
 }
 
-
+#' Internal function that augments ps and qs by filling in a grid of
+#' intermediate values for qs. n_grid new points are inserted between each
+#' pair of consecutive values in qs, and the corresponding ps are filled in
+#' by evaluating the spline output from `spline_cdf_direct` at the qs grid.
 grid_augment_ps_qs <- function(ps, qs, tail_dist, n_grid) {
     n_grid <- as.integer(n_grid)
-    if (n_grid < 1) {
-        stop("If provided, `n_grid` must be a positive integer.")
+    if (n_grid < 0) {
+        stop("If provided, `n_grid` must be a non-negative integer.")
+    } else if (n_grid == 0) {
+        # if the user just wants to linearly interpolate the given qs, ps
+        return(list(ps = ps, qs = qs))
     }
 
     # get a function that evaluates the approximated cdf based on a spline
@@ -317,13 +323,18 @@ grid_augment_ps_qs <- function(ps, qs, tail_dist, n_grid) {
     return(list(ps = ps, qs = qs))
 }
 
-
+#' Internal function that constructs a monotonic Hermite spline interpolating
+#' ps and qs.
 spline_cdf_direct <- function(ps, qs, tail_dist,
                               fn_type = c("d", "p", "q")) {
     # fit a monotonic spline to the qs and ps for the continuous part of the
     # distribution to approximate the cdf on the interior
+    # the vector m that we assemble here has the target slopes of the spline
+    # at each data point (qs[i], ps[i])
     # on ends, slope of cdf approximation should match tail distribution pdf
     # on interior, slope is the mean of the slopes of the adjacent segments
+    # note: there is probably room for improvement for this interior behavior,
+    # but this seems to be the standard strategy for monotonic splines
     d_lower <- d_ext_factory(ps = head(ps, 2), qs = head(qs, 2),
                              dist = tail_dist)
     m_lower <- d_lower(qs[1])
