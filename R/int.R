@@ -349,10 +349,18 @@ spline_cdf_direct <- function(ps, qs, tail_dist,
     # in case of errors in evaluating density function at endpoints,
     # repeat interior values
     if (is.nan(m_lower) || !is.finite(m_lower)) {
-        m_lower <- m_interior[1]
+        if (n == 1) {
+            m_lower <- m_segments
+        } else {
+            m_lower <- m_interior[1]
+        }
     }
     if (is.nan(m_upper) || !is.finite(m_upper)) {
-        m_upper <- tail(m_interior, 1)
+        if (n == 1) {
+            m_upper <- m_segments
+        } else {
+            m_upper <- tail(m_interior, 1)
+        }
     }
 
     m <- c(m_lower, m_interior, m_upper)
