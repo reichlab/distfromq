@@ -4,6 +4,11 @@ Given a set of predictive quantiles from a distribution, estimate the distributi
 
 ## News
 
+### Version 1.0.1
+
+Changes:
+ - Fix a bug when all quantiles occur at one of three duplicated values, one of which is zero, when the tail distribution is `"lnorm"`.
+
 ### Version 1.0.0
 
 Changes:
