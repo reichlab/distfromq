@@ -11,9 +11,10 @@
 # - continuous component; two point masses, both from duplicated qs
 # - continuous component; two point masses, is_hurdle with one zero and one non-zero with duplicated qs
 #
-# there are three additional tests related to bugs that were found:
+# there are four additional tests related to bugs that were found:
 # - near-equal quantiles (two variations)
 # - near-zero quantiles
+# - duplicated quantiles at 3 distinct values, lnorm tail distribution
 #
 # in each case, we check that:
 # - make_p_fn approximately reproduces the cdf that is being estimated
@@ -570,6 +571,29 @@ test_that("make_p_fn, make_q_fn well-behaved with near-zero quantiles", {
     )
     testthat::expect_no_error(
         cdf_hat <- distfromq:::make_q_fn(ps, qs)
+    )
+})
+
+test_that("make_p_fn, make_q_fn well-behaved with 3 duplicated values, one at zero, lnorm tail dist", {
+    ps <- seq(0.05, 0.95, 0.1)
+    qs <- c(rep(0, 4), rep(1, 3), rep(5, 3))
+
+    testthat::expect_no_error(
+        q_hat <- distfromq::make_q_fn(
+            ps = ps,
+            qs = qs,
+            dup_tol = 1e-06,
+            zero_tol = 1e-12,
+            tail_dist = "lnorm")(seq(from = 0, to = 1, length.out = 10000 + 2)[2:10000])
+    )
+
+    testthat::expect_no_error(
+        p_hat <- distfromq::make_p_fn(
+            ps = ps,
+            qs = qs,
+            dup_tol = 1e-06,
+            zero_tol = 1e-12,
+            tail_dist = "lnorm")(seq(from = 0, to = 10, length.out = 10000))
     )
 })
 
