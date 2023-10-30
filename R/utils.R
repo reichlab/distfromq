@@ -210,13 +210,14 @@ split_disc_cont_ps_qs <- function(ps, qs, dup_tol = 1e-6, zero_tol = 1e-12,
     # An exception is qs of 0 when is_hurdle == TRUE, in which case we drop
     # zero from the cont_qs; e.g. including (p=0, q=0) for a lognormal
     # is not informative.
-    cont_ps <- ps[!dup_q_inds_f]
+    cont_ps_unadj <- ps[!dup_q_inds_f]
     cont_qs <- uq
     if (is_hurdle) {
         nonzero_inds <- (abs(cont_qs) >= zero_tol)
-        cont_ps <- cont_ps[nonzero_inds]
+        cont_ps_unadj <- cont_ps_unadj[nonzero_inds]
         cont_qs <- cont_qs[nonzero_inds]
     }
+    cont_ps <- cont_ps_unadj
     for (i in seq_along(disc_qs)) {
         adj_inds <- (cont_qs > disc_qs[i])
         cont_ps[adj_inds] <- cont_ps[adj_inds] - disc_ps_mass[i]
@@ -227,6 +228,15 @@ split_disc_cont_ps_qs <- function(ps, qs, dup_tol = 1e-6, zero_tol = 1e-12,
         disc_weight <- tail(disc_cum_ps, 1)
         disc_ps_mass <- disc_ps_mass / disc_weight
         cont_ps <- cont_ps / (1 - disc_weight)
+
+        # address potential floating point errors: for example,
+        # dividing by (1 - disc_weight) could take an input p = 1 to a value
+        # slightly greater than 1. here, we ensure that any input p's that
+        # were in [0, 1] are still in [0, 1] after adjustment
+        inds_nonneg <- cont_ps_unadj >= 0
+        cont_ps[inds_nonneg] <- pmax(cont_ps[inds_nonneg], 0)
+        inds_lte_1 <- cont_ps_unadj <= 1
+        cont_ps[inds_lte_1] <- pmin(cont_ps[inds_lte_1], 1)
     } else {
         disc_weight <- 0.0
     }

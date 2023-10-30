@@ -13,6 +13,8 @@
 # - continuous component; two point masses, is_hurdle with one zero and one non-zero with duplicated qs
 #
 # we expect success in the first case and an error in all others
+#
+# additionally, test that validations for argument values work
 
 
 test_that("make_d_fn works, continuous component; no point masses", {
@@ -169,4 +171,25 @@ test_that("make_d_fn generates error, two point masses, is_hurdle with one zero 
     qs <- qs[!dup_inds]
 
     expect_error(make_d_fn(ps, qs, tail_dist = "lnorm"))
+})
+
+test_that("make_d_fn errors with out-of-bounds or incorrectly typed ps, qs", {
+    testthat::expect_no_error(make_d_fn(ps=c(0.0, 0.5, 1.0), qs = 1:3))
+    testthat::expect_error(make_d_fn(ps=c(-1, 0.5, 1.0), qs = 1:3),
+                           "Assertion on 'ps' failed: Element 1 is not >= 0.")
+    testthat::expect_error(make_d_fn(ps=c(0.0, 0.5, 2.0), qs = 1:3),
+                           "Assertion on 'ps' failed: Element 3 is not <= 1.")
+    testthat::expect_error(make_d_fn(ps=c(0.0, "a", 1.0), qs = 1:3),
+                           "Assertion on 'ps' failed: Must be of type 'numeric', not 'character'.")
+    testthat::expect_error(make_d_fn(ps=c(0.0, 0.5, 1.0), qs = c(1, "a", 3)),
+                           "Assertion on 'qs' failed: Must be of type 'numeric', not 'character'.")
+    testthat::expect_error(make_d_fn(ps=c(0.0, 0.5, 1.0), qs = 1:4),
+                           "'ps' and 'qs' must have the same length.")
+})
+
+test_that("make_d_fn result errors with out-of-bounds or incorrectly typed argument x", {
+    d_fn <- make_d_fn(ps=c(0.01, 0.5, 0.99), qs = 1:3)
+    testthat::expect_no_error(d_fn(c(0, 1, 5)))
+    testthat::expect_error(d_fn("a"),
+                           "Must be of type 'numeric', not 'character'.")
 })

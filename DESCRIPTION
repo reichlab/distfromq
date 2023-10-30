@@ -1,6 +1,6 @@
 Package: distfromq
 Title: Reconstruct a Distribution from a Collection of Quantiles
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: 
     c(person("Evan", "Ray", , "elray@umass.edu", role = c("aut", "cre")),
     person("Aaron", "Gerding", , "elray@umass.edu", role = c("aut")))
@@ -20,6 +20,9 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0)
 Imports: 
+    checkmate,
+    purrr,
+    splines,
     zeallot
 VignetteBuilder: knitr
 Config/testthat/edition: 3

@@ -4,6 +4,12 @@ Given a set of predictive quantiles from a distribution, estimate the distributi
 
 ## News
 
+### Version 1.0.2
+
+Changes:
+ - Fix a bug that came up with multiple discrete point masses, where floating point issues could cause adjusted probability levels to fall outside the interval [0, 1].
+ - Add argument checking.
+
 ### Version 1.0.1
 
 Changes:
