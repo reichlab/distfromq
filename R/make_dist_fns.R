@@ -12,6 +12,13 @@ NULL
 #'
 #' @return named list with entries `ps` and `qs`
 clean_ps_and_qs <- function(ps, qs) {
+    checkmate::assert_numeric(ps, lower=0, upper=1)
+    checkmate::assert_numeric(qs)
+    
+    if (length(ps) != length(qs)) {
+        stop("'ps' and 'qs' must have the same length.")
+    }
+    
     # drop missing values for qs
     na_idx <- is.na(qs) | is.na(ps)
     if (any(na_idx)) {
@@ -104,6 +111,8 @@ make_d_fn <- function(ps, qs,
     upper_pdf <- d_ext_factory(tail(cont_ps, 2), tail(cont_qs, 2), tail_dist)
 
     d_fn <- function(x, log=FALSE) {
+        checkmate::assert_numeric(x)
+        
         # instantiate result
         result <- rep(NA_real_, length(x))
 
@@ -213,6 +222,8 @@ make_p_fn <- function(ps, qs,
     }
 
     p_fn <- function(q, log.p=FALSE) {
+        checkmate::assert_numeric(q)
+        
         # instantiate result
         result <- rep(0.0, length(q))
         log.p_direct <- FALSE
@@ -358,6 +369,8 @@ make_q_fn <- function(ps, qs,
     }
 
     q_fn <- function(p) {
+        checkmate::assert_numeric(p, lower=0, upper=1)
+        
         # instantiate result
         result <- rep(NA_real_, length(p))
 
@@ -381,6 +394,12 @@ make_q_fn <- function(ps, qs,
         # continuous part of the distribution
         if (disc_weight < 1.0) {
             cont_p <- cont_p / (1 - disc_weight)
+            # address potential floating point errors: for example,
+            # dividing by (1 - disc_weight) could take an input p = 1 to a value
+            # slightly greater than 1. here, we ensure that any input p's that
+            # were in [0, 1] are still in [0, 1] after adjustment
+            cont_p[p >= 0] <- pmax(cont_p[p >= 0], 0)
+            cont_p[p <= 1] <- pmin(cont_p[p <= 1], 1)
 
             # interior points
             interior_idx <- cont_inds & (cont_p >= cont_ps[1]) &
@@ -465,6 +484,7 @@ make_r_fn <- function(ps, qs,
     q_fn <- make_q_fn(ps, qs, interior_method, interior_args, tail_dist)
 
     r_fn <- function(n) {
+        checkmate::assert_integerish(n, lower=0, any.missing=FALSE, len=1)
         u <- runif(n)
         return(q_fn(u))
     }

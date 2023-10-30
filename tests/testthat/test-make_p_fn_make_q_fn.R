@@ -11,10 +11,11 @@
 # - continuous component; two point masses, both from duplicated qs
 # - continuous component; two point masses, is_hurdle with one zero and one non-zero with duplicated qs
 #
-# there are four additional tests related to bugs that were found:
+# there are five additional tests related to bugs that were found:
 # - near-equal quantiles (two variations)
 # - near-zero quantiles
 # - duplicated quantiles at 3 distinct values, lnorm tail distribution
+# - four repeated zero quantiles, normal tail distribution
 #
 # in each case, we check that:
 # - make_p_fn approximately reproduces the cdf that is being estimated
@@ -570,7 +571,7 @@ test_that("make_p_fn, make_q_fn well-behaved with near-zero quantiles", {
         cdf_hat <- distfromq:::make_p_fn(ps, qs)
     )
     testthat::expect_no_error(
-        cdf_hat <- distfromq:::make_q_fn(ps, qs)
+        qf_hat <- distfromq:::make_q_fn(ps, qs)
     )
 })
 
@@ -597,3 +598,57 @@ test_that("make_p_fn, make_q_fn well-behaved with 3 duplicated values, one at ze
     )
 })
 
+
+test_that("make_p_fn, make_q_fn well-behaved: multiple duplicates and floating point issues with discrete adjustments", {
+    ps <- c(.01,.025, seq(.05,.95, by=.05), .975, .99)
+    qs <- c(0,0,0,0,3,6,8,8,9,11,12,13,17,21,25,27,29,30,31,33,37,52,61)
+
+    q_hat <- distfromq:::make_q_fn(ps, qs)
+    testthat::expect_identical(q_hat(c(0.99, 1)), c(61, Inf))
+    
+    p_hat <- distfromq::make_p_fn(ps, qs)
+    testthat::expect_identical(p_hat(c(61, Inf)), c(0.99, 1.0))
+})
+
+
+test_that("make_p_fn and make_q_fn error with out-of-bounds or incorrectly typed ps, qs", {
+    testthat::expect_no_error(make_p_fn(ps=c(0.0, 0.5, 1.0), qs = 1:3))
+    testthat::expect_error(make_p_fn(ps=c(-1, 0.5, 1.0), qs = 1:3),
+                           "Assertion on 'ps' failed: Element 1 is not >= 0.")
+    testthat::expect_error(make_p_fn(ps=c(0.0, 0.5, 2.0), qs = 1:3),
+                           "Assertion on 'ps' failed: Element 3 is not <= 1.")
+    testthat::expect_error(make_p_fn(ps=c(0.0, "a", 1.0), qs = 1:3),
+                           "Assertion on 'ps' failed: Must be of type 'numeric', not 'character'.")
+    testthat::expect_error(make_p_fn(ps=c(0.0, 0.5, 1.0), qs = c(1, "a", 3)),
+                           "Assertion on 'qs' failed: Must be of type 'numeric', not 'character'.")
+    testthat::expect_error(make_p_fn(ps=c(0.0, 0.5, 1.0), qs = 1:4),
+                           "'ps' and 'qs' must have the same length.")
+
+    testthat::expect_no_error(make_q_fn(ps=c(0.0, 0.5, 1.0), qs = 1:3))
+    testthat::expect_error(make_q_fn(ps=c(-1, 0.5, 1.0), qs = 1:3),
+                           "Assertion on 'ps' failed: Element 1 is not >= 0.")
+    testthat::expect_error(make_q_fn(ps=c(0.0, 0.5, 2.0), qs = 1:3),
+                           "Assertion on 'ps' failed: Element 3 is not <= 1.")
+    testthat::expect_error(make_q_fn(ps=c(0.0, "a", 1.0), qs = 1:3),
+                           "Assertion on 'ps' failed: Must be of type 'numeric', not 'character'.")
+    testthat::expect_error(make_q_fn(ps=c(0.0, 0.5, 1.0), qs = c(1, "a", 3)),
+                           "Assertion on 'qs' failed: Must be of type 'numeric', not 'character'.")
+    testthat::expect_error(make_q_fn(ps=c(0.0, 0.5, 1.0), qs = 1:4),
+                           "'ps' and 'qs' must have the same length.")
+})
+
+test_that("make_p_fn and make_q_fn results error with out-of-bounds or incorrectly typed argument", {
+    p_fn <- make_p_fn(ps=c(0.01, 0.5, 0.99), qs = 1:3)
+    testthat::expect_no_error(p_fn(c(0, 1, 5)))
+    testthat::expect_error(p_fn("a"),
+                           "Must be of type 'numeric', not 'character'.")
+
+    q_fn <- make_q_fn(ps=c(0.01, 0.5, 0.99), qs = 1:3)
+    testthat::expect_no_error(q_fn(c(0, 0.5, 1)))
+    testthat::expect_error(q_fn(c(-1, 0.5, 1.0)),
+                           "Assertion on 'p' failed: Element 1 is not >= 0.")
+    testthat::expect_error(q_fn(c(0.0, 0.5, 2.0)),
+                           "Assertion on 'p' failed: Element 3 is not <= 1.")
+    testthat::expect_error(q_fn("a"),
+                           "Must be of type 'numeric', not 'character'.")
+})

@@ -310,8 +310,8 @@ grid_augment_ps_qs <- function(ps, qs, tail_dist, n_grid) {
         function(i) {
             new_q <- seq(from = qs[i], to = qs[i + 1], length = n_grid + 2L)
             return(new_q[2:(n_grid + 1)])
-        }) %>%
-        unlist()
+        })
+    q_grid <- unlist(q_grid)
 
     # evaluate spline-based cdf approximation at new q values, and
     # append to the inputs.
