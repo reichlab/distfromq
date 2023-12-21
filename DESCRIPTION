@@ -3,7 +3,8 @@ Title: Reconstruct a Distribution from a Collection of Quantiles
 Version: 1.0.2
 Authors@R: 
     c(person("Evan", "Ray", , "elray@umass.edu", role = c("aut", "cre")),
-    person("Aaron", "Gerding", , "elray@umass.edu", role = c("aut")))
+    person("Aaron", "Gerding", , "agerding@umass.edu", role = c("aut")),
+    person("Li", "Shandross", , "lshandross@umass.edu", role = c("ctb")))
 Description: Given a set of predictive quantiles from a distribution, estimate
     the distribution and create `d`, `p`, `q`, and `r` functions to evaluate its
     density function, distribution function, and quantile function, and generate
