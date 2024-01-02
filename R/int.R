@@ -1,14 +1,16 @@
 #' Create a polySpline object representing a monotonic Hermite spline
 #' interpolating a given set of points.
 #'
-#' @param x, y: vectors giving the coordinates of the points to be
+#' @param x vector giving the x coordinates of the points to be
 #'       interpolated.  Alternatively a single plotting structure can
 #'       be specified: see ‘xy.coords’.
 #'
-#'       ‘y’ must be increasing or decreasing for ‘method = "hyman"’.
+#' @param y vector giving the y coordinates of the points to be
+#'       interpolated. Must be increasing or decreasing for ‘method = "hyman"’.
+#'       Alternatively a single plotting structure can be specified: see ‘xy.coords’.
 #'
-#'    m: (for ‘splinefunH()’): vector of _slopes_ m[i] at the points
-#'       (x[i],y[i]); these together determine the *H*ermite “spline”
+#' @param m (for ‘splinefunH()’) vector of _slopes_ \eqn{m_i}{m[i]} at the points
+#'       \eqn{(x_i,y_i)}{(x[i],y[i])}; these together determine the *H*ermite “spline”
 #'       which is piecewise cubic, (only) _once_ differentiable
 #'       continuously.
 #'
@@ -32,7 +34,7 @@ mono_Hermite_spline <- function(x, y, m) {
     # Collecting like terms, we arrive at
     # g(d) = y[i] + m[i] t + (-3 y[i] - 2 m[i] + 3 y[i+1] - m[i+1]) t^2
     #        + (2 y[i] + m[i] - 2 y[i+1] + m[i+1]) t^3
-    #      = y[i] + m[i] d / delta[i] 
+    #      = y[i] + m[i] d / delta[i]
     #        + (-3 y[i] - 2 m[i] + 3 y[i+1] - m[i+1]) (d / delta[i])^2
     #        + (2 y[i] + m[i] - 2 y[i+1] + m[i+1]) (d / delta[i])^3
     #      = c0 + c1 * d + c2 * d^2 + c3 * d^3, where
@@ -49,7 +51,7 @@ mono_Hermite_spline <- function(x, y, m) {
     delta <- x_ip1 - x_i
     delta2 <- delta^2
     delta3 <- delta^3
-    
+
     # adjustments to m to ensure monotonicity; see steps 3 through 5 at
     # https://en.wikipedia.org/wiki/Monotone_cubic_interpolation#Monotone_cubic_Hermite_interpolation
     for (i in seq_along(x_i)) {
