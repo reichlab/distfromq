@@ -19,6 +19,8 @@ RoxygenNote: 7.2.3
 Suggests: 
     knitr,
     rmarkdown,
+    dplyr,
+    ggplot2,
     testthat (>= 3.0.0)
 Imports: 
     checkmate,
