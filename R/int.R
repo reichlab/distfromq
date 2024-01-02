@@ -98,13 +98,13 @@ mono_Hermite_spline <- function(x, y, m) {
 #' A factory that returns a function that performs linear interpolation,
 #' allowing for "steps" or discontinuities.
 #'
-#' @param x: numeric vector with the "horizontal axis" coordinates of the points
+#' @param x numeric vector with the "horizontal axis" coordinates of the points
 #'   to interpolate.
-#' @param y: numeric vector with the "vertical axis" coordinates of the points
+#' @param y numeric vector with the "vertical axis" coordinates of the points
 #'   to interpolate.
-#' @param cont_dir: at steps or discontinuities, the direction from which the
+#' @param cont_dir at steps or discontinuities, the direction from which the
 #'   function is continuous. This will be "right" for a cdf or "left" for a qf.
-#' @param increasing: boolean indicating whether the function is increasing or
+#' @param increasing boolean indicating whether the function is increasing or
 #'   decreasing. Only used in the degenerate case where there is only one unique
 #'   value of `x`.
 #'
@@ -216,11 +216,6 @@ step_interp_factory <- function(x, y, cont_dir = c("right", "left"),
 #'   pair of consecutive values in `qs`. The default value is 20. This can
 #'   be set to `NULL`, in which case the piecewise linear approximation is not
 #'   used. This is not recommended if the `fn_type` is `"q"`.
-#' @param tol numeric tolerance for identifying duplicated quantiles indicating
-#'   a discrete component of the distribution. If there is a run of values where
-#'   each consecutive pair is closer together than the tolerance, all are
-#'   labeled as duplicates even if not all values in the run are within the
-#'   tolerance.
 #'
 #' @details The cdf of the continuous part of the distribution is estimated
 #' using a monotonic degree 3 Hermite spline that interpolates the quantiles
@@ -240,6 +235,7 @@ step_interp_factory <- function(x, y, cont_dir = c("right", "left"),
 #' setting `n_grid = NULL`.
 #'
 #' @return a function to evaluate the pdf, cdf, or quantile function.
+#' @rdname spline_cdf
 spline_cdf <- function(ps, qs, tail_dist,
                        fn_type = c("d", "p", "q"),
                        n_grid = 20) {
@@ -252,6 +248,7 @@ spline_cdf <- function(ps, qs, tail_dist,
     }
 }
 
+#' @rdname spline_cdf
 spline_cdf_grid_interp <- function(ps, qs, tail_dist,
                                    fn_type = c("d", "p", "q"),
                                    n_grid = 20) {
@@ -292,6 +289,7 @@ spline_cdf_grid_interp <- function(ps, qs, tail_dist,
 #' intermediate values for qs. n_grid new points are inserted between each
 #' pair of consecutive values in qs, and the corresponding ps are filled in
 #' by evaluating the spline output from `spline_cdf_direct` at the qs grid.
+#' @keywords internal
 grid_augment_ps_qs <- function(ps, qs, tail_dist, n_grid) {
     n_grid <- as.integer(n_grid)
     if (n_grid < 0) {
@@ -327,6 +325,7 @@ grid_augment_ps_qs <- function(ps, qs, tail_dist, n_grid) {
 
 #' Internal function that constructs a monotonic Hermite spline interpolating
 #' ps and qs.
+#' @rdname spline_cdf
 spline_cdf_direct <- function(ps, qs, tail_dist,
                               fn_type = c("d", "p", "q")) {
     # fit a monotonic spline to the qs and ps for the continuous part of the

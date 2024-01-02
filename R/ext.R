@@ -1,6 +1,6 @@
 #' Calculate location and scale parameters for a specified distribution so that
 #' it matches two specified quantiles
-#' 
+#'
 #' @param ps vector of two probability levels at which the distribution's
 #'   quantiles are distinct
 #' @param qs vector of two distinct quantile values corresponding to the
@@ -8,8 +8,8 @@
 #' @param dist the probability distribution to use for extrapolation. This
 #'   distribution should be in a location-scale family, such as `"norm"`al or
 #'   `"cauchy"`
-#' 
-#' @param named list with entries `"a"`, the location parameter, and `"b"`, the
+#'
+#' @return named list with entries `"a"`, the location parameter, and `"b"`, the
 #'   scale parameter
 calc_loc_scale_params <- function(ps, qs, dist) {
     if (dist == "lnorm") {

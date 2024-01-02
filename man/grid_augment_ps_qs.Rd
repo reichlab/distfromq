@@ -15,3 +15,4 @@ intermediate values for qs. n_grid new points are inserted between each
 pair of consecutive values in qs, and the corresponding ps are filled in
 by evaluating the spline output from \code{spline_cdf_direct} at the qs grid.
 }
+\keyword{internal}
