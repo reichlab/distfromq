@@ -27,3 +27,4 @@ Imports:
     zeallot
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+URL: http://reichlab.io/distfromq/
