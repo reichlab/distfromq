@@ -1,3 +1,7 @@
+# distfromq 1.0.3
+
+* Updates to function imports and documentation
+
 # distfromq 1.0.2
 
 * Fix a bug that came up with multiple discrete point masses, where floating point issues could cause adjusted probability levels to fall outside the interval [0, 1].
