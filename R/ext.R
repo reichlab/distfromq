@@ -9,6 +9,8 @@
 #'   distribution should be in a location-scale family, such as `"norm"`al or
 #'   `"cauchy"`
 #'
+#' @importFrom stats qnorm
+#'
 #' @return named list with entries `"a"`, the location parameter, and `"b"`, the
 #'   scale parameter
 calc_loc_scale_params <- function(ps, qs, dist) {
@@ -37,6 +39,8 @@ calc_loc_scale_params <- function(ps, qs, dist) {
 #' @param dist the probability distribution to use for extrapolation. This
 #'   distribution should be in a location-scale family, such as "normal" or
 #'   "Cauchy"
+#'
+#' @importFrom stats dlnorm
 #'
 #' @return a function with parameters `x` and `log` that can be used to
 #'   evaluate the density function (or its log) of the distribution in the
@@ -76,6 +80,8 @@ d_ext_factory <- function(ps, qs, dist) {
 #'   distribution should be in a location-scale family, such as "normal" or
 #'   "Cauchy"
 #'
+#' @importFrom stats plnorm
+#'
 #' @return a function with parameter `x` and `log.p` that can be used to
 #'   evaluate the cumulative distribution function (or its log) of the
 #'   distribution in the specified location-scale family that has quantiles
@@ -109,6 +115,8 @@ p_ext_factory <- function(ps, qs, dist) {
 #' @param dist the probability distribution to use for extrapolation. This
 #'   distribution should be in a location-scale family, such as "normal" or
 #'   "Cauchy"
+#'
+#' @importFrom stats qlnorm
 #'
 #' @return a function with parameter `p` that can be used to evaluate the
 #'   quantile function of the distribution in the specified location-scale

@@ -108,6 +108,8 @@ mono_Hermite_spline <- function(x, y, m) {
 #'   decreasing. Only used in the degenerate case where there is only one unique
 #'   value of `x`.
 #'
+#' @importFrom stats approxfun
+#'
 #' @return a function with argument `x` that performs linear approximation of
 #'   the input data points.
 step_interp_factory <- function(x, y, cont_dir = c("right", "left"),
@@ -249,6 +251,7 @@ spline_cdf <- function(ps, qs, tail_dist,
 }
 
 #' @rdname spline_cdf
+#' @importFrom stats approx
 spline_cdf_grid_interp <- function(ps, qs, tail_dist,
                                    fn_type = c("d", "p", "q"),
                                    n_grid = 20) {
@@ -325,6 +328,7 @@ grid_augment_ps_qs <- function(ps, qs, tail_dist, n_grid) {
 
 #' Internal function that constructs a monotonic Hermite spline interpolating
 #' ps and qs.
+#' @importFrom stats predict
 #' @rdname spline_cdf
 spline_cdf_direct <- function(ps, qs, tail_dist,
                               fn_type = c("d", "p", "q")) {
