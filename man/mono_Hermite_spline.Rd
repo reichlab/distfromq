@@ -8,15 +8,16 @@ interpolating a given set of points.}
 mono_Hermite_spline(x, y, m)
 }
 \arguments{
-\item{x, }{y: vectors giving the coordinates of the points to be
+\item{x}{vector giving the x coordinates of the points to be
 interpolated.  Alternatively a single plotting structure can
-be specified: see ‘xy.coords’.
+be specified: see ‘xy.coords’.}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{  ‘y’ must be increasing or decreasing for ‘method = "hyman"’.
-}\if{html}{\out{</div>}}
+\item{y}{vector giving the y coordinates of the points to be
+interpolated. Must be increasing or decreasing for ‘method = "hyman"’.
+Alternatively a single plotting structure can be specified: see ‘xy.coords’.}
 
-m: (for ‘splinefunH()’): vector of \emph{slopes} m\link{i} at the points
-(x\link{i},y\link{i}); these together determine the \emph{H}ermite “spline”
+\item{m}{(for ‘splinefunH()’) vector of \emph{slopes} \eqn{m_i}{m[i]} at the points
+\eqn{(x_i,y_i)}{(x[i],y[i])}; these together determine the \emph{H}ermite “spline”
 which is piecewise cubic, (only) \emph{once} differentiable
 continuously.}
 }

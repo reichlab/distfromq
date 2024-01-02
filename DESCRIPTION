@@ -1,10 +1,11 @@
 Package: distfromq
 Title: Reconstruct a Distribution from a Collection of Quantiles
-Version: 1.0.2
+Version: 1.0.3
 Authors@R: 
     c(person("Evan", "Ray", , "elray@umass.edu", role = c("aut", "cre")),
     person("Aaron", "Gerding", , "agerding@umass.edu", role = c("aut")),
-    person("Li", "Shandross", , "lshandross@umass.edu", role = c("ctb")))
+    person("Li", "Shandross", , "lshandross@umass.edu", role = c("ctb")),
+    person("Nick", "Reich", , "nick@umass.edu", role = c("ctb")))
 Description: Given a set of predictive quantiles from a distribution, estimate
     the distribution and create `d`, `p`, `q`, and `r` functions to evaluate its
     density function, distribution function, and quantile function, and generate
@@ -19,6 +20,8 @@ RoxygenNote: 7.2.3
 Suggests: 
     knitr,
     rmarkdown,
+    dplyr,
+    ggplot2,
     testthat (>= 3.0.0)
 Imports: 
     checkmate,
@@ -27,3 +30,4 @@ Imports:
     zeallot
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+URL: http://reichlab.io/distfromq/

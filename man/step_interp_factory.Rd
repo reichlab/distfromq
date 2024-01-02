@@ -8,16 +8,16 @@ allowing for "steps" or discontinuities.}
 step_interp_factory(x, y, cont_dir = c("right", "left"), increasing = TRUE)
 }
 \arguments{
-\item{x:}{numeric vector with the "horizontal axis" coordinates of the points
+\item{x}{numeric vector with the "horizontal axis" coordinates of the points
 to interpolate.}
 
-\item{y:}{numeric vector with the "vertical axis" coordinates of the points
+\item{y}{numeric vector with the "vertical axis" coordinates of the points
 to interpolate.}
 
-\item{cont_dir:}{at steps or discontinuities, the direction from which the
+\item{cont_dir}{at steps or discontinuities, the direction from which the
 function is continuous. This will be "right" for a cdf or "left" for a qf.}
 
-\item{increasing:}{boolean indicating whether the function is increasing or
+\item{increasing}{boolean indicating whether the function is increasing or
 decreasing. Only used in the degenerate case where there is only one unique
 value of \code{x}.}
 }

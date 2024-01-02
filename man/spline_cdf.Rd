@@ -2,12 +2,24 @@
 % Please edit documentation in R/int.R
 \name{spline_cdf}
 \alias{spline_cdf}
+\alias{spline_cdf_grid_interp}
+\alias{spline_cdf_direct}
 \title{Approximate density function, cdf, or quantile function on the interior of
 provided quantiles by representing the distribution as a sum of a discrete
 part at any duplicated \code{qs} and a continuous part for which the cdf is
 estimated using a monotonic Hermite spline. See details for more.}
 \usage{
 spline_cdf(ps, qs, tail_dist, fn_type = c("d", "p", "q"), n_grid = 20)
+
+spline_cdf_grid_interp(
+  ps,
+  qs,
+  tail_dist,
+  fn_type = c("d", "p", "q"),
+  n_grid = 20
+)
+
+spline_cdf_direct(ps, qs, tail_dist, fn_type = c("d", "p", "q"))
 }
 \arguments{
 \item{ps}{vector of probability levels}
@@ -25,12 +37,6 @@ to the spline. \code{n_grid} evenly-spaced points are inserted between each
 pair of consecutive values in \code{qs}. The default value is 20. This can
 be set to \code{NULL}, in which case the piecewise linear approximation is not
 used. This is not recommended if the \code{fn_type} is \code{"q"}.}
-
-\item{tol}{numeric tolerance for identifying duplicated quantiles indicating
-a discrete component of the distribution. If there is a run of values where
-each consecutive pair is closer together than the tolerance, all are
-labeled as duplicates even if not all values in the run are within the
-tolerance.}
 }
 \value{
 a function to evaluate the pdf, cdf, or quantile function.
@@ -40,6 +46,9 @@ Approximate density function, cdf, or quantile function on the interior of
 provided quantiles by representing the distribution as a sum of a discrete
 part at any duplicated \code{qs} and a continuous part for which the cdf is
 estimated using a monotonic Hermite spline. See details for more.
+
+Internal function that constructs a monotonic Hermite spline interpolating
+ps and qs.
 }
 \details{
 The cdf of the continuous part of the distribution is estimated

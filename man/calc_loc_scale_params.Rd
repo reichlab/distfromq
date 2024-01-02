@@ -17,9 +17,10 @@ probability levels in ps}
 \item{dist}{the probability distribution to use for extrapolation. This
 distribution should be in a location-scale family, such as \code{"norm"}al or
 \code{"cauchy"}}
-
-\item{named}{list with entries \code{"a"}, the location parameter, and \code{"b"}, the
-scale parameter}
+}
+\value{
+named list with entries \code{"a"}, the location parameter, and \code{"b"}, the
+scale parameter
 }
 \description{
 Calculate location and scale parameters for a specified distribution so that
