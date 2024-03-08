@@ -624,8 +624,7 @@ test_that("make_p_fn result outputs values  <= 1", {
         1.08497918648261, 1.29164188866977)
 
     result <- distfromq::make_p_fn(ps=ps, qs=qs)(25)
-    expect_true(result <= 1)
-    result > 1
+    testthat::expect_true(result <= 1)
 })
 
 
