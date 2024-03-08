@@ -611,6 +611,24 @@ test_that("make_p_fn, make_q_fn well-behaved: multiple duplicates and floating p
 })
 
 
+test_that("make_p_fn result outputs values  <= 1", {
+    ps <- c(0.01, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45,
+        0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.975,
+        0.99)
+    qs <- c(0, 0, 0, 0.103331351093582, 0.206662702187163, 0.258328377733954,
+        0.309994053280745, 0.309994053280745, 0.361659728827535,
+        0.361659728827535, 0.413325404374326, 0.413325404374326,
+        0.413325404374326, 0.464991079921117, 0.464991079921117,
+        0.516656755467908, 0.516656755467908, 0.568322431014698,
+        0.619988106561489, 0.723319457655071, 0.878316484295443,
+        1.08497918648261, 1.29164188866977)
+
+    result <- distfromq::make_p_fn(ps=ps, qs=qs)(25)
+    expect_true(result <= 1)
+    result > 1
+})
+
+
 test_that("make_p_fn and make_q_fn error with out-of-bounds or incorrectly typed ps, qs", {
     testthat::expect_no_error(make_p_fn(ps=c(0.0, 0.5, 1.0), qs = 1:3))
     testthat::expect_error(make_p_fn(ps=c(-1, 0.5, 1.0), qs = 1:3),
