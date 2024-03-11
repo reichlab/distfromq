@@ -272,6 +272,9 @@ make_p_fn <- function(ps, qs,
             result[inds] <- result[inds] + disc_ps[i] * disc_weight
         }
 
+        # ensure result is within interval [0, 1]
+        result <- pmin(pmax(result, 0), 1)
+
         # return, handling log.p argument
         if (log.p_direct) {
             # result is already on log scale
