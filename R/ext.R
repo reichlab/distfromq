@@ -1,3 +1,5 @@
+a <- b <- NULL
+
 #' Calculate location and scale parameters for a specified distribution so that
 #' it matches two specified quantiles
 #'

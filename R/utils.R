@@ -1,3 +1,5 @@
+dup_run_starts <- dup_run_ends <- NULL
+
 #' Identify duplicated values in a sorted numeric vector, where comparison is
 #' up to a specified numeric tolerance. If there is a run of values where each
 #' consecutive pair is closer together than the tolerance, all are labeled as

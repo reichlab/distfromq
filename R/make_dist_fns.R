@@ -4,6 +4,7 @@
 #' @importFrom splines backSpline
 NULL
 
+disc_weight <- disc_ps <- disc_qs <- cont_ps <- cont_qs <- disc_ps_range <- NULL
 
 #' Clean up ps and qs provided by user: handle missing and unsorted values
 #'
