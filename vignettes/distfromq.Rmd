@@ -127,44 +127,45 @@ p_cauchy_approx <- make_p_fn(ps = quantile_probs,
 cdf_cauchy_approx <- p_cauchy_approx(x)
 
 dplyr::bind_rows(
-    data.frame(
-        x = x,
-        y = cdf_lognormal,
-        dist = "Log normal"
-    ),
-    data.frame(
-        x = x,
-        y = cdf_lognormal_approx,
-        dist = "Spline interpolation,\nlog-normal tails"
-    ),
-    data.frame(
-        x = x,
-        y = cdf_normal_approx,
-        dist = "Spline interpolation,\nnormal tails"
-    ),
-    data.frame(
-        x = x,
-        y = cdf_cauchy_approx,
-        dist = "Spline interpolation,\nCauchy tails"
-    )
+  data.frame(
+    x = x,
+    y = cdf_lognormal,
+    dist = "Log normal"
+  ),
+  data.frame(
+    x = x,
+    y = cdf_lognormal_approx,
+    dist = "Spline interpolation,\nlog-normal tails"
+  ),
+  data.frame(
+    x = x,
+    y = cdf_normal_approx,
+    dist = "Spline interpolation,\nnormal tails"
+  ),
+  data.frame(
+    x = x,
+    y = cdf_cauchy_approx,
+    dist = "Spline interpolation,\nCauchy tails"
+  )
 ) %>%
-    ggplot() +
-        geom_line(
-            mapping = aes(x = x, y = y, color = dist, linetype = dist),
-            size = 0.8) +
-        geom_point(
-            data = data.frame(q = q_lognormal, p = quantile_probs),
-            mapping = aes(x = q, y = p),
-            size = 1.2
-        ) +
-        scale_color_viridis_d(
-            "Distribution",
-            end = 0.9
-        ) +
-        scale_linetype_discrete("Distribution") +
-        ylab("Probability") +
-        xlab("") +
-        theme_bw()
+  ggplot() +
+  geom_line(
+    mapping = aes(x = x, y = y, color = dist, linetype = dist),
+    size = 0.8
+  ) +
+  geom_point(
+    data = data.frame(q = q_lognormal, p = quantile_probs),
+    mapping = aes(x = q, y = p),
+    size = 1.2
+  ) +
+  scale_color_viridis_d(
+    "Distribution",
+    end = 0.9
+  ) +
+  scale_linetype_discrete("Distribution") +
+  ylab("Probability") +
+  xlab("") +
+  theme_bw()
 ```
 
 The following illustrates differences in the density estimates.
@@ -188,85 +189,87 @@ pdf_normal_approx <- d_normal_approx(x)
 pdf_cauchy_approx <- d_cauchy_approx(x)
 
 dplyr::bind_rows(
-    data.frame(
-        x = x,
-        y = pdf_lognormal,
-        dist = "Log normal"
-    ),
-    data.frame(
-        x = x,
-        y = pdf_lognormal_approx,
-        dist = "Spline interpolation,\nlog-normal tails"
-    ),
-    data.frame(
-        x = x,
-        y = pdf_normal_approx,
-        dist = "Spline interpolation,\nnormal tails"
-    ),
-    data.frame(
-        x = x,
-        y = pdf_cauchy_approx,
-        dist = "Spline interpolation,\nCauchy tails"
-    )
+  data.frame(
+    x = x,
+    y = pdf_lognormal,
+    dist = "Log normal"
+  ),
+  data.frame(
+    x = x,
+    y = pdf_lognormal_approx,
+    dist = "Spline interpolation,\nlog-normal tails"
+  ),
+  data.frame(
+    x = x,
+    y = pdf_normal_approx,
+    dist = "Spline interpolation,\nnormal tails"
+  ),
+  data.frame(
+    x = x,
+    y = pdf_cauchy_approx,
+    dist = "Spline interpolation,\nCauchy tails"
+  )
 ) %>%
-    ggplot() +
-        geom_vline(
-            data = data.frame(q = q_lognormal),
-            mapping = aes(xintercept = q),
-            size = 0.2
-        ) +
-        geom_line(
-            mapping = aes(x = x, y = y, color = dist, linetype = dist),
-            size = 0.8) +
-        scale_color_viridis_d(
-            "Distribution",
-            end = 0.9
-        ) +
-        scale_linetype_discrete("Distribution") +
-        ylab("Probability Density") +
-        xlab("") +
-        theme_bw()
+  ggplot() +
+  geom_vline(
+    data = data.frame(q = q_lognormal),
+    mapping = aes(xintercept = q),
+    size = 0.2
+  ) +
+  geom_line(
+    mapping = aes(x = x, y = y, color = dist, linetype = dist),
+    size = 0.8
+  ) +
+  scale_color_viridis_d(
+    "Distribution",
+    end = 0.9
+  ) +
+  scale_linetype_discrete("Distribution") +
+  ylab("Probability Density") +
+  xlab("") +
+  theme_bw()
 ```
 
 We emphasize that the density is a step function. We illustrate this by setting the `n_grid` parameter to the artificially low value of 1:
 
 ```{r}
 d_lognormal_approx_n_grid_1 <- make_d_fn(ps = quantile_probs,
-                                qs = q_lognormal,
-                                tail_dist = "lnorm",
-                                interior_args = list(n_grid = 1))
+                                         qs = q_lognormal,
+                                         tail_dist = "lnorm",
+                                         interior_args = list(n_grid = 1))
 
 pdf_lognormal_approx_n_grid_1 <- d_lognormal_approx_n_grid_1(x)
 
 dplyr::bind_rows(
-    data.frame(
-        x = x,
-        y = pdf_lognormal_approx,
-        dist = "Spline interpolation,\n n_grid = 20"
-    ),
-    data.frame(
-        x = x,
-        y = pdf_lognormal_approx_n_grid_1,
-        dist = "Spline interpolation,\n n_grid = 1"
-    )
+  data.frame(
+    x = x,
+    y = pdf_lognormal_approx,
+    dist = "Spline interpolation,\n n_grid = 20"
+  ),
+  data.frame(
+    x = x,
+    y = pdf_lognormal_approx_n_grid_1,
+    dist = "Spline interpolation,\n n_grid = 1"
+  )
 ) %>%
-    ggplot() +
-        geom_vline(
-            data = data.frame(q = q_lognormal),
-            mapping = aes(xintercept = q),
-            size = 0.2
-        ) +
-        geom_line(
-            mapping = aes(x = x, y = y, color = dist),
-            size = 0.8) +
-        scale_color_viridis_d(
-            "Distribution",
-            end = 0.7
-        ) +
-        scale_linetype_discrete("Distribution") +
-        ylab("Probability Density") +
-        xlab("") +
-        theme_bw()
+  ggplot() +
+  geom_vline(
+    data = data.frame(q = q_lognormal),
+    mapping = aes(xintercept = q),
+    size = 0.2
+  ) +
+  geom_line(
+    mapping = aes(x = x, y = y, color = dist),
+    size = 0.8
+  ) +
+  scale_color_viridis_d(
+    "Distribution",
+    end = 0.7
+  ) +
+  scale_linetype_discrete("Distribution") +
+  ylab("Probability Density") +
+  xlab("") +
+  theme_bw()
 ```
 
 We can generate random deviates from the distribution estimates as follows:
@@ -281,43 +284,43 @@ r_lognormal_approx <- make_r_fn(ps = quantile_probs,
 r_cauchy_approx <- make_r_fn(ps = quantile_probs,
                              qs = q_lognormal,
                              tail_dist = "cauchy")
-                             
-normal_approx_sample <- r_normal_approx(n=10000)
-lognormal_approx_sample <- r_lognormal_approx(n=10000)
-cauchy_approx_sample <- r_cauchy_approx(n=10000)
+
+normal_approx_sample <- r_normal_approx(n = 10000)
+lognormal_approx_sample <- r_lognormal_approx(n = 10000)
+cauchy_approx_sample <- r_cauchy_approx(n = 10000)
 
 bind_rows(
-    data.frame(x=normal_approx_sample, dist = "Spline interpolation,\nnormal tails"),
-    data.frame(x=lognormal_approx_sample, dist = "Spline interpolation,\nlog-normal tails"),
-    data.frame(x=cauchy_approx_sample, dist = "Spline interpolation,\nCauchy tails")
+  data.frame(x = normal_approx_sample, dist = "Spline interpolation,\nnormal tails"),
+  data.frame(x = lognormal_approx_sample, dist = "Spline interpolation,\nlog-normal tails"),
+  data.frame(x = cauchy_approx_sample, dist = "Spline interpolation,\nCauchy tails")
 ) %>%
-    ggplot() +
-        geom_density(mapping = aes(x = x, color = dist, linetype = dist)) +
-        scale_color_viridis_d(
-            "Distribution",
-            end = 0.9
-        ) +
-        scale_linetype_discrete("Distribution") +
-        theme_bw()
+  ggplot() +
+  geom_density(mapping = aes(x = x, color = dist, linetype = dist)) +
+  scale_color_viridis_d(
+    "Distribution",
+    end = 0.9
+  ) +
+  scale_linetype_discrete("Distribution") +
+  theme_bw()
 ```
 
 The heavy tails of the Cauchy distribution dominate the display. Here we restrict the range of the horizontal axis:
 
 ```{r}
 bind_rows(
-    data.frame(x=normal_approx_sample, dist = "Spline interpolation,\nnormal tails"),
-    data.frame(x=lognormal_approx_sample, dist = "Spline interpolation,\nlog-normal tails"),
-    data.frame(x=cauchy_approx_sample, dist = "Spline interpolation,\nCauchy tails")
+  data.frame(x = normal_approx_sample, dist = "Spline interpolation,\nnormal tails"),
+  data.frame(x = lognormal_approx_sample, dist = "Spline interpolation,\nlog-normal tails"),
+  data.frame(x = cauchy_approx_sample, dist = "Spline interpolation,\nCauchy tails")
 ) %>%
-    ggplot() +
-        geom_density(mapping = aes(x = x, color = dist, linetype = dist)) +
-        scale_color_viridis_d(
-            "Distribution",
-            end = 0.9
-        ) +
-        scale_linetype_discrete("Distribution") +
-        xlim(-100, 300) +
-        theme_bw()
+  ggplot() +
+  geom_density(mapping = aes(x = x, color = dist, linetype = dist)) +
+  scale_color_viridis_d(
+    "Distribution",
+    end = 0.9
+  ) +
+  scale_linetype_discrete("Distribution") +
+  xlim(-100, 300) +
+  theme_bw()
 ```
 
 Finally, we display quantile function estimates:
@@ -342,39 +345,40 @@ quantiles_cauchy_approx <- q_cauchy_approx(ps)
 
 
 dplyr::bind_rows(
-    data.frame(
-        x = ps,
-        y = quantiles_lognormal,
-        dist = "Log normal"
-    ),
-    data.frame(
-        x = ps,
-        y = quantiles_normal_approx,
-        dist = "Spline interpolation,\nnormal tails"
-    ),
-    data.frame(
-        x = ps,
-        y = quantiles_lognormal_approx,
-        dist = "Spline interpolation,\nlognormal tails"
-    ),
-    data.frame(
-        x = ps,
-        y = quantiles_cauchy_approx,
-        dist = "Spline interpolation,\nCauchy tails"
-    )
+  data.frame(
+    x = ps,
+    y = quantiles_lognormal,
+    dist = "Log normal"
+  ),
+  data.frame(
+    x = ps,
+    y = quantiles_normal_approx,
+    dist = "Spline interpolation,\nnormal tails"
+  ),
+  data.frame(
+    x = ps,
+    y = quantiles_lognormal_approx,
+    dist = "Spline interpolation,\nlognormal tails"
+  ),
+  data.frame(
+    x = ps,
+    y = quantiles_cauchy_approx,
+    dist = "Spline interpolation,\nCauchy tails"
+  )
 ) %>%
-    ggplot() +
-        geom_line(
-            mapping = aes(x = x, y = y, color = dist, linetype = dist),
-            size = 0.8) +
-        scale_color_viridis_d(
-            "Distribution",
-            end = 0.9
-        ) +
-        scale_linetype_discrete("Distribution") +
-        ylab("Quantile") +
-        xlab("Probability Level") +
-        theme_bw()
+  ggplot() +
+  geom_line(
+    mapping = aes(x = x, y = y, color = dist, linetype = dist),
+    size = 0.8
+  ) +
+  scale_color_viridis_d(
+    "Distribution",
+    end = 0.9
+  ) +
+  scale_linetype_discrete("Distribution") +
+  ylab("Quantile") +
+  xlab("Probability Level") +
+  theme_bw()
 ```
 
 ## Example 2: lognormal tails with a point mass at 0
@@ -409,22 +413,23 @@ p_lognormal_approx <- make_p_fn(ps = ps,
 cdf_lognormal_approx <- p_lognormal_approx(x)
 
 data.frame(
-    x = x,
-    y = cdf_lognormal_approx
+  x = x,
+  y = cdf_lognormal_approx
 ) %>%
-    ggplot() +
-        geom_line(
-            mapping = aes(x = x, y = y),
-            size = 0.8) +
-        geom_point(
-            data = data.frame(q = qs, p = ps),
-            mapping = aes(x = q, y = p),
-            size = 1.2
-        ) +
-        ylim(0, 1) +
-        ylab("Probability") +
-        xlab("") +
-        theme_bw()
+  ggplot() +
+  geom_line(
+    mapping = aes(x = x, y = y),
+    size = 0.8
+  ) +
+  geom_point(
+    data = data.frame(q = qs, p = ps),
+    mapping = aes(x = q, y = p),
+    size = 1.2
+  ) +
+  ylim(0, 1) +
+  ylab("Probability") +
+  xlab("") +
+  theme_bw()
 ```
 
 As expected, the quantile function inverts the cdf.
@@ -438,52 +443,54 @@ q_lognormal_approx <- make_q_fn(ps = ps,
 qf_lognormal_approx <- q_lognormal_approx(plot_ps)
 
 data.frame(
-    x = plot_ps,
-    y = qf_lognormal_approx
+  x = plot_ps,
+  y = qf_lognormal_approx
 ) %>%
-    ggplot() +
-        geom_line(
-            mapping = aes(x = x, y = y),
-            size = 0.8) +
-        geom_point(
-            data = data.frame(q = ps, p = qs),
-            mapping = aes(x = q, y = p),
-            size = 1.2
-        ) +
-        xlim(0, 1) +
-        xlab("Probability") +
-        ylab("") +
-        theme_bw()
+  ggplot() +
+  geom_line(
+    mapping = aes(x = x, y = y),
+    size = 0.8
+  ) +
+  geom_point(
+    data = data.frame(q = ps, p = qs),
+    mapping = aes(x = q, y = p),
+    size = 1.2
+  ) +
+  xlim(0, 1) +
+  xlab("Probability") +
+  ylab("") +
+  theme_bw()
 ```
 
 We can verify this by plotting the quantile function estimate with inverted axes on the same display as the cdf estimate:
 
 ```{r}
 dplyr::bind_rows(
-    data.frame(
-        x = x,
-        y = cdf_lognormal_approx,
-        method = "CDF Estimate"
-    ),
-    data.frame(
-        x = qf_lognormal_approx,
-        y = plot_ps,
-        method = "Flipped QF Estimate"
-    )
+  data.frame(
+    x = x,
+    y = cdf_lognormal_approx,
+    method = "CDF Estimate"
+  ),
+  data.frame(
+    x = qf_lognormal_approx,
+    y = plot_ps,
+    method = "Flipped QF Estimate"
+  )
 ) %>%
-    ggplot() +
-        geom_line(
-            mapping = aes(x = x, y = y, color = method, linetype = method),
-            size = 0.8) +
-        geom_point(
-            data = data.frame(q = qs, p = ps),
-            mapping = aes(x = q, y = p),
-            size = 1.2
-        ) +
-        ylim(0, 1) +
-        ylab("Probability") +
-        xlab("") +
-        theme_bw()
+  ggplot() +
+  geom_line(
+    mapping = aes(x = x, y = y, color = method, linetype = method),
+    size = 0.8
+  ) +
+  geom_point(
+    data = data.frame(q = qs, p = ps),
+    mapping = aes(x = q, y = p),
+    size = 1.2
+  ) +
+  ylim(0, 1) +
+  ylab("Probability") +
+  xlab("") +
+  theme_bw()
 
 ```
 
@@ -495,8 +502,8 @@ r_fn <- make_r_fn(ps = ps, qs = qs, tail_dist = "lnorm")
 sampled_values_df <- data.frame(x = r_fn(10000))
 
 ggplot(sampled_values_df) +
-    geom_histogram(mapping = aes(x = x), bins = 100) +
-    theme_bw()
+  geom_histogram(mapping = aes(x = x), bins = 100) +
+  theme_bw()
 
 mean(sampled_values_df$x == 0)
 ```
@@ -569,26 +576,26 @@ As described earlier, we use a piecewise linear representation of the CDF to avo
 
 ```{r}
 p_normal_approx_spline <- make_p_fn(ps = quantile_probs,
-                             qs = quantile_values,
-                             tail_dist = "norm",
-                             interior_args = list(n_grid = NULL))
+                                    qs = quantile_values,
+                                    tail_dist = "norm",
+                                    interior_args = list(n_grid = NULL))
 q_normal_approx_spline <- make_q_fn(ps = quantile_probs,
-                             qs = quantile_values,
-                             tail_dist = "norm",
-                             interior_args = list(n_grid = NULL))
+                                    qs = quantile_values,
+                                    tail_dist = "norm",
+                                    interior_args = list(n_grid = NULL))
 
 x <- seq(from = 0.0, to = 20.0, length = 5001)
 plot_df <- rbind(
-    data.frame(
-        x = x,
-        cdf = p_normal_approx(x),
-        type = "piecewise linear"
-    ),
-    data.frame(
-        x = x,
-        cdf = p_normal_approx_spline(x),
-        type = "spline"
-    )
+  data.frame(
+    x = x,
+    cdf = p_normal_approx(x),
+    type = "piecewise linear"
+  ),
+  data.frame(
+    x = x,
+    cdf = p_normal_approx_spline(x),
+    type = "spline"
+  )
 )
 ggplot() +
   geom_line(data = plot_df,
@@ -600,22 +607,22 @@ ggplot() +
 ```{r}
 ps <- seq(from = 0.0, to = 1.0, length = 5001)
 plot_df <- rbind(
-    data.frame(
-        p = ps,
-        qf = q_normal_approx(ps),
-        type = "piecewise linear"
-    ),
-    data.frame(
-        p = ps,
-        qf = q_normal_approx_spline(ps),
-        type = "spline"
-    )
+  data.frame(
+    p = ps,
+    qf = q_normal_approx(ps),
+    type = "piecewise linear"
+  ),
+  data.frame(
+    p = ps,
+    qf = q_normal_approx_spline(ps),
+    type = "spline"
+  )
 )
 ggplot() +
-    geom_line(data = plot_df,
-              mapping = aes(x = p, y = qf, color = type, linetype = type)) +
-    geom_point(data = data.frame(x = quantile_probs, y = quantile_values),
-               mapping = aes(x = x, y = y))
+  geom_line(data = plot_df,
+            mapping = aes(x = p, y = qf, color = type, linetype = type)) +
+  geom_point(data = data.frame(x = quantile_probs, y = quantile_values),
+             mapping = aes(x = x, y = y))
 ```
 
 We therefore recommend using the piecewise linear representation when using a quantile function or generating random deviates, which uses the quantile function in the background.
@@ -632,29 +639,29 @@ p_normal_approx <- make_p_fn(ps = quantile_probs,
                              qs = quantile_values,
                              tail_dist = "norm")
 p_normal_approx_lin <- make_p_fn(ps = quantile_probs,
-                             qs = quantile_values,
-                             tail_dist = "norm",
-                             interior_args = list(n_grid = 20))
+                                 qs = quantile_values,
+                                 tail_dist = "norm",
+                                 interior_args = list(n_grid = 20))
 q_normal_approx <- make_q_fn(ps = quantile_probs,
                              qs = quantile_values,
                              tail_dist = "norm")
 q_normal_approx_lin <- make_q_fn(ps = quantile_probs,
-                             qs = quantile_values,
-                             tail_dist = "norm",
-                             interior_args = list(n_grid = 20))
+                                 qs = quantile_values,
+                                 tail_dist = "norm",
+                                 interior_args = list(n_grid = 20))
 
 x <- seq(from = 0.0, to = 20.0, length = 5001)
 plot_df <- rbind(
-    data.frame(
-        x = x,
-        cdf = p_normal_approx(x),
-        type = "spline"
-    ),
-    data.frame(
-        x = x,
-        cdf = p_normal_approx_lin(x),
-        type = "piecewise linear"
-    )
+  data.frame(
+    x = x,
+    cdf = p_normal_approx(x),
+    type = "spline"
+  ),
+  data.frame(
+    x = x,
+    cdf = p_normal_approx_lin(x),
+    type = "piecewise linear"
+  )
 )
 ggplot() +
   geom_line(data = plot_df,
@@ -667,20 +674,20 @@ ggplot() +
 ```{r}
 ps <- seq(from = 0.0, to = 1.0, length = 5001)
 plot_df <- rbind(
-    data.frame(
-        p = ps,
-        qf = q_normal_approx(ps),
-        type = "spline"
-    ),
-    data.frame(
-        p = ps,
-        qf = q_normal_approx_lin(ps),
-        type = "piecewise linear"
-    )
+  data.frame(
+    p = ps,
+    qf = q_normal_approx(ps),
+    type = "spline"
+  ),
+  data.frame(
+    p = ps,
+    qf = q_normal_approx_lin(ps),
+    type = "piecewise linear"
+  )
 )
 ggplot() +
-    geom_line(data = plot_df,
-              mapping = aes(x = p, y = qf, color = type, linetype = type)) +
-    geom_point(data = data.frame(x = quantile_probs, y = quantile_values),
-               mapping = aes(x = x, y = y))
+  geom_line(data = plot_df,
+            mapping = aes(x = p, y = qf, color = type, linetype = type)) +
+  geom_point(data = data.frame(x = quantile_probs, y = quantile_values),
+             mapping = aes(x = x, y = y))
 ```
