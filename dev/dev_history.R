@@ -12,7 +12,7 @@ covr::report()
 devtools::test()
 testthat::test_dir("tests/testthat/")
 
-# Run examples 22
+# Run examples
 devtools::run_examples()
 
 # autotest::autotest_package(test = TRUE)
