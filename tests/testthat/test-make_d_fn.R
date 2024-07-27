@@ -56,7 +56,7 @@ test_that("make_d_fn generates error, no continuous component;
 
 
 test_that("make_d_fn generates error, no continuous component;
-two point masses, non-zero, duplicated values second only", {
+          two point masses, non-zero, duplicated values second only", {
             ps <- seq(from = 0.3, to = 0.9, by = 0.1)
             qs <- c(rep(1.0, 1), rep(2.0, 6))
             expect_error(make_d_fn(ps, qs))
