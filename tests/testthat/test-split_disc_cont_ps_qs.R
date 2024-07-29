@@ -91,7 +91,7 @@ test_that("split_disc_cont_ps_qs works, no continuous component;
 
 
 test_that("split_disc_cont_ps_qs works, no continuous component;
-        two point masses, non-zero, duplicated values second only", {
+          two point masses, non-zero, duplicated values second only", {
             ps <- seq(from = 0.3, to = 0.9, by = 0.1)
             qs <- c(rep(1.0, 1), rep(2.0, 6))
             expect_equal(
@@ -231,47 +231,49 @@ test_that("split_disc_cont_ps_qs works, two point masses, both from duplicated q
 })
 
 
-test_that("split_disc_cont_ps_qs works, two point masses, 
-          is_hurdle with one zero and one non-zero with duplicated qs", {
-            # mixture of a LogNormal(0,1) with weight 0.6,
-            # a point mass at 0 with weight 0.3, and a point mass at 1 with weight 0.1
+test_that(
+  "split_disc_cont_ps_qs works, two point masses, is_hurdle with one zero and one non-zero with duplicated qs",
+  {
+    # mixture of a LogNormal(0,1) with weight 0.6,
+    # a point mass at 0 with weight 0.3, and a point mass at 1 with weight 0.1
 
-            # probabilities and quantiles for normal component
-            norm_ps <- seq(from = 0.1, to = 0.9, by = 0.1)
-            norm_qs <- qlnorm(norm_ps)
-            adj_norm_ps <- norm_ps * 0.6 + 0.3 * (norm_qs > 0.0) + 0.1 * (norm_qs > 1.0)
+    # probabilities and quantiles for normal component
+    norm_ps <- seq(from = 0.1, to = 0.9, by = 0.1)
+    norm_qs <- qlnorm(norm_ps)
+    adj_norm_ps <- norm_ps * 0.6 + 0.3 * (norm_qs > 0.0) + 0.1 * (norm_qs > 1.0)
 
-            # probabilities and quantiles for point mass at 0
-            point_ps_0 <- 1.0
-            point_qs_0 <- 0.0
-            adj_point_ps_0 <- 0.3
+    # probabilities and quantiles for point mass at 0
+    point_ps_0 <- 1.0
+    point_qs_0 <- 0.0
+    adj_point_ps_0 <- 0.3
 
-            # probabilities and quantiles for point mass at 1
-            point_ps_1 <- seq(from = 0.0, to = 1.0, by = 0.1)
-            point_qs_1 <- rep(1.0, length(point_ps_1))
-            adj_point_ps_1 <- plnorm(1.0) * 0.6 + 0.3 + point_ps_1 * 0.1
+    # probabilities and quantiles for point mass at 1
+    point_ps_1 <- seq(from = 0.0, to = 1.0, by = 0.1)
+    point_qs_1 <- rep(1.0, length(point_ps_1))
+    adj_point_ps_1 <- plnorm(1.0) * 0.6 + 0.3 + point_ps_1 * 0.1
 
-            ps <- sort(c(adj_norm_ps, adj_point_ps_0, adj_point_ps_1))
-            qs <- sort(c(norm_qs, point_qs_0, point_qs_1))
-            dup_inds <- duplicated(ps)
-            ps <- ps[!dup_inds]
-            qs <- qs[!dup_inds]
+    ps <- sort(c(adj_norm_ps, adj_point_ps_0, adj_point_ps_1))
+    qs <- sort(c(norm_qs, point_qs_0, point_qs_1))
+    dup_inds <- duplicated(ps)
+    ps <- ps[!dup_inds]
+    qs <- qs[!dup_inds]
 
-            expect_equal(
-              split_disc_cont_ps_qs(ps, qs, is_hurdle = TRUE),
-              list(
-                disc_weight = 0.4,
-                disc_ps = c(0.75, 0.25),
-                disc_qs = c(0.0, 1.0),
-                cont_ps = sort(c(norm_ps)),
-                cont_qs = sort(c(norm_qs)),
-                disc_ps_range = list(
-                  c(0.0, 0.3),
-                  range(adj_point_ps_1)
-                )
-              )
-            )
-          })
+    expect_equal(
+      split_disc_cont_ps_qs(ps, qs, is_hurdle = TRUE),
+      list(
+        disc_weight = 0.4,
+        disc_ps = c(0.75, 0.25),
+        disc_qs = c(0.0, 1.0),
+        cont_ps = sort(c(norm_ps)),
+        cont_qs = sort(c(norm_qs)),
+        disc_ps_range = list(
+          c(0.0, 0.3),
+          range(adj_point_ps_1)
+        )
+      )
+    )
+  }
+)
 
 
 test_that("split_disc_cont_ps_qs fails, one discrete component mismatched ps", {

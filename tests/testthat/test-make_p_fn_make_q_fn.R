@@ -139,70 +139,74 @@ test_that("make_p_fn, make_q_fn work, no continuous component; two point masses,
 })
 
 
-test_that("make_p_fn, make_q_fn work, no continuous component;
-          two point masses, non-zero, duplicated values first only", {
-            ps <- seq(from = 0.1, to = 0.4, by = 0.1)
-            qs <- c(rep(1.0, 3), rep(2.0, 1))
+test_that(
+  "make_p_fn, make_q_fn work, no continuous component; two point masses, non-zero, duplicated values first only",
+  {
+    ps <- seq(from = 0.1, to = 0.4, by = 0.1)
+    qs <- c(rep(1.0, 3), rep(2.0, 1))
 
-            test_ps <- sort(c(1 / 3, 1.0, seq(from = 0.01, to = 0.99, by = 0.01)))
-            test_qs <- c(1, 2, qnorm(seq(from = 0.01, to = 0.99, by = 0.01), mean = 1, sd = 2))
+    test_ps <- sort(c(1 / 3, 1.0, seq(from = 0.01, to = 0.99, by = 0.01)))
+    test_qs <- c(1, 2, qnorm(seq(from = 0.01, to = 0.99, by = 0.01), mean = 1, sd = 2))
 
-            p_actual <- make_p_fn(ps, qs)(test_qs)
-            p_expected <- (1 / 3) * as.numeric(test_qs >= 1.0) + (2 / 3) * as.numeric(test_qs >= 2.0)
-            # plot(test_qs, p_actual); lines(test_qs, p_expected)
+    p_actual <- make_p_fn(ps, qs)(test_qs)
+    p_expected <- (1 / 3) * as.numeric(test_qs >= 1.0) + (2 / 3) * as.numeric(test_qs >= 2.0)
+    # plot(test_qs, p_actual); lines(test_qs, p_expected)
 
-            q_actual <- make_q_fn(ps, qs)(test_ps)
-            q_expected <- ifelse(test_ps <= 1 / 3, 1.0, 2.0)
-            # plot(test_ps, q_actual); lines(test_ps, q_expected)
+    q_actual <- make_q_fn(ps, qs)(test_ps)
+    q_expected <- ifelse(test_ps <= 1 / 3, 1.0, 2.0)
+    # plot(test_ps, q_actual); lines(test_ps, q_expected)
 
-            testthat::expect_equal(p_actual, p_expected, tolerance = 1e-3)
-            testthat::expect_true(all(diff(p_actual[order(test_qs)]) >= 0))
+    testthat::expect_equal(p_actual, p_expected, tolerance = 1e-3)
+    testthat::expect_true(all(diff(p_actual[order(test_qs)]) >= 0))
 
-            testthat::expect_equal(q_actual, q_expected, tolerance = 1e-3)
-            testthat::expect_true(all(diff(q_actual[order(test_ps)]) >= 0))
+    testthat::expect_equal(q_actual, q_expected, tolerance = 1e-3)
+    testthat::expect_true(all(diff(q_actual[order(test_ps)]) >= 0))
 
-            testthat::expect_equal(c(rep(1 / 3, sum(test_ps <= 1 / 3)),
-                                     rep(1, sum(test_ps > 1 / 3))),
-                                   make_p_fn(ps, qs)(q_actual),
-                                   tolerance = 1e-3)
-            # Commenting this test out -- fails due to floating point precision
-            # testthat::expect_equal(...,
-            #                        make_q_fn(ps, qs)(p_actual),
-            #                        tolerance = 1e-3)
-          })
+    testthat::expect_equal(c(rep(1 / 3, sum(test_ps <= 1 / 3)),
+                             rep(1, sum(test_ps > 1 / 3))),
+                           make_p_fn(ps, qs)(q_actual),
+                           tolerance = 1e-3)
+    # Commenting this test out -- fails due to floating point precision
+    # testthat::expect_equal(...,
+    #                        make_q_fn(ps, qs)(p_actual),
+    #                        tolerance = 1e-3)
+  }
+)
 
 
-test_that("make_p_fn, make_q_fn work, no continuous component;
-          two point masses, non-zero, duplicated values second only", {
-            ps <- seq(from = 0.3, to = 0.9, by = 0.1)
-            qs <- c(rep(1.0, 1), rep(2.0, 6))
+test_that(
+  "make_p_fn, make_q_fn work, no continuous component; two point masses, non-zero, duplicated values second only",
+  {
+    ps <- seq(from = 0.3, to = 0.9, by = 0.1)
+    qs <- c(rep(1.0, 1), rep(2.0, 6))
 
-            test_ps <- sort(c(1 / 3, 1.0, seq(from = 0.01, to = 0.99, by = 0.01)))
-            test_qs <- c(1, 2, qnorm(seq(from = 0.01, to = 0.99, by = 0.01), mean = 1, sd = 2))
+    test_ps <- sort(c(1 / 3, 1.0, seq(from = 0.01, to = 0.99, by = 0.01)))
+    test_qs <- c(1, 2, qnorm(seq(from = 0.01, to = 0.99, by = 0.01), mean = 1, sd = 2))
 
-            p_actual <- make_p_fn(ps, qs)(test_qs)
-            p_expected <- (1 / 3) * as.numeric(test_qs >= 1.0) + (2 / 3) * as.numeric(test_qs >= 2.0)
-            # plot(test_qs, p_actual); lines(test_qs, p_expected)
+    p_actual <- make_p_fn(ps, qs)(test_qs)
+    p_expected <- (1 / 3) * as.numeric(test_qs >= 1.0) + (2 / 3) * as.numeric(test_qs >= 2.0)
+    # plot(test_qs, p_actual); lines(test_qs, p_expected)
 
-            q_actual <- make_q_fn(ps, qs)(test_ps)
-            q_expected <- ifelse(test_ps <= 1 / 3, 1.0, 2.0)
-            # plot(test_ps, q_actual); lines(test_ps, q_expected)
+    q_actual <- make_q_fn(ps, qs)(test_ps)
+    q_expected <- ifelse(test_ps <= 1 / 3, 1.0, 2.0)
+    # plot(test_ps, q_actual); lines(test_ps, q_expected)
 
-            testthat::expect_equal(p_actual, p_expected, tolerance = 1e-3)
-            testthat::expect_true(all(diff(p_actual[order(test_qs)]) >= 0))
+    testthat::expect_equal(p_actual, p_expected, tolerance = 1e-3)
+    testthat::expect_true(all(diff(p_actual[order(test_qs)]) >= 0))
 
-            testthat::expect_equal(q_actual, q_expected, tolerance = 1e-3)
-            testthat::expect_true(all(diff(q_actual[order(test_ps)]) >= 0))
+    testthat::expect_equal(q_actual, q_expected, tolerance = 1e-3)
+    testthat::expect_true(all(diff(q_actual[order(test_ps)]) >= 0))
 
-            testthat::expect_equal(c(rep(1 / 3, sum(test_ps <= 1 / 3)),
-                                     rep(1, sum(test_ps > 1 / 3))),
-                                   make_p_fn(ps, qs)(q_actual),
-                                   tolerance = 1e-3)
-            # Commenting this test out -- fails due to floating point precision
-            # testthat::expect_equal(...,
-            #                        make_q_fn(ps, qs)(p_actual),
-            #                        tolerance = 1e-3)
-          })
+    testthat::expect_equal(c(rep(1 / 3, sum(test_ps <= 1 / 3)),
+                             rep(1, sum(test_ps > 1 / 3))),
+                           make_p_fn(ps, qs)(q_actual),
+                           tolerance = 1e-3)
+    # Commenting this test out -- fails due to floating point precision
+    # testthat::expect_equal(...,
+    #                        make_q_fn(ps, qs)(p_actual),
+    #                        tolerance = 1e-3)
+  }
+)
 
 
 test_that("make_p_fn, make_q_fn work, no continuous component; is_hurdle with one zero and one non-zero", {
@@ -572,17 +576,19 @@ test_that("make_p_fn, make_q_fn well-behaved with 3 duplicated values, one at ze
 })
 
 
-test_that("make_p_fn, make_q_fn well-behaved: multiple duplicates and
-          floating point issues with discrete adjustments", {
-            ps <- c(.01, .025, seq(.05, .95, by = .05), .975, .99)
-            qs <- c(0, 0, 0, 0, 3, 6, 8, 8, 9, 11, 12, 13, 17, 21, 25, 27, 29, 30, 31, 33, 37, 52, 61)
+test_that(
+  "make_p_fn, make_q_fn well-behaved: multiple duplicates and floating point issues with discrete adjustments",
+  {
+    ps <- c(.01, .025, seq(.05, .95, by = .05), .975, .99)
+    qs <- c(0, 0, 0, 0, 3, 6, 8, 8, 9, 11, 12, 13, 17, 21, 25, 27, 29, 30, 31, 33, 37, 52, 61)
 
-            q_hat <- distfromq:::make_q_fn(ps, qs)
-            testthat::expect_identical(q_hat(c(0.99, 1)), c(61, Inf))
+    q_hat <- distfromq:::make_q_fn(ps, qs)
+    testthat::expect_identical(q_hat(c(0.99, 1)), c(61, Inf))
 
-            p_hat <- distfromq::make_p_fn(ps, qs)
-            testthat::expect_identical(p_hat(c(61, Inf)), c(0.99, 1.0))
-          })
+    p_hat <- distfromq::make_p_fn(ps, qs)
+    testthat::expect_identical(p_hat(c(61, Inf)), c(0.99, 1.0))
+  }
+)
 
 
 test_that("make_p_fn result outputs values  <= 1", {
