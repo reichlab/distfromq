@@ -1,3 +1,5 @@
+a <- b <- NULL
+
 #' Calculate location and scale parameters for a specified distribution so that
 #' it matches two specified quantiles
 #'
@@ -14,18 +16,18 @@
 #' @return named list with entries `"a"`, the location parameter, and `"b"`, the
 #'   scale parameter
 calc_loc_scale_params <- function(ps, qs, dist) {
-    if (dist == "lnorm") {
-        if (any(qs <= 0.0)) {
-            stop("For dist = 'lnorm', all qs must be positive")
-        }
-        qs <- log(qs)
-        qdst <- qnorm
-    } else {
-        qdst <- get(paste0("q", dist))
+  if (dist == "lnorm") {
+    if (any(qs <= 0.0)) {
+      stop("For dist = 'lnorm', all qs must be positive")
     }
-    b <- suppressWarnings((qs[2] - qs[1]) / (qdst(ps[2]) - qdst(ps[1])))
-    a <- suppressWarnings(qs[1] - b * qdst(ps[1]))
-    return(list(a = a, b = b))
+    qs <- log(qs)
+    qdst <- qnorm
+  } else {
+    qdst <- get(paste0("q", dist))
+  }
+  b <- suppressWarnings((qs[2] - qs[1]) / (qdst(ps[2]) - qdst(ps[1])))
+  a <- suppressWarnings(qs[1] - b * qdst(ps[1]))
+  return(list(a = a, b = b))
 }
 
 
@@ -47,25 +49,25 @@ calc_loc_scale_params <- function(ps, qs, dist) {
 #'   specified location-scale family that has quantiles matching those in `ps`
 #'   and `qs`
 d_ext_factory <- function(ps, qs, dist) {
-    c(a, b) %<-% calc_loc_scale_params(ps, qs, dist)
+  c(a, b) %<-% calc_loc_scale_params(ps, qs, dist)
 
-    if (dist == "lnorm") {
-        d_ext <- function(x, log = FALSE) {
-            return(dlnorm(x, meanlog = a, sdlog = b, log = log))
-        }
-    } else {
-        ddst <- get(paste0("d", dist))
-        d_ext <- function(x, log = FALSE) {
-            result <- ddst((x - a) / b, log = TRUE) - log(b)
-            if (log) {
-                return(result)
-            } else {
-                return(exp(result))
-            }
-        }
+  if (dist == "lnorm") {
+    d_ext <- function(x, log = FALSE) {
+      return(dlnorm(x, meanlog = a, sdlog = b, log = log))
     }
+  } else {
+    ddst <- get(paste0("d", dist))
+    d_ext <- function(x, log = FALSE) {
+      result <- ddst((x - a) / b, log = TRUE) - log(b)
+      if (log) {
+        return(result)
+      } else {
+        return(exp(result))
+      }
+    }
+  }
 
-    return(d_ext)
+  return(d_ext)
 }
 
 
@@ -87,21 +89,21 @@ d_ext_factory <- function(ps, qs, dist) {
 #'   distribution in the specified location-scale family that has quantiles
 #'   matching those in `ps` and `qs`
 p_ext_factory <- function(ps, qs, dist) {
-    c(a, b) %<-% calc_loc_scale_params(ps, qs, dist)
+  c(a, b) %<-% calc_loc_scale_params(ps, qs, dist)
 
-    if (dist == "lnorm") {
-        p_ext <- function(q, log.p = FALSE) {
-            return(plnorm(q, meanlog = a, sdlog = b, log.p = log.p))
-        }
-    } else {
-        pdst <- get(paste0("p", dist))
-
-        p_ext <- function(q, log.p = FALSE) {
-            return(pdst((q - a) / b, log.p = log.p))
-        }
+  if (dist == "lnorm") {
+    p_ext <- function(q, log.p = FALSE) {
+      return(plnorm(q, meanlog = a, sdlog = b, log.p = log.p))
     }
+  } else {
+    pdst <- get(paste0("p", dist))
 
-    return(p_ext)
+    p_ext <- function(q, log.p = FALSE) {
+      return(pdst((q - a) / b, log.p = log.p))
+    }
+  }
+
+  return(p_ext)
 }
 
 
@@ -122,25 +124,25 @@ p_ext_factory <- function(ps, qs, dist) {
 #'   quantile function of the distribution in the specified location-scale
 #'   family that has quantiles matching those in `ps` and `qs`
 q_ext_factory <- function(ps, qs, dist) {
-    c(a, b) %<-% calc_loc_scale_params(ps, qs, dist)
+  c(a, b) %<-% calc_loc_scale_params(ps, qs, dist)
 
-    if (dist == "lnorm") {
-        q_ext <- function(p) {
-            return(qlnorm(p, meanlog = a, sdlog = b))
-        }
-    } else {
-        qdst <- get(paste0("q", dist))
-
-        if (b == 0) {
-            q_ext <- function(p) {
-                rep(a, length(p))
-            }
-        } else {
-            q_ext <- function(p) {
-                return(a + b * qdst(p))
-            }
-        }
+  if (dist == "lnorm") {
+    q_ext <- function(p) {
+      return(qlnorm(p, meanlog = a, sdlog = b))
     }
+  } else {
+    qdst <- get(paste0("q", dist))
 
-    return(q_ext)
+    if (b == 0) {
+      q_ext <- function(p) {
+        rep(a, length(p))
+      }
+    } else {
+      q_ext <- function(p) {
+        return(a + b * qdst(p))
+      }
+    }
+  }
+
+  return(q_ext)
 }
