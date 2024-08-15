@@ -74,36 +74,40 @@ test_that("split_disc_cont_ps_qs works, no continuous component; two point masse
 })
 
 
-test_that("split_disc_cont_ps_qs works, no continuous component;
-          two point masses, non-zero, duplicated values first only", {
-            ps <- seq(from = 0.1, to = 0.4, by = 0.1)
-            qs <- c(rep(1.0, 3), rep(2.0, 1))
-            expect_equal(
-              split_disc_cont_ps_qs(ps, qs),
-              list(
-                disc_weight = 1.0,
-                disc_ps = c(3 / 9, 6 / 9), disc_qs = c(1.0, 2.0),
-                cont_ps = numeric(), cont_qs = numeric(),
-                disc_ps_range = list(c(0.0, 3 / 9), c(3 / 9, 1.0))
-              )
-            )
-          })
+test_that(
+  "split_disc_cont_ps_qs works, no continuous component; two point masses, non-zero, duplicated values first only",
+  {
+    ps <- seq(from = 0.1, to = 0.4, by = 0.1)
+    qs <- c(rep(1.0, 3), rep(2.0, 1))
+    expect_equal(
+        split_disc_cont_ps_qs(ps, qs),
+        list(
+        disc_weight = 1.0,
+        disc_ps = c(3 / 9, 6 / 9), disc_qs = c(1.0, 2.0),
+        cont_ps = numeric(), cont_qs = numeric(),
+        disc_ps_range = list(c(0.0, 3 / 9), c(3 / 9, 1.0))
+        )
+    )
+  }
+)
 
 
-test_that("split_disc_cont_ps_qs works, no continuous component;
-          two point masses, non-zero, duplicated values second only", {
-            ps <- seq(from = 0.3, to = 0.9, by = 0.1)
-            qs <- c(rep(1.0, 1), rep(2.0, 6))
-            expect_equal(
-              split_disc_cont_ps_qs(ps, qs),
-              list(
-                disc_weight = 1.0,
-                disc_ps = c(3 / 9, 6 / 9), disc_qs = c(1.0, 2.0),
-                cont_ps = numeric(), cont_qs = numeric(),
-                disc_ps_range = list(c(0.0, 3 / 9), c(3 / 9, 1.0))
-              )
-            )
-          })
+test_that(
+  "split_disc_cont_ps_qs works, no continuous component; two point masses, non-zero, duplicated values second only",
+  {
+    ps <- seq(from = 0.3, to = 0.9, by = 0.1)
+    qs <- c(rep(1.0, 1), rep(2.0, 6))
+    expect_equal(
+        split_disc_cont_ps_qs(ps, qs),
+        list(
+        disc_weight = 1.0,
+        disc_ps = c(3 / 9, 6 / 9), disc_qs = c(1.0, 2.0),
+        cont_ps = numeric(), cont_qs = numeric(),
+        disc_ps_range = list(c(0.0, 3 / 9), c(3 / 9, 1.0))
+        )
+    )
+  }
+)
 
 
 test_that("split_disc_cont_ps_qs works, no continuous component; is_hurdle with one zero and one non-zero", {

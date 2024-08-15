@@ -47,20 +47,24 @@ test_that("make_d_fn generates error, no continuous component; two point masses,
 })
 
 
-test_that("make_d_fn generates error, no continuous component; 
-          two point masses, non-zero, duplicated values first only", {
-            ps <- seq(from = 0.1, to = 0.4, by = 0.1)
-            qs <- c(rep(1.0, 3), rep(2.0, 1))
-            expect_error(make_d_fn(ps, qs))
-          })
+test_that(
+  "make_d_fn generates error, no continuous component; two point masses, non-zero, duplicated values first only",
+  {
+    ps <- seq(from = 0.1, to = 0.4, by = 0.1)
+    qs <- c(rep(1.0, 3), rep(2.0, 1))
+    expect_error(make_d_fn(ps, qs))
+  }
+)
 
 
-test_that("make_d_fn generates error, no continuous component;
-          two point masses, non-zero, duplicated values second only", {
-            ps <- seq(from = 0.3, to = 0.9, by = 0.1)
-            qs <- c(rep(1.0, 1), rep(2.0, 6))
-            expect_error(make_d_fn(ps, qs))
-          })
+test_that(
+  "make_d_fn generates error, no continuous component; two point masses, non-zero, duplicated values second only",
+  {
+    ps <- seq(from = 0.3, to = 0.9, by = 0.1)
+    qs <- c(rep(1.0, 1), rep(2.0, 6))
+    expect_error(make_d_fn(ps, qs))
+  }
+)
 
 
 test_that("make_d_fn generates error, no continuous component; is_hurdle with one zero and one non-zero", {
