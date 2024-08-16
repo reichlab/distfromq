@@ -16,7 +16,7 @@ split_disc_cont_ps_qs(
 \arguments{
 \item{ps}{vector of probability levels}
 
-\item{qs}{vector of quantile values correponding to ps}
+\item{qs}{vector of quantile values corresponding to ps}
 
 \item{dup_tol}{numeric tolerance for identifying duplicated values indicating
 a discrete component of the distribution. If there is a run of values where
@@ -44,11 +44,11 @@ distribution.
 \item \code{disc_qs}: locations of discrete components, corresponding to duplicated
 values in the input \code{qs}. May be \code{numeric(0)} if there are no discrete
 components.
-\item \code{cont_ps}: probability levels for the continous part of the distribution
-\item \code{cont_qs}: quantile values for the continous part of the distribution
+\item \code{cont_ps}: probability levels for the continuous part of the distribution
+\item \code{cont_qs}: quantile values for the continuous part of the distribution
 \item \code{disc_ps_range}: a list of length equal to the number of point masses in
 the discrete distribution. Each entry is a numeric vector of length two
-with the value of the cdf approaching the point mass from the left and
+with the value of the CDF approaching the point mass from the left and
 from the right.
 }
 }

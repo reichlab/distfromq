@@ -15,7 +15,7 @@ to interpolate.}
 to interpolate.}
 
 \item{cont_dir}{at steps or discontinuities, the direction from which the
-function is continuous. This will be "right" for a cdf or "left" for a qf.}
+function is continuous. This will be "right" for a CDF or "left" for a QF.}
 
 \item{increasing}{boolean indicating whether the function is increasing or
 decreasing. Only used in the degenerate case where there is only one unique

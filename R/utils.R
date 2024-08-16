@@ -80,7 +80,7 @@ get_dup_run_inds <- function(dups) {
 #' parts of a distribution.
 #'
 #' @param ps vector of probability levels
-#' @param qs vector of quantile values correponding to ps
+#' @param qs vector of quantile values corresponding to ps
 #' @param dup_tol numeric tolerance for identifying duplicated values indicating
 #'   a discrete component of the distribution. If there is a run of values where
 #'   each consecutive pair is closer together than the tolerance, all are
@@ -103,11 +103,11 @@ get_dup_run_inds <- function(dups) {
 #'   - `disc_qs`: locations of discrete components, corresponding to duplicated
 #'     values in the input `qs`. May be `numeric(0)` if there are no discrete
 #'     components.
-#'   - `cont_ps`: probability levels for the continous part of the distribution
-#'   - `cont_qs`: quantile values for the continous part of the distribution
+#'   - `cont_ps`: probability levels for the continuous part of the distribution
+#'   - `cont_qs`: quantile values for the continuous part of the distribution
 #'   - `disc_ps_range`: a list of length equal to the number of point masses in
 #'     the discrete distribution. Each entry is a numeric vector of length two
-#'     with the value of the cdf approaching the point mass from the left and
+#'     with the value of the CDF approaching the point mass from the left and
 #'     from the right.
 #'
 #' @export
