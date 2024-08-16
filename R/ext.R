@@ -15,6 +15,7 @@ a <- b <- NULL
 #'
 #' @return named list with entries `"a"`, the location parameter, and `"b"`, the
 #'   scale parameter
+#' @noRd
 calc_loc_scale_params <- function(ps, qs, dist) {
   if (dist == "lnorm") {
     if (any(qs <= 0.0)) {
@@ -48,6 +49,7 @@ calc_loc_scale_params <- function(ps, qs, dist) {
 #'   evaluate the density function (or its log) of the distribution in the
 #'   specified location-scale family that has quantiles matching those in `ps`
 #'   and `qs`
+#' @noRd
 d_ext_factory <- function(ps, qs, dist) {
   c(a, b) %<-% calc_loc_scale_params(ps, qs, dist)
 
@@ -88,6 +90,7 @@ d_ext_factory <- function(ps, qs, dist) {
 #'   evaluate the cumulative distribution function (or its log) of the
 #'   distribution in the specified location-scale family that has quantiles
 #'   matching those in `ps` and `qs`
+#' @noRd
 p_ext_factory <- function(ps, qs, dist) {
   c(a, b) %<-% calc_loc_scale_params(ps, qs, dist)
 
@@ -123,6 +126,7 @@ p_ext_factory <- function(ps, qs, dist) {
 #' @return a function with parameter `p` that can be used to evaluate the
 #'   quantile function of the distribution in the specified location-scale
 #'   family that has quantiles matching those in `ps` and `qs`
+#' @noRd
 q_ext_factory <- function(ps, qs, dist) {
   c(a, b) %<-% calc_loc_scale_params(ps, qs, dist)
 
