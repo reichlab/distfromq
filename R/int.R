@@ -2,7 +2,6 @@
 #' interpolating a given set of points.
 #'
 #' @param x vector giving the x coordinates of the points to be interpolated.
-#'   Alternatively a single plotting structure can be specified: see 'xy.coords'.
 #'
 #' @param y vector giving the y coordinates of the points to be interpolated.
 #'   Must be increasing or decreasing for 'method = "hyman"'. Alternatively a
