@@ -4,8 +4,7 @@
 #' @param x vector giving the x coordinates of the points to be interpolated.
 #'
 #' @param y vector giving the y coordinates of the points to be interpolated.
-#'   Must be increasing or decreasing for 'method = "hyman"'. Alternatively a
-#'   single plotting structure can be specified: see 'xy.coords'.
+#'   Must be increasing or decreasing for 'method = "hyman"'.
 #'
 #' @param m (for 'splinefunH()') vector of _slopes_ \eqn{m_i}{m[i]} at the
 #'   points \eqn{(x_i,y_i)}{(x[i],y[i])}; these together determine the
