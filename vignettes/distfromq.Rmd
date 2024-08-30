@@ -82,7 +82,7 @@ Random deviates are obtained by sampling $U \sim \text{Unif}(0,1)$ and then eval
 
 # Illustration of package functionality
 
-We illustrate the package functionality with a series of four examples. The first example is a setting where the distribution is for a continuous random variable with a defined probability density funciton. The remaining examples illustrate the behavior of the functions in settings where the provided quantiles are the same at multiple probability levels or a lognormal distribution is used for tail extrapolation and there is at least one quantile at zero, indicating that there is some discrete component to the distribution.
+We illustrate the package functionality with a series of four examples. The first example is a setting where the distribution is for a continuous random variable with a defined probability density function. The remaining examples illustrate the behavior of the functions in settings where the provided quantiles are the same at multiple probability levels or a lognormal distribution is used for tail extrapolation and there is at least one quantile at zero, indicating that there is some discrete component to the distribution.
 
 ```{r setup}
 library(distfromq)
@@ -402,7 +402,7 @@ ps <- c(point_p, adj_lnorm_ps)
 qs <- c(point_q, lnorm_qs)
 ```
 
-Note that the cdf estimate is zero below 0, jumps to 0.2 at 0, and is continuous thereafter.
+Note that the CDF estimate is zero below 0, jumps to 0.2 at 0, and is continuous thereafter.
 
 ```{r}
 x <- seq(from = -100.0, to = 400.0, length = 501)
@@ -432,7 +432,7 @@ data.frame(
   theme_bw()
 ```
 
-As expected, the quantile function inverts the cdf.
+As expected, the quantile function inverts the CDF.
 
 ```{r}
 plot_ps <- seq(from = 0.00, to = 0.99, by = 0.001)
@@ -462,7 +462,7 @@ data.frame(
   theme_bw()
 ```
 
-We can verify this by plotting the quantile function estimate with inverted axes on the same display as the cdf estimate:
+We can verify this by plotting the quantile function estimate with inverted axes on the same display as the CDF estimate:
 
 ```{r}
 dplyr::bind_rows(

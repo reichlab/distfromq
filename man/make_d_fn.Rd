@@ -19,7 +19,7 @@ make_d_fn(
 \arguments{
 \item{ps}{vector of probability levels}
 
-\item{qs}{vector of quantile values correponding to ps}
+\item{qs}{vector of quantile values corresponding to ps}
 
 \item{interior_method}{method for interpolating the distribution on the
 interior of the provided \code{qs}. This package provides one method for this,
@@ -54,8 +54,8 @@ The default \code{interior_method}, \code{"spline_cdf"}, represents the
 distribution as a sum of a discrete component at any points where there
 are duplicated \code{qs} for multiple different \code{ps} and a continuous component
 that is estimated by using a monotonic cubic spline that interpolates the
-provided \verb{(q, p)} pairs as an estimate of the cdf. The density function is
-then obtained by differentiating this estimate of the cdf.
+provided \verb{(q, p)} pairs as an estimate of the CDF. The density function is
+then obtained by differentiating this estimate of the CDF.
 
 Optionally, the user may provide another function that accepts arguments
 \code{ps}, \code{qs}, \code{tail_dist}, and \code{fn_type} (which will be either \code{"d"}, \code{"p"},

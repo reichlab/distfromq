@@ -2,13 +2,11 @@
 #' interpolating a given set of points.
 #'
 #' @param x vector giving the x coordinates of the points to be interpolated.
-#'   Alternatively a single plotting structure can be specified: see ‘xy.coords’.
 #'
 #' @param y vector giving the y coordinates of the points to be interpolated.
-#'   Must be increasing or decreasing for ‘method = "hyman"’. Alternatively a
-#'   single plotting structure can be specified: see ‘xy.coords’.
+#'   Must be increasing or decreasing for 'method = "hyman"'.
 #'
-#' @param m (for ‘splinefunH()’) vector of _slopes_ \eqn{m_i}{m[i]} at the
+#' @param m (for 'splinefunH()') vector of _slopes_ \eqn{m_i}{m[i]} at the
 #'   points \eqn{(x_i,y_i)}{(x[i],y[i])}; these together determine the
 #'   *H*ermite “spline” which is piecewise cubic, (only) _once_ differentiable
 #'   continuously.
@@ -103,7 +101,7 @@ mono_Hermite_spline <- function(x, y, m) {
 #' @param y numeric vector with the "vertical axis" coordinates of the points
 #'   to interpolate.
 #' @param cont_dir at steps or discontinuities, the direction from which the
-#'   function is continuous. This will be "right" for a cdf or "left" for a qf.
+#'   function is continuous. This will be "right" for a CDF or "left" for a QF.
 #' @param increasing boolean indicating whether the function is increasing or
 #'   decreasing. Only used in the degenerate case where there is only one unique
 #'   value of `x`.
@@ -202,16 +200,16 @@ step_interp_factory <- function(x, y, cont_dir = c("right", "left"),
 }
 
 
-#' Approximate density function, cdf, or quantile function on the interior of
+#' Approximate density function, CDF, or quantile function on the interior of
 #' provided quantiles by representing the distribution as a sum of a discrete
-#' part at any duplicated `qs` and a continuous part for which the cdf is
+#' part at any duplicated `qs` and a continuous part for which the CDF is
 #' estimated using a monotonic Hermite spline. See details for more.
 #'
 #' @param ps vector of probability levels
-#' @param qs vector of quantile values correponding to ps
+#' @param qs vector of quantile values corresponding to ps
 #' @param tail_dist name of parametric distribution for the tails
-#' @param fn_type the type of function that is requested: `"d"` for a pdf,
-#'   `"p"` for a cdf, or `"q"` for a quantile function.
+#' @param fn_type the type of function that is requested: `"d"` for a PDF,
+#'   `"p"` for a CDF, or `"q"` for a quantile function.
 #' @param n_grid grid size to use when augmenting the input `qs` to obtain a
 #'   finer grid of points along which we form a piecewise linear approximation
 #'   to the spline. `n_grid` evenly-spaced points are inserted between each
@@ -219,24 +217,24 @@ step_interp_factory <- function(x, y, cont_dir = c("right", "left"),
 #'   be set to `NULL`, in which case the piecewise linear approximation is not
 #'   used. This is not recommended if the `fn_type` is `"q"`.
 #'
-#' @details The cdf of the continuous part of the distribution is estimated
+#' @details The CDF of the continuous part of the distribution is estimated
 #' using a monotonic degree 3 Hermite spline that interpolates the quantiles
 #' after subtracting the discrete distribution and renormalizing. In theory,
 #' an estimate of the quantile function could be obtained by directly inverting
 #' this spline. However, in practice, we have observed that this can suffer from
 #' numerical problems. Therefore, the default behavior of this function is to
-#' evaluate the "stage 1" cdf estimate corresponding to discrete point masses
-#' plus monotonic spline at a fine grid of points, and use the "stage 2" cdf
+#' evaluate the "stage 1" CDF estimate corresponding to discrete point masses
+#' plus monotonic spline at a fine grid of points, and use the "stage 2" CDF
 #' estimate that linearly interpolates these points with steps at any duplicated
 #' q values. The quantile function estimate is obtained by inverting this
-#' "stage 2" cdf estimate. When the distribution is continuous, we can obtain an
-#' estimate of the pdf by differentiating the cdf estimate, resulting in a
+#' "stage 2" CDF estimate. When the distribution is continuous, we can obtain an
+#' estimate of the PDF by differentiating the CDF estimate, resulting in a
 #' discontinuous "histogram density". The size of the grid can be specified with
 #' the `n_grid` argument. In settings where it is desirable to obtain a
-#' continuous density function, the "stage 1" cdf estimate can be used by
+#' continuous density function, the "stage 1" CDF estimate can be used by
 #' setting `n_grid = NULL`.
 #'
-#' @return a function to evaluate the pdf, cdf, or quantile function.
+#' @return a function to evaluate the PDF, CDF, or quantile function.
 #' @rdname spline_cdf
 spline_cdf <- function(ps, qs, tail_dist,
                        fn_type = c("d", "p", "q"),
@@ -250,7 +248,7 @@ spline_cdf <- function(ps, qs, tail_dist,
   }
 }
 
-#' @rdname spline_cdf
+#' @noRd
 #' @importFrom stats approx
 spline_cdf_grid_interp <- function(ps, qs, tail_dist,
                                    fn_type = c("d", "p", "q"),
@@ -291,6 +289,7 @@ spline_cdf_grid_interp <- function(ps, qs, tail_dist,
 #' pair of consecutive values in qs, and the corresponding ps are filled in
 #' by evaluating the spline output from `spline_cdf_direct` at the qs grid.
 #' @keywords internal
+#' @noRd
 grid_augment_ps_qs <- function(ps, qs, tail_dist, n_grid) {
   n_grid <- as.integer(n_grid)
   if (n_grid < 0) {
@@ -328,14 +327,14 @@ grid_augment_ps_qs <- function(ps, qs, tail_dist, n_grid) {
 #' Internal function that constructs a monotonic Hermite spline interpolating
 #' ps and qs.
 #' @importFrom stats predict
-#' @rdname spline_cdf
+#' @noRd
 spline_cdf_direct <- function(ps, qs, tail_dist,
                               fn_type = c("d", "p", "q")) {
   # fit a monotonic spline to the qs and ps for the continuous part of the
   # distribution to approximate the cdf on the interior
   # the vector m that we assemble here has the target slopes of the spline
   # at each data point (qs[i], ps[i])
-  # on ends, slope of cdf approximation should match tail distribution pdf
+  # on ends, slope of cdf approximation should match tail distribution PDF
   # on interior, slope is the mean of the slopes of the adjacent segments
   # note: there is probably room for improvement for this interior behavior,
   # but this seems to be the standard strategy for monotonic splines

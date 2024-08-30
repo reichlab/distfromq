@@ -9,9 +9,10 @@ disc_weight <- disc_ps <- disc_qs <- cont_ps <- cont_qs <- disc_ps_range <- NULL
 #' Clean up ps and qs provided by user: handle missing and unsorted values
 #'
 #' @param ps vector of probability levels
-#' @param qs vector of quantile values correponding to ps
+#' @param qs vector of quantile values corresponding to ps
 #'
 #' @return named list with entries `ps` and `qs`
+#' @noRd
 clean_ps_and_qs <- function(ps, qs) {
   checkmate::assert_numeric(ps, lower = 0, upper = 1)
   checkmate::assert_numeric(qs)
@@ -40,7 +41,7 @@ clean_ps_and_qs <- function(ps, qs) {
 #' from a set of quantiles of the distribution.
 #'
 #' @param ps vector of probability levels
-#' @param qs vector of quantile values correponding to ps
+#' @param qs vector of quantile values corresponding to ps
 #' @param interior_method method for interpolating the distribution on the
 #'   interior of the provided `qs`. This package provides one method for this,
 #'   `"spline_cdf"`. The user may also provide a custom function; see the
@@ -60,8 +61,8 @@ clean_ps_and_qs <- function(ps, qs) {
 #'   distribution as a sum of a discrete component at any points where there
 #'   are duplicated `qs` for multiple different `ps` and a continuous component
 #'   that is estimated by using a monotonic cubic spline that interpolates the
-#'   provided `(q, p)` pairs as an estimate of the cdf. The density function is
-#'   then obtained by differentiating this estimate of the cdf.
+#'   provided `(q, p)` pairs as an estimate of the CDF. The density function is
+#'   then obtained by differentiating this estimate of the CDF.
 #'
 #'   Optionally, the user may provide another function that accepts arguments
 #'   `ps`, `qs`, `tail_dist`, and `fn_type` (which will be either `"d"`, `"p"`,
@@ -149,7 +150,7 @@ make_d_fn <- function(ps, qs,
 #' from a set of quantiles of the distribution.
 #'
 #' @param ps vector of probability levels
-#' @param qs vector of quantile values correponding to ps
+#' @param qs vector of quantile values corresponding to ps
 #' @param interior_method method for interpolating the distribution on the
 #'   interior of the provided `qs`. This package provides one method for this,
 #'   `"spline_cdf"`. The user may also provide a custom function; see the
@@ -169,7 +170,7 @@ make_d_fn <- function(ps, qs,
 #'   distribution as a sum of a discrete component at any points where there
 #'   are duplicated `qs` for multiple different `ps` and a continuous component
 #'   that is estimated by using a monotonic cubic spline that interpolates the
-#'   provided `(q, p)` pairs as an estimate of the cdf.
+#'   provided `(q, p)` pairs as an estimate of the CDF.
 #'
 #'   Optionally, the user may provide another function that accepts arguments
 #'   `ps`, `qs`, `tail_dist`, and `fn_type` (which will be either `"d"`, `"p"`,
@@ -294,7 +295,7 @@ make_p_fn <- function(ps, qs,
 #' quantiles of the distribution.
 #'
 #' @param ps vector of probability levels
-#' @param qs vector of quantile values correponding to ps
+#' @param qs vector of quantile values corresponding to ps
 #' @param interior_method method for interpolating the distribution on the
 #'   interior of the provided `qs`. This package provides one method for this,
 #'   `"spline_cdf"`. The user may also provide a custom function; see the
@@ -314,8 +315,8 @@ make_p_fn <- function(ps, qs,
 #'   distribution as a sum of a discrete component at any points where there
 #'   are duplicated `qs` for multiple different `ps` and a continuous component
 #'   that is estimated by using a monotonic cubic spline that interpolates the
-#'   provided `(q, p)` pairs as an estimate of the cdf. The quantile function
-#'   is then obtained by inverting this estimate of the cdf.
+#'   provided `(q, p)` pairs as an estimate of the CDF. The quantile function
+#'   is then obtained by inverting this estimate of the CDF.
 #'
 #'   Optionally, the user may provide another function that accepts arguments
 #'   `ps`, `qs`, `tail_dist`, and `fn_type` (which will be either `"d"`, `"p"`,
@@ -443,7 +444,7 @@ make_q_fn <- function(ps, qs,
 #' quantiles of the distribution.
 #'
 #' @param ps vector of probability levels
-#' @param qs vector of quantile values correponding to ps
+#' @param qs vector of quantile values corresponding to ps
 #' @param interior_method method for interpolating the distribution on the
 #'   interior of the provided `qs`. This package provides one method for this,
 #'   `"spline_cdf"`. The user may also provide a custom function; see the
@@ -463,8 +464,8 @@ make_q_fn <- function(ps, qs,
 #'   distribution as a sum of a discrete component at any points where there
 #'   are duplicated `qs` for multiple different `ps` and a continuous component
 #'   that is estimated by using a monotonic cubic spline that interpolates the
-#'   provided `(q, p)` pairs as an estimate of the cdf. The quantile function
-#'   is then obtained by inverting this estimate of the cdf.
+#'   provided `(q, p)` pairs as an estimate of the CDF. The quantile function
+#'   is then obtained by inverting this estimate of the CDF.
 #'
 #'   Optionally, the user may provide another function that accepts arguments
 #'   `ps`, `qs`, `tail_dist`, and `fn_type` (which will be either `"d"`, `"p"`,
