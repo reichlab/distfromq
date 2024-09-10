@@ -3,7 +3,7 @@ pkgdown: 2.1.0
 pkgdown_sha: ~
 articles:
   distfromq: distfromq.html
-last_built: 2024-08-30T15:49Z
+last_built: 2024-09-10T20:28Z
 urls:
   reference: http://reichlab.io/distfromq/reference
   article: http://reichlab.io/distfromq/articles
