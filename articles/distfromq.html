@@ -7,10 +7,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>distfromq • distfromq</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="distfromq">
+<!-- Privacy-friendly analytics by Plausible --><script async src="https://plausible.io/js/pa-DOosbUzSYYO66nV9P5iOt.js"></script><script>
+  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+  plausible.init()
+</script>
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -98,29 +102,29 @@ examples.</p>
 <h2 id="methods-description">Methods description<a class="anchor" aria-label="anchor" href="#methods-description"></a>
 </h2>
 <p>Suppose that we have a collection of pairs
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>q</mi><mi>k</mi></msub><mo>,</mo><msub><mi>τ</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(q_k, \tau_k)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>q</mi><mi>k</mi></msub><mo>,</mo><msub><mi>τ</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(q_k, \tau_k)</annotation></semantics></math>,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>K</mi></mrow><annotation encoding="application/x-tex">k = 1, \ldots, K</annotation></semantics></math>,
 where for each
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>τ</mi><mi>k</mi></msub><mo>=</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>q</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\tau_k = F(q_k)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>τ</mi><mi>k</mi></msub><mo>=</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>q</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\tau_k = F(q_k)</annotation></semantics></math>
 or
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>q</mi><mi>k</mi></msub><mo>=</mo><msup><mi>F</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>τ</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">q_k = F^{-1}(\tau_k)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>q</mi><mi>k</mi></msub><mo>=</mo><msup><mi>F</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mo stretchy="false" form="prefix">(</mo><msub><mi>τ</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">q_k = F^{-1}(\tau_k)</annotation></semantics></math>
 for some distribution with CDF
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>F</mi><annotation encoding="application/x-tex">F</annotation></semantics></math>
 and quantile function
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>F</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><annotation encoding="application/x-tex">F^{-1}</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>F</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><annotation encoding="application/x-tex">F^{-1}</annotation></semantics></math>.
 We allow for the distribution to have regions with no density or with
 discrete point masses, corresponding to regions where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>F</mi><annotation encoding="application/x-tex">F</annotation></semantics></math>
 is flat or has a vertical step. In these instances, the points
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>q</mi><mi>k</mi></msub><mo>,</mo><msub><mi>τ</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(q_k, \tau_k)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>q</mi><mi>k</mi></msub><mo>,</mo><msub><mi>τ</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(q_k, \tau_k)</annotation></semantics></math>
 may fall within the flat region or partway up the vertical step, as will
 be illustrated below. Our goal is to reconstruct an estimate of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>F</mi><annotation encoding="application/x-tex">F</annotation></semantics></math>,
 the corresponding PDF
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>
 (if the distribution is continuous), and the QF
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>F</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><annotation encoding="application/x-tex">F^{-1}</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>F</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><annotation encoding="application/x-tex">F^{-1}</annotation></semantics></math>,
 as well as a method for sampling from the distribution.</p>
 <p>Our approach first splits the provided quantiles into a discrete part
 of the distribution and a continuous part. Then, for the continuous part
@@ -135,23 +139,23 @@ identified in the following cases:
 <ul>
 <li>there are repeated quantiles across different probability levels
 (i.e.,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>q</mi><mi>k</mi></msub><mo>≈</mo><msub><mi>q</mi><mrow><mi>k</mi><mi>′</mi></mrow></msub></mrow><annotation encoding="application/x-tex">q_k \approx q_{k'}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>q</mi><mi>k</mi></msub><mo>≈</mo><msub><mi>q</mi><msup><mi>k</mi><mo>′</mo></msup></msub></mrow><annotation encoding="application/x-tex">q_k \approx q_{k'}</annotation></semantics></math>
 for some indices
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>≠</mo><mi>k</mi><mi>′</mi></mrow><annotation encoding="application/x-tex">k \neq k'</annotation></semantics></math>).
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>≠</mo><msup><mi>k</mi><mo>′</mo></msup></mrow><annotation encoding="application/x-tex">k \neq k'</annotation></semantics></math>).
 In this case, we say that there is a point mass at the value(s) of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>
 that was (were) repeated. The discrete distribution assigns probability
 to each such point
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>
 corresponding to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>max</mo><mrow><mo stretchy="true" form="prefix">(</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>τ</mi><mi>k</mi></msub><mo>:</mo><msub><mi>q</mi><mi>k</mi></msub><mo>≈</mo><mi>q</mi><mo stretchy="false" form="postfix">}</mo><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mo>min</mo><mrow><mo stretchy="true" form="prefix">(</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>τ</mi><mi>k</mi></msub><mo>:</mo><msub><mi>q</mi><mi>k</mi></msub><mo>≈</mo><mi>q</mi><mo stretchy="false" form="postfix">}</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\max(\{\tau_{k}: q_k \approx q\}) - \min(\{\tau_{k}: q_k \approx q\})</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">max</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>τ</mi><mi>k</mi></msub><mo>:</mo><msub><mi>q</mi><mi>k</mi></msub><mo>≈</mo><mi>q</mi><mo stretchy="false" form="postfix">}</mo><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mrow><mi mathvariant="normal">min</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>τ</mi><mi>k</mi></msub><mo>:</mo><msub><mi>q</mi><mi>k</mi></msub><mo>≈</mo><mi>q</mi><mo stretchy="false" form="postfix">}</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\max(\{\tau_{k}: q_k \approx q\}) - \min(\{\tau_{k}: q_k \approx q\})</annotation></semantics></math>.
 The parameter <code>dup_tol</code> controls identification of quantiles
 that are “close enough” to identify a point mass.</li>
 <li>the parametric family to be used for extrapolation into the tails is
 a lognormal distribution and there are one or more quantiles that are
 approximately 0. In this case, we say that there is a point mass at
 zero, with probability equal to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>max</mo><mrow><mo stretchy="true" form="prefix">(</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>τ</mi><mi>k</mi></msub><mo>:</mo><msub><mi>q</mi><mi>k</mi></msub><mo>≈</mo><mn>0</mn><mo stretchy="false" form="postfix">}</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\max(\{\tau_{k}: q_k \approx 0\})</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">max</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>τ</mi><mi>k</mi></msub><mo>:</mo><msub><mi>q</mi><mi>k</mi></msub><mo>≈</mo><mn>0</mn><mo stretchy="false" form="postfix">}</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\max(\{\tau_{k}: q_k \approx 0\})</annotation></semantics></math>.
 The parameter <code>zero_tol</code> controls identification of quantiles
 that are “close enough to zero” to identify a point mass.</li>
 </ul>
@@ -187,18 +191,18 @@ distribution, and renormalizing by the total probability mass associated
 with the discrete distribution. To approximate the CDF of the continuous
 distribution component at interior points, we fit a monotonic cubic
 Hermite spline that interpolates the set of “observations”
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>q</mi><mn>1</mn></msub><mo>,</mo><msub><mi>τ</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mi>…</mi><mo>,</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>q</mi><mi>K</mi></msub><mo>,</mo><msub><mi>τ</mi><mi>K</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{(q_1, \tau_1), \ldots, (q_K, \tau_K)\}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>q</mi><mn>1</mn></msub><mo>,</mo><msub><mi>τ</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>…</mi><mo>,</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>q</mi><mi>K</mi></msub><mo>,</mo><msub><mi>τ</mi><mi>K</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{(q_1, \tau_1), \ldots, (q_K, \tau_K)\}</annotation></semantics></math>
 (where these now denote the adjusted quantiles for the continuous
 distribution component). This spline fit yields a “stage 1” CDF
 estimate,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mover><mi>F</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\hat{F}^{(1)}</annotation></semantics></math>.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mover><mi>F</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\hat{F}^{(1)}</annotation></semantics></math>.</p>
 <p>To address issues with numerical stability in inverting the spline in
 the process of obtaining an estimate of the QF, we evaluate this stage 1
 estimate at a grid of quantile values that are inserted between each
 consecutive pair of input quantiles (the number of new quantile values
 to use is an argument to the functions). We then use a “stage 2” CDF
 estimate that linearly interpolates this augmented grid of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>q</mi><mo>,</mo><mi>τ</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(q, \tau)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>q</mi><mo>,</mo><mi>τ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(q, \tau)</annotation></semantics></math>
 pairs. This behavior can be disabled if desired, though this is not
 recommended.</p>
 </div>
@@ -220,7 +224,7 @@ a quantile of
 can be calculated in terms of the corresponding quantile of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>
 via
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>F</mi><mi>Y</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><mi>τ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo>⋅</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><mi>τ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F_Y^{-1}(\tau) = a + b \cdot F_Z^{-1}(\tau)</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>F</mi><mi>Y</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><mi>τ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo>⋅</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><mi>τ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">F_Y^{-1}(\tau) = a + b \cdot F_Z^{-1}(\tau)</annotation></semantics></math>.
 Using the quantiles at two probability levels
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>τ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\tau_i</annotation></semantics></math>
 and
@@ -228,7 +232,7 @@ and
 we can calculate the value of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
 using</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mrow><msubsup><mi>F</mi><mi>Y</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msubsup><mi>F</mi><mi>Y</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>τ</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><msubsup><mi>F</mi><mi>Z</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>τ</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi><mo>⋅</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo>⋅</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>τ</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><msubsup><mi>F</mi><mi>Z</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>τ</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mi>b</mi><mo>⋅</mo><mfrac><mrow><msubsup><mi>F</mi><mi>Z</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>τ</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><msubsup><mi>F</mi><mi>Z</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>τ</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mi>b</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{align*}
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mfrac><mrow><msubsup><mi>F</mi><mi>Y</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msubsup><mi>F</mi><mi>Y</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>τ</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msubsup><mi>F</mi><mi>Z</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>τ</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi><mo>⋅</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo>⋅</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>τ</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msubsup><mi>F</mi><mi>Z</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>τ</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>b</mi><mo>⋅</mo><mfrac><mrow><msubsup><mi>F</mi><mi>Z</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>τ</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msubsup><mi>F</mi><mi>Z</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>τ</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>b</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{align*}
 \frac{F_Y^{-1}(\tau_i) - F_Y^{-1}(\tau_j)}{F_Z^{-1}(\tau_i) - F_Z^{-1}(\tau_j)} &amp;= \frac{a + b \cdot F_Z^{-1}(\tau_i) - (a + b \cdot F_Z^{-1}(\tau_j))} {F_Z^{-1}(\tau_i) - F_Z^{-1}(\tau_j)} \\
 &amp;= b \cdot \frac{F_Z^{-1}(\tau_i) - F_Z^{-1}(\tau_j)}{F_Z^{-1}(\tau_i) - F_Z^{-1}(\tau_j)} \\
 &amp;= b
@@ -236,14 +240,14 @@ using</p>
 <p>Similarly, we can calculate the value of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
 as</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>F</mi><mi>Y</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>b</mi><mo>⋅</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo>⋅</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>b</mi><mo>⋅</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>a</mi></mrow><annotation encoding="application/x-tex">F_Y^{-1}(\tau_i) - b \cdot F_Z^{-1}(\tau_i) = a + b \cdot F_Z^{-1}(\tau_i) - b \cdot F_Z^{-1}(\tau_i) = a</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>F</mi><mi>Y</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>b</mi><mo>⋅</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo>⋅</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>b</mi><mo>⋅</mo><msubsup><mi>F</mi><mi>Z</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>τ</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>a</mi></mrow><annotation encoding="application/x-tex">F_Y^{-1}(\tau_i) - b \cdot F_Z^{-1}(\tau_i) = a + b \cdot F_Z^{-1}(\tau_i) - b \cdot F_Z^{-1}(\tau_i) = a</annotation></semantics></math></p>
 <p>In the above expressions, we use the two smallest quantiles when
 estimating the lower tail and the two largest quantiles when estimating
 the upper tail. With these choices, by construction the lower tail
 integrates to
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>τ</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\tau_1</annotation></semantics></math>
 on the interval
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mo>−</mo><mi>∞</mi><mo>,</mo><msub><mi>q</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">(-\infty, q_1]</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mi>∞</mi><mo>,</mo><msub><mi>q</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">(-\infty, q_1]</annotation></semantics></math>
 and the upper tail integrates to
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><msub><mi>τ</mi><mi>K</mi></msub></mrow><annotation encoding="application/x-tex">1 - \tau_K</annotation></semantics></math>
 on the interval
@@ -268,9 +272,9 @@ estimate, which is discontinuous and piecewise constant. If this
 presents a challenge, the grid size can be increased or the stage 1 CDF
 estimate used instead.</p>
 <p>Random deviates are obtained by sampling
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>U</mi><mo>∼</mo><mtext mathvariant="normal">Unif</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">U \sim \text{Unif}(0,1)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>U</mi><mo>∼</mo><mtext mathvariant="normal">Unif</mtext><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">U \sim \text{Unif}(0,1)</annotation></semantics></math>
 and then evaluating the approximated quantile function:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>=</mo><msubsup><mi>F</mi><mi>Y</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><mi>U</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">Y = F_Y^{-1}(U)</annotation></semantics></math>.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>=</mo><msubsup><mi>F</mi><mi>Y</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><mi>U</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">Y = F_Y^{-1}(U)</annotation></semantics></math>.</p>
 </div>
 </div>
 <div class="section level2">
@@ -300,7 +304,7 @@ that there is some discrete component to the distribution.</p>
 <h3 id="example-1">Example 1<a class="anchor" aria-label="anchor" href="#example-1"></a>
 </h3>
 <p>In our first example, we work with quantiles from the distribution
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>∼</mo><mtext mathvariant="normal">log normal</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mn>4</mn><mo>,</mo><mn>0.5</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">Y \sim \text{log normal}(4, 0.5)</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>∼</mo><mtext mathvariant="normal">log normal</mtext><mo stretchy="false" form="prefix">(</mo><mn>4</mn><mo>,</mo><mn>0.5</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">Y \sim \text{log normal}(4, 0.5)</annotation></semantics></math>.
 We compare this predictive distribution with three approximations of it
 that are derived from the quantiles using different assumptions for the
 tail behavior:</p>
@@ -382,10 +386,10 @@ than 0), and has a heavier upper tail than the log-normal.</li>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Please use `linewidth` instead.</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once per session.</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">generated.</span></span></span></code></pre></div>
-<p><img src="distfromq_files/figure-html/unnamed-chunk-3-1.png" width="100%"></p>
+<p><img src="distfromq_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="100%"></p>
 <p>The following illustrates differences in the density estimates.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">d_lognormal_approx</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/make_d_fn.html">make_d_fn</a></span><span class="op">(</span>ps <span class="op">=</span> <span class="va">quantile_probs</span>,</span>
@@ -445,7 +449,7 @@ than 0), and has a heavier upper tail than the log-normal.</li>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Probability Density"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">""</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="distfromq_files/figure-html/unnamed-chunk-4-1.png" width="100%"></p>
+<p><img src="distfromq_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="100%"></p>
 <p>We emphasize that the density is a step function. We illustrate this
 by setting the <code>n_grid</code> parameter to the artificially low
 value of 1:</p>
@@ -487,7 +491,7 @@ value of 1:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Probability Density"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">""</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="distfromq_files/figure-html/unnamed-chunk-5-1.png" width="100%"></p>
+<p><img src="distfromq_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="100%"></p>
 <p>We can generate random deviates from the distribution estimates as
 follows:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -518,7 +522,7 @@ follows:</p>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_linetype.html" class="external-link">scale_linetype_discrete</a></span><span class="op">(</span><span class="st">"Distribution"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="distfromq_files/figure-html/unnamed-chunk-6-1.png" width="100%"></p>
+<p><img src="distfromq_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="100%"></p>
 <p>The heavy tails of the Cauchy distribution dominate the display. Here
 we restrict the range of the horizontal axis:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -538,7 +542,7 @@ we restrict the range of the horizontal axis:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: Removed 280 rows containing non-finite outside the scale range</span></span>
 <span><span class="co">#&gt; (`stat_density()`).</span></span></code></pre></div>
-<p><img src="distfromq_files/figure-html/unnamed-chunk-7-1.png" width="100%"></p>
+<p><img src="distfromq_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="100%"></p>
 <p>Finally, we display quantile function estimates:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0.01</span>, to <span class="op">=</span> <span class="fl">0.99</span>, by <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
@@ -594,13 +598,13 @@ we restrict the range of the horizontal axis:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Quantile"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Probability Level"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="distfromq_files/figure-html/unnamed-chunk-8-1.png" width="100%"></p>
+<p><img src="distfromq_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 <div class="section level3">
 <h3 id="example-2-lognormal-tails-with-a-point-mass-at-0">Example 2: lognormal tails with a point mass at 0<a class="anchor" aria-label="anchor" href="#example-2-lognormal-tails-with-a-point-mass-at-0"></a>
 </h3>
 <p>A lognormal distribution specifies that
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>X</mi><mo>≤</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">P(X \leq 0) = 0</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>≤</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">P(X \leq 0) = 0</annotation></semantics></math>,
 i.e., the random variable will always non-negative values. If a
 lognormal tail distribution is used, e.g. to ensure that the
 distribution’s support is non-negative and to capture a long right tail,
@@ -649,7 +653,7 @@ continuous thereafter.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Probability"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">""</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="distfromq_files/figure-html/unnamed-chunk-10-1.png" width="100%"></p>
+<p><img src="distfromq_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="100%"></p>
 <p>As expected, the quantile function inverts the CDF.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0.00</span>, to <span class="op">=</span> <span class="fl">0.99</span>, by <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span></span>
@@ -677,7 +681,7 @@ continuous thereafter.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Probability"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">""</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="distfromq_files/figure-html/unnamed-chunk-11-1.png" width="100%"></p>
+<p><img src="distfromq_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="100%"></p>
 <p>We can verify this by plotting the quantile function estimate with
 inverted axes on the same display as the CDF estimate:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
@@ -707,7 +711,7 @@ inverted axes on the same display as the CDF estimate:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Probability"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">""</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="distfromq_files/figure-html/unnamed-chunk-12-1.png" width="100%"></p>
+<p><img src="distfromq_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="100%"></p>
 <p>Samples from this distribution estimate will include a concentration
 of values at 0:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
@@ -718,7 +722,7 @@ of values at 0:</p>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">sampled_values_df</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span><span class="op">)</span>, bins <span class="op">=</span> <span class="fl">100</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="distfromq_files/figure-html/unnamed-chunk-13-1.png" width="100%"></p>
+<p><img src="distfromq_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="100%"></p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">sampled_values_df</span><span class="op">$</span><span class="va">x</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span></span>
@@ -727,7 +731,8 @@ of values at 0:</p>
 a density estimate:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">d_fn_lnorm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/make_d_fn.html">make_d_fn</a></span><span class="op">(</span>ps <span class="op">=</span> <span class="va">ps</span>, qs <span class="op">=</span> <span class="va">qs</span>, tail_dist <span class="op">=</span> <span class="st">"lnorm"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in make_d_fn(ps = ps, qs = qs, tail_dist = "lnorm"): make_d_fn requires the distribution to be continuous, but a discrete component was detected</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `make_d_fn()`:</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> make_d_fn requires the distribution to be continuous, but a discrete component was detected</span></span></code></pre></div>
 <p>Note that we do not get an error when estimating the density with a
 normal tail distribution, because in this case we are not forced to
 assume that there is a point mass at 0:</p>
@@ -752,7 +757,8 @@ the following example.</p>
 <span><span class="va">d_normal_approx</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/make_d_fn.html">make_d_fn</a></span><span class="op">(</span>ps <span class="op">=</span> <span class="va">quantile_probs</span>,</span>
 <span>                             qs <span class="op">=</span> <span class="va">quantile_values</span>,</span>
 <span>                             tail_dist <span class="op">=</span> <span class="st">"norm"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in make_d_fn(ps = quantile_probs, qs = quantile_values, tail_dist = "norm"): make_d_fn requires the distribution to be continuous, but a discrete component was detected</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `make_d_fn()`:</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> make_d_fn requires the distribution to be continuous, but a discrete component was detected</span></span>
 <span><span class="va">p_normal_approx</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/make_p_fn.html">make_p_fn</a></span><span class="op">(</span>ps <span class="op">=</span> <span class="va">quantile_probs</span>,</span>
 <span>                             qs <span class="op">=</span> <span class="va">quantile_values</span>,</span>
 <span>                             tail_dist <span class="op">=</span> <span class="st">"norm"</span><span class="op">)</span></span>
@@ -770,7 +776,7 @@ the following example.</p>
 <span>            mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">quantile_values</span>, y <span class="op">=</span> <span class="va">quantile_probs</span><span class="op">)</span>,</span>
 <span>             mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="distfromq_files/figure-html/unnamed-chunk-16-1.png" width="100%"></p>
+<p><img src="distfromq_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" alt="" width="100%"></p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0.0</span>, to <span class="op">=</span> <span class="fl">1.0</span>, length <span class="op">=</span> <span class="fl">5001</span><span class="op">)</span></span>
@@ -780,7 +786,7 @@ the following example.</p>
 <span>            mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">p</span>, y <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">quantile_probs</span>, y <span class="op">=</span> <span class="va">quantile_values</span><span class="op">)</span>,</span>
 <span>             mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="distfromq_files/figure-html/unnamed-chunk-16-2.png" width="100%"></p>
+<p><img src="distfromq_files/figure-html/unnamed-chunk-16-2.png" class="r-plt" alt="" width="100%"></p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">samples_normal_approx</span> <span class="op">&lt;-</span> <span class="fu">r_normal_approx</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">10000</span><span class="op">)</span></span>
@@ -849,7 +855,7 @@ quite similar, but the QF estimates can differ substantially.</p>
 <span>            mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">cdf</span>, color <span class="op">=</span> <span class="va">type</span>, linetype <span class="op">=</span> <span class="va">type</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">quantile_values</span>, y <span class="op">=</span> <span class="va">quantile_probs</span><span class="op">)</span>,</span>
 <span>             mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="distfromq_files/figure-html/unnamed-chunk-18-1.png" width="100%"></p>
+<p><img src="distfromq_files/figure-html/unnamed-chunk-18-1.png" class="r-plt" alt="" width="100%"></p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0.0</span>, to <span class="op">=</span> <span class="fl">1.0</span>, length <span class="op">=</span> <span class="fl">5001</span><span class="op">)</span></span>
 <span><span class="va">plot_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
@@ -869,7 +875,7 @@ quite similar, but the QF estimates can differ substantially.</p>
 <span>            mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">p</span>, y <span class="op">=</span> <span class="va">qf</span>, color <span class="op">=</span> <span class="va">type</span>, linetype <span class="op">=</span> <span class="va">type</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">quantile_probs</span>, y <span class="op">=</span> <span class="va">quantile_values</span><span class="op">)</span>,</span>
 <span>             mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="distfromq_files/figure-html/unnamed-chunk-19-1.png" width="100%"></p>
+<p><img src="distfromq_files/figure-html/unnamed-chunk-19-1.png" class="r-plt" alt="" width="100%"></p>
 <p>We therefore recommend using the piecewise linear representation when
 using a quantile function or generating random deviates, which uses the
 quantile function in the background.</p>
@@ -918,7 +924,7 @@ contains all of the tail probability.</p>
 <span>            mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">cdf</span>, color <span class="op">=</span> <span class="va">type</span>, linetype <span class="op">=</span> <span class="va">type</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">quantile_values</span>, y <span class="op">=</span> <span class="va">quantile_probs</span><span class="op">)</span>,</span>
 <span>             mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="distfromq_files/figure-html/unnamed-chunk-20-1.png" width="100%"></p>
+<p><img src="distfromq_files/figure-html/unnamed-chunk-20-1.png" class="r-plt" alt="" width="100%"></p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0.0</span>, to <span class="op">=</span> <span class="fl">1.0</span>, length <span class="op">=</span> <span class="fl">5001</span><span class="op">)</span></span>
 <span><span class="va">plot_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
@@ -938,7 +944,7 @@ contains all of the tail probability.</p>
 <span>            mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">p</span>, y <span class="op">=</span> <span class="va">qf</span>, color <span class="op">=</span> <span class="va">type</span>, linetype <span class="op">=</span> <span class="va">type</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">quantile_probs</span>, y <span class="op">=</span> <span class="va">quantile_values</span><span class="op">)</span>,</span>
 <span>             mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="distfromq_files/figure-html/unnamed-chunk-21-1.png" width="100%"></p>
+<p><img src="distfromq_files/figure-html/unnamed-chunk-21-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -952,7 +958,7 @@ contains all of the tail probability.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

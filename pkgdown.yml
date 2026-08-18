@@ -1,9 +1,9 @@
-pandoc: 3.1.11
-pkgdown: 2.1.0
+pandoc: 3.8.3
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   distfromq: distfromq.html
-last_built: 2024-09-10T20:28Z
+last_built: 2026-08-18T14:05Z
 urls:
   reference: http://reichlab.io/distfromq/reference
   article: http://reichlab.io/distfromq/articles
